@@ -12,9 +12,8 @@ import numpy as np
 from tqdm import tqdm
 
 from datasets import load_dataset
-from lit_llama import Tokenizer
+from lit_llama import Tokenizer, HFTokenizer
 import lit_llama.packed_dataset as packed_dataset
-
 
 sample_ids = [
         "izumi-lab/wikinews-ja-20230728",
@@ -40,8 +39,9 @@ def prepare_for_dataset(
     chunk_size: int,    
 ) -> None:
     destination_path.mkdir(parents=True, exist_ok=True)
-    tokenizer = Tokenizer(tokenizer_path)
-    
+    # tokenizer = Tokenizer(tokenizer_path)    
+    tokenizer = HFTokenizer.from_file(tokenizer_path)
+
     for dataset_id in dataset_ids:
         token_cnt = 0
         print(f"Processing {dataset_ids}")
@@ -73,7 +73,7 @@ def prepare_for_dataset(
 def prepare(
     dataset_ids = sample_ids,
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
-    destination_path: Path = Path("data/jp_data"),
+    destination_path: Path = Path("data/ja_data"),
     chunk_size: int = 2049 * 1024,  # 2048 block size + 1 for causal (from LLama), 1024 blocks
     sample: bool = False,
     match: str = "",
