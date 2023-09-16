@@ -51,7 +51,7 @@ class Tokenizer:
 class HFTokenizer():
     def __init__(self, model_path: Path) -> None:
         from tokenizers import Tokenizer as HFTokenizer
-        self.processor = HFTokenizer.from_file(model_path)        
+        self.processor = HFTokenizer.from_file(str(model_path))
         
         ## ["<PAD>", "<BOS>", "<EOS>", "<UNK>", "<MASK>"]
         ## [0, 1, 2, 3, 4]
