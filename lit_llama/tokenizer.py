@@ -47,3 +47,43 @@ class Tokenizer:
     def train(input: str, destination: str, vocab_size=32000) -> None:
         model_prefix = os.path.join(destination, "tokenizer")
         SentencePieceTrainer.Train(input=input, model_prefix=model_prefix, vocab_size=vocab_size)
+
+class HFTokenizer():
+    def __init__(self, model_path: Path) -> None:
+        from tokenizers import Tokenizer as HFTokenizer
+        self.processor = HFTokenizer.from_file(model_path)        
+        
+        ## ["<PAD>", "<BOS>", "<EOS>", "<UNK>", "<MASK>"]
+        ## [0, 1, 2, 3, 4]
+
+        self.bos_id = 1
+        self.eos_id = 2
+        self.pad_id = 0
+
+    @property
+    def vocab_size(self) -> int:
+        return self.processor.vocab_size()
+
+    def encode(
+        self,
+        string: str,
+        bos: bool = True,
+        eos: bool = False,
+        max_length: int = -1,
+        pad: bool = False,
+        device: Optional[torch.device] = None
+    ) -> torch.Tensor:
+        tokens = self.processor.encode(string).ids
+        if bos:
+            tokens = [self.bos_id] + tokens
+        if eos:
+            tokens = tokens + [self.eos_id]
+        if max_length > 0:
+            tokens = tokens[:max_length]
+        if pad and len(tokens) < max_length:
+            tokens += [self.pad_id] * (max_length - len(tokens))
+
+        return torch.tensor(tokens, dtype=torch.int, device=device)
+
+    def decode(self, tokens: torch.Tensor) -> str:
+        return self.processor.decode(tokens.tolist())
