@@ -40,7 +40,7 @@ def prepare_for_dataset(
 ) -> None:
     destination_path.mkdir(parents=True, exist_ok=True)
     # tokenizer = Tokenizer(tokenizer_path)    
-    tokenizer = HFTokenizer.from_file(tokenizer_path)
+    tokenizer = HFTokenizer(model_path=tokenizer_path)
 
     for dataset_id in dataset_ids:
         token_cnt = 0
