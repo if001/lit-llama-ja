@@ -33,7 +33,7 @@ sample_ids = [
 
 
 def prepare_for_dataset(
-    dataset_ids: Path,
+    dataset_ids: list[str],
     tokenizer_path: Path,
     destination_path: Path,
     chunk_size: int,    
@@ -63,8 +63,15 @@ def prepare_for_dataset(
                 token_cnt += len(text_ids)
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
         else:
+            cnt = 0
             for v in ds:
+                cnt += 1
+                if cnt % 10:
+                    print('debug ', v['text'])
                 text_ids = tokenizer.encode(v['text'])
+                if cnt % 10:
+                    print('debug ', text_ids)
+
                 token_cnt += len(text_ids)
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
         builder.write_reminder()        
