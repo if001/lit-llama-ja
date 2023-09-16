@@ -79,7 +79,7 @@ def prepare(
     match: str = "",
 ) -> None: 
     prepare_for_dataset(
-        source_path=dataset_ids,
+        dataset_ids=dataset_ids,
         tokenizer_path=tokenizer_path,
         destination_path=destination_path,
         chunk_size=chunk_size,
