@@ -77,7 +77,9 @@ data_config = [
     ("wikinews-ja-20230728", 1.0),
     ("wikinews-en-20230728", 1.0),
 ]
-
+data_config = [ 
+    ("wikinews-ja-20230728", 1.0), 
+]
 
 def main(
     devices: int = 4,
