@@ -73,13 +73,9 @@ min_lr = 0.00008
 #     ("wikipedia", 4.5),
 # ]
 data_config = [
-    ("arxiv", 2.5),
-    ("book", 4.5),
-    ("c4", 15.0),
-    ("cc", 67.0),
-    ("github", 4.5),
-    ("stackexchange", 2.0),
-    ("wikipedia", 4.5),
+    ("aozorabunko-clean-sin", 1.0),
+    ("wikinews-ja-20230728", 1.0),
+    ("wikinews-en-20230728", 1.0),
 ]
 
 
