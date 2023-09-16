@@ -64,6 +64,7 @@ def prepare_for_dataset(
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
         else:
             cnt = 0
+            print('ds', ds)
             for v in ds:
                 cnt += 1
                 if cnt % 10:
