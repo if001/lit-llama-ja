@@ -33,22 +33,45 @@ log_interval = 1
 
 # compile = False
 
-# Hyperparameters
-learning_rate = 6e-4
+# # Hyperparameters for 7B
+# learning_rate = 6e-4
+# batch_size = 125
+# micro_batch_size = 5
+# max_iters = 600000  # num_epochs * (epoch_size // micro_batch_size) // devices
+# weight_decay = 1e-1
+# beta1 = 0.9
+# beta2 = 0.95
+# grad_clip = 1.0
+# decay_lr = True
+# warmup_iters = 2000
+# lr_decay_iters = max_iters
+# min_lr = 6e-5
+
+# # Hyperparameters for 49M
+learning_rate = 0.0008
 batch_size = 125
 micro_batch_size = 5
-max_iters = 600000  # num_epochs * (epoch_size // micro_batch_size) // devices
-weight_decay = 1e-1
+max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+weight_decay = 0.1
 beta1 = 0.9
 beta2 = 0.95
 grad_clip = 1.0
 decay_lr = True
 warmup_iters = 2000
 lr_decay_iters = max_iters
-min_lr = 6e-5
+min_lr = 0.00008
 
 
 # Data proportions from https://arxiv.org/pdf/2302.13971.pdf Table 1
+# data_config = [
+#     ("arxiv", 2.5),
+#     ("book", 4.5),
+#     ("c4", 15.0),
+#     ("cc", 67.0),
+#     ("github", 4.5),
+#     ("stackexchange", 2.0),
+#     ("wikipedia", 4.5),
+# ]
 data_config = [
     ("arxiv", 2.5),
     ("book", 4.5),
@@ -64,6 +87,7 @@ def main(
     devices: int = 4,
     train_data_dir: Path = "data/lit-redpajama",
     val_data_dir: Optional[Path] = None,
+    model_size: str = "7B"
 ) -> None:
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -81,7 +105,8 @@ def main(
     if fabric.global_rank == 0:
         os.makedirs(out_dir, exist_ok=True)
 
-    config = LLaMAConfig.from_name("7B")
+    # config = LLaMAConfig.from_name("7B")
+    config = LLaMAConfig.from_name(model_size)
 
     train_dataloader, val_dataloader = create_dataloaders(
         batch_size=micro_batch_size,
