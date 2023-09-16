@@ -75,15 +75,13 @@ def prepare(
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
     destination_path: Path = Path("data/ja_data"),
     chunk_size: int = 2049 * 1024,  # 2048 block size + 1 for causal (from LLama), 1024 blocks
-    sample: bool = False,
-    match: str = "",
+    sample: bool = False    
 ) -> None: 
     prepare_for_dataset(
         dataset_ids=dataset_ids,
         tokenizer_path=tokenizer_path,
         destination_path=destination_path,
         chunk_size=chunk_size,
-        match=match,
     )
 
 if __name__ == "__main__":
