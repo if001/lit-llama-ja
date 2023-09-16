@@ -41,7 +41,7 @@ def prepare_for_dataset(
     destination_path.mkdir(parents=True, exist_ok=True)
     # tokenizer = Tokenizer(tokenizer_path)    
     tokenizer = HFTokenizer(model_path=tokenizer_path)
-
+    total_token_cnt = 0
     for dataset_id in dataset_ids:
         token_cnt = 0
         print(f"Processing {dataset_ids}")
@@ -67,9 +67,11 @@ def prepare_for_dataset(
                 text_ids = tokenizer.encode(v['text'])
                 token_cnt += len(text_ids)
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
-        builder.write_reminder()
+        builder.write_reminder()        
         print('tokens ', token_cnt)
-
+        total_token_cnt += token_cnt
+    print('total tokens', total_token_cnt)
+    
 def prepare(
     dataset_ids = sample_ids,
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
