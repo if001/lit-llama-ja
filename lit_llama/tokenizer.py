@@ -62,7 +62,7 @@ class HFTokenizer():
 
     @property
     def vocab_size(self) -> int:
-        return self.processor.vocab_size()
+        return self.processor.get_vocab_size()
 
     def encode(
         self,
