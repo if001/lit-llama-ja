@@ -134,7 +134,7 @@ def main(
         torch.set_default_dtype(torch.float16)
         model = LLaMA(config)
         model.apply(model._init_weights)
-        # torch.set_default_dtype(torch.float32)
+        torch.set_default_dtype(torch.float32)
 
     # if compile:
     #     model = torch.compile(model)
