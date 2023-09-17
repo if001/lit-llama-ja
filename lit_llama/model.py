@@ -110,7 +110,7 @@ class LLaMA(nn.Module):
             mask = self.mask_cache[:, :, :T, :T]
             print('use cache done')
 
-        print('wte: ', idx)
+        print('wte: ', idx.size())
         # forward the model itself
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
         print('wte doen: ', x.size())

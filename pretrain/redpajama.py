@@ -112,6 +112,7 @@ def main(
 
     # config = LLaMAConfig.from_name("7B")
     config = LLaMAConfig.from_name(model_size)
+    config.debug()
 
     train_dataloader, val_dataloader = create_dataloaders(
         batch_size=micro_batch_size,
