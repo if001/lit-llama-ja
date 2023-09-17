@@ -130,12 +130,10 @@ def main(
         train_dataloader, val_dataloader = fabric.setup_dataloaders(train_dataloader, val_dataloader)
 
     with fabric.device:
-        # torch.set_default_dtype(torch.bfloat16)
-        # torch.set_default_dtype(torch.float16)
+        # torch.set_default_dtype(torch.bfloat16)        
         print('dtype: ', torch.get_default_dtype())
         model = LLaMA(config)
         model.apply(model._init_weights)
-        print('dtype2: ', torch.get_default_dtype())
         # torch.set_default_dtype(torch.float32)
 
     # if compile:
