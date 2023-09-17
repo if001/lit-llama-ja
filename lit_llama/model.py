@@ -92,51 +92,38 @@ class LLaMA(nn.Module):
         assert max_seq_length <= block_size, f"Cannot attend to {max_seq_length}, block size is only {block_size}"
         assert T <= block_size, f"Cannot forward sequence of length {T}, block size is only {block_size}"
 
-        if self.rope_cache is None:
-            print('build rope cache')
+        if self.rope_cache is None:            
             self.rope_cache = self.build_rope_cache(idx)
         if self.mask_cache is None:
-            print('build mask cache')
             self.mask_cache = self.build_mask_cache(idx)
 
         if input_pos is not None:
             rope = self.rope_cache.index_select(0, input_pos)
             mask = self.mask_cache.index_select(2, input_pos)
             mask = mask[:, :, :, :max_seq_length]
-        else:
-            print('use cache')
+        else:            
             rope = self.rope_cache[:T]
             mask = self.mask_cache[:, :, :T, :T]
-            print('use cache done')
 
-        print('wte: ', idx.size())
         # forward the model itself
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
-        print('wte doen: ', x.size())
         if input_pos is None:  # proxy for use_cache=False
             for block in self.transformer.h:
                 x, _ = block(x, rope, mask, max_seq_length)
         else:
-            if not self.kv_caches:
-                print('use kv_cache')
+            if not self.kv_caches:                
                 head_size = self.config.n_embd // self.config.n_head
                 cache_shape = (B, self.config.n_head, max_seq_length, head_size)
                 self.kv_caches = [
                     (torch.zeros(cache_shape, device=x.device, dtype=x.dtype), torch.zeros(cache_shape, device=x.device, dtype=x.dtype))
                     for _ in range(self.config.n_layer)
-                ]
-                print('use kv_cache done')
+                ]                
             for i, block in enumerate(self.transformer.h):
-                print('run block')
                 x, self.kv_caches[i] = block(x, rope, mask, max_seq_length, input_pos, self.kv_caches[i])
-                print('run block done')
 
-        print('transformer start', x.size())
         x = self.transformer.ln_f(x)
 
-        print('head start', x.size())
         logits = self.lm_head(x)  # (b, t, vocab_size)
-        print('-'*200)
         return logits
 
     @classmethod
@@ -184,7 +171,6 @@ class Block(nn.Module):
         x = x + h
         x = x + self.mlp(self.rms_2(x))
 
-        print('block', x.size())
         return x, new_kv_cache
 
 
@@ -253,7 +239,6 @@ class CausalSelfAttention(nn.Module):
 
         # output projection
         y = self.c_proj(y)
-        print('atten: ', y.size())
         return y, kv_cache
 
 
@@ -271,7 +256,6 @@ class MLP(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = F.silu(self.c_fc1(x)) * self.c_fc2(x)
         x = self.c_proj(x)
-        print('MLP', x.size())
         return x
 
 
