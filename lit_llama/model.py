@@ -174,7 +174,7 @@ class Block(nn.Module):
         x = x + h
         x = x + self.mlp(self.rms_2(x))
 
-        print('block', x.size(), new_kv_cache.size())
+        print('block', x.size())
         return x, new_kv_cache
 
 
