@@ -36,19 +36,18 @@ class LLaMAConfig:
     @classmethod
     def from_name(cls, name: str) -> Self:
         return cls(**llama_configs[name])
-    
-    @classmethod
-    def debug(cls):
-        print('block_size: ', cls.block_size)
-        print('vocab_size: ', cls.vocab_size)
-        print('padded_vocab_size: ', cls.padded_vocab_size)
-        print('n_layer: ', cls.n_layer)
-        print('n_head: ', cls.n_head)
-        print('n_embd: ', cls.n_embd)
+        
+    def debug(self):
+        print('block_size: ', self.block_size)
+        print('vocab_size: ', self.vocab_size)
+        print('padded_vocab_size: ', self.padded_vocab_size)
+        print('n_layer: ', self.n_layer)
+        print('n_head: ', self.n_head)
+        print('n_embd: ', self.n_embd)
 
 llama_configs = {
     "19M": dict(n_layer=6, n_head=8, n_embd=512, vocab_size=35000),
-    "49M": dict(n_layer=10, n_head=10, n_embd=640),
+    "49M": dict(n_layer=10, n_head=10, n_embd=640, vocab_size=35000),
     "7B": dict(n_layer=32, n_head=32, n_embd=4096),
     "13B": dict(n_layer=40, n_head=40, n_embd=5120),
     "30B": dict(n_layer=60, n_head=52, n_embd=6656),
