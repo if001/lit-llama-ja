@@ -94,9 +94,9 @@ def main(
         auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True
     )
 
-    fabric = L.Fabric(
-        accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy
-    )
+    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-mixed", strategy=strategy)
+    
     fabric.launch()
     fabric.seed_everything(1337)
 
@@ -121,6 +121,7 @@ def main(
 
     with fabric.device:
         # torch.set_default_dtype(torch.bfloat16)
+        torch.set_default_dtype(torch.float16)
         model = LLaMA(config)
         model.apply(model._init_weights)
         torch.set_default_dtype(torch.float32)
