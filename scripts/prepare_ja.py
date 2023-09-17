@@ -68,7 +68,7 @@ def prepare_for_dataset(
                 text_ids = tokenizer.encode(v['text'])
                 token_cnt += len(text_ids)
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
-        builder.write_reminder()        
+        builder.write_reminder()
         print('tokens ', token_cnt)
         total_token_cnt += token_cnt
     print('total tokens', total_token_cnt)
