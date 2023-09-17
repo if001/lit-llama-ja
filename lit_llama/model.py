@@ -36,7 +36,15 @@ class LLaMAConfig:
     @classmethod
     def from_name(cls, name: str) -> Self:
         return cls(**llama_configs[name])
-
+    
+    @classmethod
+    def debug(cls):
+        print('block_size: ', cls.block_size)
+        print('vocab_size: ', cls.vocab_size)
+        print('padded_vocab_size: ', cls.padded_vocab_size)
+        print('n_layer: ', cls.n_layer)
+        print('n_head: ', cls.n_head)
+        print('n_embd: ', cls.n_embd)
 
 llama_configs = {
     "19M": dict(n_layer=6, n_head=8, n_embd=512),
@@ -165,6 +173,8 @@ class Block(nn.Module):
         h, new_kv_cache = self.attn(self.rms_1(x), rope, mask, max_seq_length, input_pos, kv_cache)
         x = x + h
         x = x + self.mlp(self.rms_2(x))
+
+        print('block', x.size(), new_kv_cache.size())
         return x, new_kv_cache
 
 
@@ -233,7 +243,7 @@ class CausalSelfAttention(nn.Module):
 
         # output projection
         y = self.c_proj(y)
-
+        print('atten: ', y.size())
         return y, kv_cache
 
 
@@ -251,6 +261,7 @@ class MLP(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = F.silu(self.c_fc1(x)) * self.c_fc2(x)
         x = self.c_proj(x)
+        print('MLP', x.size())
         return x
 
 
