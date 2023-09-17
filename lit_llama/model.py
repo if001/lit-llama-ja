@@ -94,8 +94,10 @@ class LLaMA(nn.Module):
         assert T <= block_size, f"Cannot forward sequence of length {T}, block size is only {block_size}"
 
         if self.rope_cache is None:
+            print('build rope cache')
             self.rope_cache = self.build_rope_cache(idx)
         if self.mask_cache is None:
+            print('build mask cache')
             self.mask_cache = self.build_mask_cache(idx)
 
         if input_pos is not None:
@@ -103,8 +105,10 @@ class LLaMA(nn.Module):
             mask = self.mask_cache.index_select(2, input_pos)
             mask = mask[:, :, :, :max_seq_length]
         else:
+            print('use cache')
             rope = self.rope_cache[:T]
             mask = self.mask_cache[:, :, :T, :T]
+            print('use cache done')
 
         # forward the model itself
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
