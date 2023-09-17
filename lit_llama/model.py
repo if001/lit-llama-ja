@@ -110,9 +110,10 @@ class LLaMA(nn.Module):
             mask = self.mask_cache[:, :, :T, :T]
             print('use cache done')
 
+        print('wte: ', idx)
         # forward the model itself
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
-
+        print('wte doen: ', x.size())
         if input_pos is None:  # proxy for use_cache=False
             for block in self.transformer.h:
                 x, _ = block(x, rope, mask, max_seq_length)
