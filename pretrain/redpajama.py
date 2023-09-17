@@ -103,7 +103,7 @@ def main(
                                  )
     strategy = 'ddp'
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="32", strategy=strategy)
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     
     fabric.launch()
     fabric.seed_everything(1337)
