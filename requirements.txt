@@ -8,3 +8,4 @@ bitsandbytes  # quantization.py
 datasets  # evaluate.py
 zstandard  # prepare_redpajama.py
 tokenizers
+deepspeed

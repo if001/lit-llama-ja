@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Tuple, Optional
 
 import lightning as L
-from lightning.fabric.strategies import FSDPStrategy
+from lightning.fabric.strategies import FSDPStrategy, DeepSpeedStrategy
 
 import torch
 from torch.utils.data import DataLoader
@@ -93,8 +93,14 @@ def main(
     strategy = FSDPStrategy(
         auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True
     )
-    strategy = "deepspeed"
-
+    strategy = DeepSpeedStrategy(stage=1, 
+                                 allgather_partitions=True, 
+                                 allgather_bucket_size=500000000,
+                                 overlap_comm=True,
+                                 reduce_scatter=True,
+                                 reduce_bucket_size=500000000,
+                                 contiguous_gradients=True,
+                                 )
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-mixed", strategy=strategy)
     
