@@ -133,7 +133,7 @@ def main(
         torch.set_default_dtype(torch.float16)
         model = LLaMA(config)
         model.apply(model._init_weights)
-        torch.set_default_dtype(torch.float32)
+        # torch.set_default_dtype(torch.float32)
 
     # if compile:
     #     model = torch.compile(model)
@@ -149,7 +149,7 @@ def main(
     model, optimizer = fabric.setup(model, optimizer)
 
     process_batch_size = batch_size // devices
-    gradient_accumulation_iters = process_batch_size // micro_batch_size
+    gradient_accumulation_iters = process_batch_size // micro_batch_size    
 
     train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices)
 
