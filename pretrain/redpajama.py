@@ -93,6 +93,7 @@ def main(
     strategy = FSDPStrategy(
         auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True
     )
+    strategy = "deepspeed"
 
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-mixed", strategy=strategy)
