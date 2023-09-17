@@ -83,7 +83,7 @@ class LLaMA(nn.Module):
 
     def forward(
         self, idx: torch.Tensor, max_seq_length: Optional[int] = None, input_pos: Optional[torch.Tensor] = None
-    ) -> Union[torch.Tensor, Tuple[torch.Tensor, List[KVCache]]]:
+    ) -> Union[torch.Tensor, Tuple[torch.Tensor, List[KVCache]]]:        
         B, T = idx.size()
 
         block_size = self.config.block_size
@@ -118,19 +118,25 @@ class LLaMA(nn.Module):
                 x, _ = block(x, rope, mask, max_seq_length)
         else:
             if not self.kv_caches:
+                print('use kv_cache')
                 head_size = self.config.n_embd // self.config.n_head
                 cache_shape = (B, self.config.n_head, max_seq_length, head_size)
                 self.kv_caches = [
                     (torch.zeros(cache_shape, device=x.device, dtype=x.dtype), torch.zeros(cache_shape, device=x.device, dtype=x.dtype))
                     for _ in range(self.config.n_layer)
                 ]
+                print('use kv_cache done')
             for i, block in enumerate(self.transformer.h):
+                print('run block')
                 x, self.kv_caches[i] = block(x, rope, mask, max_seq_length, input_pos, self.kv_caches[i])
+                print('run block done')
 
+        print('transformer start', x.size())
         x = self.transformer.ln_f(x)
 
+        print('head start', x.size())
         logits = self.lm_head(x)  # (b, t, vocab_size)
-
+        print('-'*200)
         return logits
 
     @classmethod
