@@ -31,6 +31,15 @@ sample_ids = [
         'if001/aozorabunko-clean-sin'
 ]
 
+def format_number(num):
+    if abs(num) >= 10**12:  # Trillion
+        return "{:.2f}T".format(num / 10**12)
+    elif abs(num) >= 10**9:  # Billion
+        return "{:.2f}B".format(num / 10**9)
+    elif abs(num) >= 10**6:  # Million
+        return "{:.2f}M".format(num / 10**6)
+    else:
+        return str(num)
 
 def prepare_for_dataset(
     dataset_ids: list[str],
@@ -69,9 +78,9 @@ def prepare_for_dataset(
                 token_cnt += len(text_ids)
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
         builder.write_reminder()
-        print('tokens ', token_cnt)
+        print('tokens ', format_number(token_cnt))
         total_token_cnt += token_cnt
-    print('total tokens', total_token_cnt)
+    print('total tokens', format_number(total_token_cnt))
     
 def prepare(
     dataset_ids = sample_ids,
