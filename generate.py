@@ -11,7 +11,7 @@ import torch
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
-from lit_llama import LLaMA, Tokenizer
+from lit_llama import LLaMA, Tokenizer, HFTokenizer
 from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 
 
@@ -135,7 +135,9 @@ def main(
     model.eval()
     model = fabric.setup(model)
 
-    tokenizer = Tokenizer(tokenizer_path)
+    # tokenizer = Tokenizer(tokenizer_path)
+    tokenizer = HFTokenizer(tokenizer_path)
+
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
     prompt_length = encoded.size(0)
 
