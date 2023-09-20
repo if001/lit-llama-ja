@@ -30,8 +30,8 @@ from lit_llama.utils import save_model_checkpoint
 # eval_interval = 1000
 # eval_iters = 100
 # log_interval = 1
-save_interval = 500
-eval_interval = 500
+save_interval = 1000
+eval_interval = 100
 eval_iters = 100
 log_interval = 100
 
