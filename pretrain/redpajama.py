@@ -25,7 +25,7 @@ from lit_llama.packed_dataset import PackedDataset, CombinedDataset
 from lit_llama.utils import save_model_checkpoint
 
 
-out_dir = "out/training"
+# out_dir = "out/training"
 save_interval = 1000
 eval_interval = 1000
 eval_iters = 100
@@ -51,7 +51,8 @@ log_interval = 1
 learning_rate = 0.0008
 batch_size = 125
 micro_batch_size = 5
-max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+max_iters = 80000  # num_epochs * (epoch_size // micro_batch_size) // devices
+# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
 weight_decay = 0.1
 beta1 = 0.9
 beta2 = 0.95
@@ -78,14 +79,19 @@ data_config = [
     ("wikinews-en-20230728", 1.0),
 ]
 data_config = [ 
-    ("wikinews-ja-20230728", 1.0), 
+    ('wikipedia-ja-20230720', 1.0),
+    ('wikipedia-en-20230720', 1.0),
+    ('open-text-books', 1.0),
+    ('oscar_2023_filtered', 1.0),
+    ('aozorabunko-clean-sin',1.0)
 ]
 
 def main(
     devices: int = 4,
     train_data_dir: Path = "data/lit-redpajama",
     val_data_dir: Optional[Path] = None,
-    model_size: str = "7B"
+    model_size: str = "7B",
+    out_dir: str = "out/training"
 ) -> None:
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -115,6 +121,7 @@ def main(
     # config = LLaMAConfig.from_name("7B")
     config = LLaMAConfig.from_name(model_size)
     config.debug()
+    print('out_dir: ', out_dir)
 
     train_dataloader, val_dataloader = create_dataloaders(
         batch_size=micro_batch_size,
@@ -152,7 +159,7 @@ def main(
     process_batch_size = batch_size // devices
     gradient_accumulation_iters = process_batch_size // micro_batch_size    
 
-    train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices)
+    train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir)
 
 
 def train(
@@ -163,6 +170,7 @@ def train(
     val_dataloader: Optional[DataLoader],
     grad_accum_steps: int,
     devices: int,
+    out_dir: str
 ) -> None:
     """The training loop.
 
