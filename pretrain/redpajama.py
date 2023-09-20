@@ -279,6 +279,8 @@ def validate(
             logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
         )
         losses[k] = loss.item()
+        if k >= eval_iters:
+            break
     out = losses.mean()
     model.train()
     return out
