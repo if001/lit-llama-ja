@@ -272,6 +272,8 @@ def validate(
     model.eval()
     losses = torch.zeros(eval_iters)
     for k, val_data in enumerate(val_dataloader):
+        if k >= eval_iters:
+            break
         input_ids = val_data[:, 0 : model.config.block_size].contiguous()
         targets = val_data[:, 1 : model.config.block_size + 1].contiguous()
         logits = model(input_ids)
@@ -279,8 +281,6 @@ def validate(
             logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
         )
         losses[k] = loss.item()
-        if k >= eval_iters:
-            break
     out = losses.mean()
     model.train()
     return out
