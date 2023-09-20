@@ -122,6 +122,7 @@ def main(
     config = LLaMAConfig.from_name(model_size)
     config.debug()
     print('out_dir: ', out_dir)
+    print('val data dir:', val_data_dir)
 
     train_dataloader, val_dataloader = create_dataloaders(
         batch_size=micro_batch_size,
@@ -131,6 +132,9 @@ def main(
         val_data_dir=val_data_dir,
         seed=1338,
     )
+    if val_dataloader is None:
+        print('val data is None...')
+    
     if val_dataloader is None:
         train_dataloader = fabric.setup_dataloaders(train_dataloader)
     else:
@@ -218,7 +222,9 @@ def train(
 
             if val_dataloader is not None and step_count % eval_interval == 0:
                 val_loss = validate(fabric, model, val_dataloader)
+                print('-'*100)
                 fabric.print(f"step {iter_num}: val loss {val_loss:.4f}")
+                print('-'*100)
                 fabric.barrier()
                 fabric.log_dict(
                     {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}
