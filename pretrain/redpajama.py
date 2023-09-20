@@ -26,10 +26,14 @@ from lit_llama.utils import save_model_checkpoint
 
 
 # out_dir = "out/training"
-save_interval = 1000
-eval_interval = 1000
+# save_interval = 1000
+# eval_interval = 1000
+# eval_iters = 100
+# log_interval = 1
+save_interval = 500
+eval_interval = 500
 eval_iters = 100
-log_interval = 1
+log_interval = 100
 
 # compile = False
 
@@ -73,12 +77,12 @@ min_lr = 0.00008
 #     ("stackexchange", 2.0),
 #     ("wikipedia", 4.5),
 # ]
-data_config = [
-    ("aozorabunko-clean-sin", 1.0),
+val_data_config = [
+    # ("aozorabunko-clean-sin", 1.0),
     ("wikinews-ja-20230728", 1.0),
     ("wikinews-en-20230728", 1.0),
 ]
-data_config = [ 
+train_data_config = [ 
     ('wikipedia-ja-20230720', 1.0),
     ('wikipedia-en-20230720', 1.0),
     ('open-text-books', 1.0),
@@ -285,6 +289,7 @@ def create_dataloader(
     block_size: int,
     data_dir: str,
     fabric,
+    data_config: str,
     shuffle: bool = True,
     seed: int = 12345,
 ) -> DataLoader:
@@ -328,6 +333,7 @@ def create_dataloaders(
         block_size=effective_block_size,
         fabric=fabric,
         data_dir=train_data_dir,
+        data_config=train_data_config,
         shuffle=True,
         seed=seed,
     )
@@ -337,6 +343,7 @@ def create_dataloaders(
             block_size=effective_block_size,
             fabric=fabric,
             data_dir=val_data_dir,
+            data_config=val_data_config,
             shuffle=False,
             seed=seed,
         )
