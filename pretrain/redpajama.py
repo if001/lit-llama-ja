@@ -33,7 +33,7 @@ from lit_llama.utils import save_model_checkpoint
 save_interval = 1000
 eval_interval = 100
 eval_iters = 100
-log_interval = 100
+log_interval = 1000
 
 # compile = False
 
@@ -106,12 +106,18 @@ def main(
         auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True
     )
     strategy = DeepSpeedStrategy(stage=1, 
+                                 zero_optimization=True,
                                  allgather_partitions=True, 
                                  allgather_bucket_size=500000000,
                                  overlap_comm=True,
                                  reduce_scatter=True,
-                                 reduce_bucket_size=500000000,
+                                 reduce_bucket_size=500000000,                                 
                                  contiguous_gradients=True,
+                                 initial_scale_power=12,                                
+                                 loss_scale=0,
+                                 loss_scale_window=1000,
+                                 hysteresis=2,
+                                 min_loss_scale=1
                                  )
     # strategy = 'ddp'
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
