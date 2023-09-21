@@ -111,7 +111,7 @@ def main(
                                  reduce_bucket_size=500000000,
                                  contiguous_gradients=True,
                                  )
-    strategy = 'ddp'
+    # strategy = 'ddp'
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-mixed", strategy=strategy)
