@@ -53,8 +53,10 @@ log_interval = 100
 
 # # Hyperparameters for 49M
 learning_rate = 0.0008
-batch_size = 125
-micro_batch_size = 5
+# batch_size = 125
+batch_size = 128
+# micro_batch_size = 5
+micro_batch_size = 2
 # max_iters = 80000  # num_epochs * (epoch_size // micro_batch_size) // devices
 max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
 weight_decay = 0.1
@@ -218,7 +220,7 @@ def train(
         t1 = time.time()
 
         if not is_accumulating:
-            fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
+            # fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
 
             optimizer.step()
             optimizer.zero_grad()
