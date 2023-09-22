@@ -33,7 +33,7 @@ from lit_llama.utils import save_model_checkpoint
 save_interval = 1000
 eval_interval = 100
 eval_iters = 100
-log_interval = 1000
+log_interval = 500
 
 # compile = False
 
@@ -117,7 +117,7 @@ def main(
                                  loss_scale=0,
                                  loss_scale_window=1000,
                                  hysteresis=2,
-                                 min_loss_scale=1
+                                 min_loss_scale=0.5
                                  )
     # strategy = 'ddp'
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
