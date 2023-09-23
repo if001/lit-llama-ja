@@ -47,15 +47,15 @@ def save_model_checkpoint(fabric, model, file_path):
     """
     file_path = Path(file_path)
 
-    if isinstance(fabric.strategy, DeepSpeedStrategy):
-        from deepspeed.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
+    # if isinstance(fabric.strategy, DeepSpeedStrategy):
+    #     from deepspeed.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
 
-        fabric.save(file_path, {"model": model})
-        fabric.barrier()
-        # if fabric.global_rank == 0:
-        #     # Create a consolidated checkpoint with the same name next to the deepspeed checkpoint
-        #     convert_zero_checkpoint_to_fp32_state_dict(file_path, file_path.with_suffix(".pth"))
-        return
+    #     fabric.save(file_path, {"model": model})
+    #     fabric.barrier()
+    #     # if fabric.global_rank == 0:
+    #     #     # Create a consolidated checkpoint with the same name next to the deepspeed checkpoint
+    #     #     convert_zero_checkpoint_to_fp32_state_dict(file_path, file_path.with_suffix(".pth"))
+    #     return
 
     if isinstance(fabric.strategy, FSDPStrategy):
         save_policy = FullStateDictConfig(offload_to_cpu=(fabric.world_size > 1), rank0_only=True)
