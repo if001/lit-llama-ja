@@ -179,7 +179,7 @@ def main(
         print('load from checkpoint...', load_dir)
         checkpoint = torch.load(load_dir)
         model.load_state_dict(checkpoint)
-        fabric.load(load_dir, {"model": model, "optimizer": optimizer})
+        # fabric.load(load_dir, {"model": model, "optimizer": optimizer})
 
     process_batch_size = batch_size // devices
     gradient_accumulation_iters = process_batch_size // micro_batch_size    
