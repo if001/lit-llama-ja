@@ -22,7 +22,7 @@ sys.path.append(str(wd))
 
 from lit_llama.model import Block, LLaMA, LLaMAConfig
 from lit_llama.packed_dataset import PackedDataset, CombinedDataset
-from lit_llama.utils import save_model_checkpoint
+from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fabric
 
 
 # out_dir = "out/training"
@@ -100,7 +100,8 @@ def main(
     val_data_dir: Optional[Path] = None,
     model_size: str = "7B",
     out_dir: str = "out/training",
-    load_dir: Optional[str] = None
+    load_dir: Optional[str] = None,
+    restart_iter: int = 0
 ) -> None:
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -161,6 +162,11 @@ def main(
         model = LLaMA(config)
         model.apply(model._init_weights)
         # torch.set_default_dtype(torch.float32)
+        if load_dir:
+            print('load from checkpoint...', load_dir)
+            checkpoint = torch.load(load_dir)
+            model.load_state_dict(checkpoint)
+            # fabric.load(load_dir, {"model": model, "optimizer": optimizer})
 
     # if compile:
     #     model = torch.compile(model)
@@ -173,20 +179,14 @@ def main(
         foreach=False,
     )
 
-    model, optimizer = fabric.setup(model, optimizer)
-
-    if load_dir:
-        print('load from checkpoint...', load_dir)
-        checkpoint = torch.load(load_dir)
-        model.load_state_dict(checkpoint)
-        # fabric.load(load_dir, {"model": model, "optimizer": optimizer})
+    model, optimizer = fabric.setup(model, optimizer)   
 
     process_batch_size = batch_size // devices
     gradient_accumulation_iters = process_batch_size // micro_batch_size    
 
-    train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir)
+    train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir, restart_iter)
     fabric.print(f"Saving checkpoint to {out_dir}")
-    save_model_checkpoint(fabric, model, os.path.join(out_dir, f"iter-{max_iters:06d}-ckpt.pth"))
+    save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{max_iters:06d}-ckpt.pth")
                 
 
 def train(
@@ -197,7 +197,8 @@ def train(
     val_dataloader: Optional[DataLoader],
     grad_accum_steps: int,
     devices: int,
-    out_dir: str
+    out_dir: str,
+    restart_iter: int = 0
 ) -> None:
     """The training loop.
 
@@ -212,6 +213,7 @@ def train(
     prev_t1 = time.time()
 
     for iter_num, train_data in enumerate(train_dataloader):
+        iter_num = iter_num + restart_iter
         t0 = time.time()
 
         # determine and set the learning rate for this iteration
@@ -254,9 +256,11 @@ def train(
                 )
 
             if step_count % save_interval == 0:
+                fabric.print("-"*200)
                 fabric.print(f"Saving checkpoint to {out_dir}")
-                save_model_checkpoint(
-                    fabric, model, os.path.join(out_dir, f"iter-{iter_num:06d}-ckpt.pth")
+                fabric.print("-"*200)                
+                save_model_checkpoint_with_fabric(
+                    fabric, model, out_dir, f"iter-{iter_num:06d}-ckpt.pth"
                 )
 
         dt = t1 - t0

@@ -1,5 +1,6 @@
 """Utility functions for training and inference."""
 
+import os
 import functools
 import pickle
 import warnings
@@ -51,6 +52,35 @@ def save_model_checkpoint(fabric, model, file_path):
     if isinstance(fabric.strategy, DeepSpeedStrategy):
         from deepspeed.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
         fabric_dir = Path(f"{file_path}/fabric")        
+        fabric.save(fabric_dir, {"model": model})
+        fabric.barrier()
+        if fabric.global_rank == 0:
+            # Create a consolidated checkpoint with the same name next to the deepspeed checkpoint
+            convert_zero_checkpoint_to_fp32_state_dict(fabric_dir, fabric_dir.with_suffix(".pth"))
+        return
+
+    if isinstance(fabric.strategy, FSDPStrategy):
+        save_policy = FullStateDictConfig(offload_to_cpu=(fabric.world_size > 1), rank0_only=True)
+        with FSDP.state_dict_type(model, StateDictType.FULL_STATE_DICT, save_policy):
+            state_dict = model._forward_module.state_dict()
+    else:
+        state_dict = model.state_dict()
+
+    if fabric.global_rank == 0:
+        torch.save(state_dict, file_path)        
+    fabric.barrier()
+
+def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
+    """Handles boilerplate logic for retrieving and saving the state_dict.
+    
+    This will be upstreamed to Fabric soon.
+    """
+    file_path = os.path.join(out_dir, file_name)
+    file_path = Path(file_path)
+
+    if isinstance(fabric.strategy, DeepSpeedStrategy):
+        from deepspeed.utils.zero_to_fp32 import convert_zero_checkpoint_to_fp32_state_dict
+        fabric_dir = Path(f"{out_dir}/fabric")
         fabric.save(fabric_dir, {"model": model})
         fabric.barrier()
         if fabric.global_rank == 0:
