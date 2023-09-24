@@ -96,7 +96,7 @@ def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
         state_dict = model.state_dict()
 
     if fabric.global_rank == 0:
-        torch.save(state_dict, file_path)        
+        torch.save(state_dict, file_path)
         fabric_dir = Path(f"{out_dir}/fabric")
         fabric.save(fabric_dir, {"model": model})
     fabric.barrier()
