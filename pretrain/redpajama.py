@@ -32,6 +32,7 @@ from lit_llama.utils import save_model_checkpoint
 # log_interval = 1
 
 save_interval = 1000
+save_interval = 100
 eval_interval = 100
 eval_iters = 100
 log_interval = 500
@@ -98,7 +99,8 @@ def main(
     train_data_dir: Path = "data/lit-redpajama",
     val_data_dir: Optional[Path] = None,
     model_size: str = "7B",
-    out_dir: str = "out/training"
+    out_dir: str = "out/training",
+    load_dir: Optional[str] = None
 ) -> None:
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -124,7 +126,7 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
-    
+
     fabric.launch()
     fabric.seed_everything(1337)
 
@@ -172,6 +174,12 @@ def main(
     )
 
     model, optimizer = fabric.setup(model, optimizer)
+
+    if load_dir:
+        print('load from checkpoint...', load_dir)
+        checkpoint = torch.load(load_dir)
+        model.load_state_dict(checkpoint)
+        fabric.load(load_dir, {"model": model, "optimizer": optimizer})
 
     process_batch_size = batch_size // devices
     gradient_accumulation_iters = process_batch_size // micro_batch_size    
