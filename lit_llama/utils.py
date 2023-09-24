@@ -18,6 +18,7 @@ from torch.serialization import normalize_storage_type
 llama_model_sizes = {
     512: "19M",  # 19M n_embd=512
     640: "49M",  # 49M n_embd=640
+    780: "125M",  # 49M n_embd=640
     4096: "7B",  # 7B n_embd=4096
     5120: "13B",  # 13B n_embd=5120
     6656: "30B",  # 30B n_embd=6656
