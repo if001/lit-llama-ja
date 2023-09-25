@@ -11,7 +11,7 @@ import torch.nn as nn
 from lightning_utilities.core.imports import RequirementCache
 from typing_extensions import Self
 
-from lit_llama.config_llama2 import Config
+from lit_llama.config_llama2 import Llama2Config as Config
 
 FlashAttention2Available = bool(RequirementCache("flash-attn>=2.0.0.post1"))
 
