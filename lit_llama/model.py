@@ -13,12 +13,14 @@ from torch.nn import functional as F
 from typing_extensions import Self
 
 from lit_llama.utils import find_multiple
+from lightning_utilities.core.imports import RequirementCache
 
 
 MaskCache = torch.Tensor
 RoPECache = torch.Tensor
 KVCache = Tuple[torch.Tensor, torch.Tensor]
 
+FlashAttention2Available = bool(RequirementCache("flash-attn>=2.0.0.post1"))
 
 @dataclass
 class LLaMAConfig:
@@ -48,7 +50,7 @@ class LLaMAConfig:
 llama_configs = {
     "19M": dict(n_layer=6, n_head=8, n_embd=512, vocab_size=35000),
     "49M": dict(n_layer=10, n_head=10, n_embd=640, vocab_size=35000),
-    "125M": dict(n_layer=12, n_head=10, n_embd=780, vocab_size=35000),
+    "125M": dict(n_layer=12, n_head=10, n_embd=780, vocab_size=35000, rope_condense_ratio=4),
     "7B": dict(n_layer=32, n_head=32, n_embd=4096),
     "13B": dict(n_layer=40, n_head=40, n_embd=5120),
     "30B": dict(n_layer=60, n_head=52, n_embd=6656),
@@ -67,7 +69,7 @@ class LLaMA(nn.Module):
             dict(
                 wte=nn.Embedding(config.padded_vocab_size, config.n_embd),
                 h=nn.ModuleList(Block(config) for _ in range(config.n_layer)),
-                ln_f=RMSNorm(config.n_embd),
+                ln_f=RMSNorm(config.n_embd, config.norm_eps),
             )
         )
 
@@ -241,7 +243,7 @@ class CausalSelfAttention(nn.Module):
         # output projection
         y = self.c_proj(y)
         return y, kv_cache
-
+    
 
 class MLP(nn.Module):
     def __init__(self, config: LLaMAConfig) -> None:

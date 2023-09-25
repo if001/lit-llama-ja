@@ -9,6 +9,7 @@ from typing import Tuple, Optional
 
 import lightning as L
 from lightning.fabric.strategies import FSDPStrategy, DeepSpeedStrategy
+from lightning.fabric.utilities.load import _lazy_load
 
 import torch
 from torch.utils.data import DataLoader
@@ -22,7 +23,10 @@ sys.path.append(str(wd))
 
 from lit_llama.model import Block, LLaMA, LLaMAConfig
 from lit_llama.packed_dataset import PackedDataset, CombinedDataset
-from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fabric
+from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fabric, chunked_cross_entropy
+
+from lit_llama.model_llama2 import GPT
+from lit_llama.config_llama2 import Llama2Config
 
 
 # out_dir = "out/training"
@@ -135,7 +139,7 @@ def main(
         os.makedirs(out_dir, exist_ok=True)
 
     # config = LLaMAConfig.from_name("7B")
-    config = LLaMAConfig.from_name(model_size)
+    config = Llama2Config.from_name(model_size)
     config.debug()
     print('out_dir: ', out_dir)
     print('val data dir:', val_data_dir)
@@ -159,13 +163,16 @@ def main(
     with fabric.device:
         # torch.set_default_dtype(torch.bfloat16)        
         print('dtype: ', torch.get_default_dtype())
-        model = LLaMA(config)
+        model = GPT(config)
+        ## model = LLaMA(config)
         model.apply(model._init_weights)
         # torch.set_default_dtype(torch.float32)
         if load_dir:
             print('load from checkpoint...', load_dir)
-            checkpoint = torch.load(load_dir)
-            model.load_state_dict(checkpoint)
+            state_dict = _lazy_load(load_dir)
+            model.load_state_dict(state_dict, strict=True)
+            # checkpoint = torch.load(load_dir)
+            # model.load_state_dict(checkpoint)
             # fabric.load(load_dir, {"model": model, "optimizer": optimizer})
 
     # if compile:
@@ -229,9 +236,10 @@ def train(
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
             logits = model(input_ids)
-            loss = torch.nn.functional.cross_entropy(
-                logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            )
+            # loss = torch.nn.functional.cross_entropy(
+            #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
+            # )
+            loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
