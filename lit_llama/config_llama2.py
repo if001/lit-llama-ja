@@ -115,6 +115,18 @@ class Llama2Config:
             return RMSNorm
         return getattr(torch.nn, self._norm_class)
 
+    def debug(self):
+        print('block_size: ', self.name)
+        print('block_size: ', self.block_size)
+        print('vocab_size: ', self.vocab_size)
+        print('padded_vocab_size: ', self.padded_vocab_size)
+        print('n_layer: ', self.n_layer)
+        print('n_head: ', self.n_head)
+        print('n_embd: ', self.n_embd)
+        print('n_query_groups: ', self.n_query_groups)
+        print('norm_class: ', self._norm_class)
+        print('mlp_class: ', self._mlp_class)
+        print('='*100)
 
 ########################
 # Stability AI StableLM
