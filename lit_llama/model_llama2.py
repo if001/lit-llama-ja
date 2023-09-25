@@ -248,8 +248,11 @@ class CausalSelfAttention(nn.Module):
             k = k.transpose(1, 2)
             v = v.transpose(1, 2)
             return flash_attn_func(q, k, v, dropout_p=0.0, softmax_scale=scale, causal=True)
+        # y = torch.nn.functional.scaled_dot_product_attention(
+        #     q, k, v, attn_mask=mask, dropout_p=0.0, scale=scale, is_causal=mask is None
+        # )
         y = torch.nn.functional.scaled_dot_product_attention(
-            q, k, v, attn_mask=mask, dropout_p=0.0, scale=scale, is_causal=mask is None
+            q, k, v, attn_mask=mask, dropout_p=0.0, is_causal=mask is None
         )
         return y.transpose(1, 2)
 
