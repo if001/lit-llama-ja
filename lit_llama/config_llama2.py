@@ -620,6 +620,7 @@ llama_2 = [
         org="meta-llama",
         name="Llama-2-19M{}-hf",
         vocab_size=35000,
+        block_size=2048,
         padding_multiple=64,
         n_layer=6,
         n_head=8,
