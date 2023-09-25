@@ -103,13 +103,13 @@ class Llama2Config:
     @property
     def mlp_class(self) -> Type:
         # `self._mlp_class` cannot be the type to keep the config json serializable
-        return getattr(lit_gpt.model, self._mlp_class)
+        return getattr(lit_llama.model_llama2, self._mlp_class)
 
     @property
     def norm_class(self) -> Type:
         # `self._norm_class` cannot be the type to keep the config json serializable
         if self._norm_class == "RMSNorm":
-            from lit_gpt.rmsnorm import RMSNorm
+            from lit_llama.model import RMSNorm
 
             return RMSNorm
         return getattr(torch.nn, self._norm_class)
