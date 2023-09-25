@@ -7,7 +7,7 @@ import torch
 from typing_extensions import Self
 
 # import lit_gpt.model
-import lit_llama.model_llama2
+# import lit_llama.model_llama2
 from lit_llama.utils import find_multiple
 
 
@@ -102,6 +102,7 @@ class Llama2Config:
 
     @property
     def mlp_class(self) -> Type:
+        import lit_llama.model_llama2
         # `self._mlp_class` cannot be the type to keep the config json serializable
         return getattr(lit_llama.model_llama2, self._mlp_class)
 
