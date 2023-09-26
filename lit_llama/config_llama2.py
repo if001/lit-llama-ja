@@ -116,7 +116,7 @@ class Llama2Config:
         return getattr(torch.nn, self._norm_class)
 
     def debug(self):
-        print('block_size: ', self.name)
+        print('name: ', self.name)
         print('block_size: ', self.block_size)
         print('vocab_size: ', self.vocab_size)
         print('padded_vocab_size: ', self.padded_vocab_size)
@@ -651,8 +651,26 @@ llama_2 = [
     ),
     dict(
         org="meta-llama",
+        name="Llama-2-250M{}-hf",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=2048,
+        n_layer=16,
+        n_head=12,
+        n_embd=1024,
+        n_query_groups=4,
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=False,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=11008,
+    ),
+    dict(
+        org="meta-llama",
         name="Llama-2-350M{}-hf",
         vocab_size=35000,
+        block_size=2048,
         padding_multiple=64,
         n_layer=24,
         n_head=16,
