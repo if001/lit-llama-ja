@@ -639,7 +639,7 @@ llama_2 = [
         vocab_size=35000,
         padding_multiple=64,
         n_layer=12,
-        n_head=10,
+        n_head=12,
         n_embd=780,
         n_query_groups=3,
         rotary_percentage=1.0,
@@ -647,7 +647,7 @@ llama_2 = [
         bias=False,
         _norm_class="RMSNorm",
         _mlp_class="LLaMAMLP",
-        intermediate_size=11008,
+        intermediate_size=8008,
     ),
     dict(
         org="meta-llama",
