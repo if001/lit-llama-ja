@@ -214,8 +214,6 @@ class CausalSelfAttention(nn.Module):
         q = q.reshape(B, -1, T, self.config.head_size)  # (B, nh_q, T, hs)
         k = k.reshape(B, -1, T, self.config.head_size)  # (B, nh_k, T, hs)
         v = v.reshape(B, -1, T, self.config.head_size)  # (B, nh_v, T, hs)
-        print('head size', self.config.head_size)
-        print('q size', q.size())
         q_roped = apply_rope(q[..., : self.config.rope_n_elem], cos, sin)
         k_roped = apply_rope(k[..., : self.config.rope_n_elem], cos, sin)
         q = torch.cat((q_roped, q[..., self.config.rope_n_elem :]), dim=-1)
@@ -346,15 +344,6 @@ def apply_rope(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.T
     x1 = x[..., : head_size // 2]  # (B, nh, T, hs/2)
     x2 = x[..., head_size // 2 :]  # (B, nh, T, hs/2)
     rotated = torch.cat((-x2, x1), dim=-1)  # (B, nh, T, hs)
-
-    print('x: ', x.size())
-    print('x1: ', x1.size())
-    print('head_size', head_size)
-
-    print('cos: ', cos.size())
-    print('rotated: ', rotated.size())
-    print('sin: ', sin.size())
-
     roped = (x * cos) + (rotated * sin)
     return roped.type_as(x)
 
