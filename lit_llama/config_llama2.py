@@ -638,6 +638,7 @@ llama_2 = [
         name="Llama-2-125M{}-hf",
         vocab_size=35000,
         padding_multiple=64,
+        block_size=2048,
         n_layer=12,
         n_head=12,
         n_embd=780,

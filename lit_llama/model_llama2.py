@@ -345,10 +345,13 @@ def apply_rope(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.T
     x1 = x[..., : head_size // 2]  # (B, nh, T, hs/2)
     x2 = x[..., head_size // 2 :]  # (B, nh, T, hs/2)
     rotated = torch.cat((-x2, x1), dim=-1)  # (B, nh, T, hs)
-    
+
     print('x: ', x.size())
+    print('x1: ', x1.size())
+    print('head_size', head_size)
+
     print('cos: ', cos.size())
-    print('sin: ', rotated.size())
+    print('rotated: ', rotated.size())
     print('sin: ', sin.size())
 
     roped = (x * cos) + (rotated * sin)
