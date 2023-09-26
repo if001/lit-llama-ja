@@ -647,7 +647,7 @@ llama_2 = [
         bias=False,
         _norm_class="RMSNorm",
         _mlp_class="LLaMAMLP",
-        intermediate_size=8008,
+        intermediate_size=11008,
     ),
     dict(
         org="meta-llama",
@@ -655,8 +655,8 @@ llama_2 = [
         vocab_size=35000,
         padding_multiple=64,
         block_size=2048,
-        n_layer=16,
-        n_head=12,
+        n_layer=18,
+        n_head=16,
         n_embd=960,
         n_query_groups=4,
         rotary_percentage=1.0,
@@ -664,7 +664,7 @@ llama_2 = [
         bias=False,
         _norm_class="RMSNorm",
         _mlp_class="LLaMAMLP",
-        intermediate_size=8008,
+        intermediate_size=11008,        
     ),
     dict(
         org="meta-llama",
