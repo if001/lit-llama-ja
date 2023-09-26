@@ -649,6 +649,22 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=11008,
     ),
+    dict(
+        org="meta-llama",
+        name="Llama-2-350M{}-hf",
+        vocab_size=35000,
+        padding_multiple=64,
+        n_layer=24,
+        n_head=16,
+        n_embd=1024,
+        n_query_groups=4,
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=False,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=11008,
+    ),
 ]
 for c in llama_2:
     for kind in ("", "-chat"):
