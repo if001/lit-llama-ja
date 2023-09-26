@@ -648,7 +648,7 @@ llama_2 = [
         bias=False,
         _norm_class="RMSNorm",
         _mlp_class="LLaMAMLP",
-        intermediate_size=11008,
+        intermediate_size=8008,
     ),
     dict(
         org="meta-llama",
@@ -1082,6 +1082,19 @@ phi = [
         block_size=2048,
         n_embd=2048,
         n_layer=24,
+        rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
+        shared_attention_norm=True,
+        lm_head_bias=True,
+        gelu_approximate="tanh",
+    ),
+    dict(
+        org="microsoft",
+        name="phi-1_5-small",
+        vocab_size=35000,
+        padded_vocab_size=35000,
+        block_size=1024,
+        n_embd=720,
+        n_layer=12,
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
