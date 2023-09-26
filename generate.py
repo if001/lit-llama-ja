@@ -12,12 +12,13 @@ wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
 from lit_llama import LLaMA, Tokenizer, HFTokenizer
+from lit_llama import GPT
 from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 
 
 @torch.no_grad()
 def generate(
-    model: LLaMA,
+    model: GPT,
     idx: torch.Tensor,
     max_new_tokens: int,
     *,
@@ -99,6 +100,7 @@ def main(
     checkpoint_path: Path = Path("checkpoints/lit-llama/7B/lit-llama.pth"),
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
     quantize: Optional[str] = None,
+    model_name: str = "7B",
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -124,10 +126,9 @@ def main(
     print("Loading model ...", file=sys.stderr)
     t0 = time.time()
     with lazy_load(checkpoint_path) as checkpoint:
-        name = llama_model_lookup(checkpoint)
-
+        # name = llama_model_lookup(checkpoint)
         with fabric.init_module(empty_init=True), quantization(mode=quantize):
-            model = LLaMA.from_name(name)
+            model = GPT.from_name(model_name)
 
         model.load_state_dict(checkpoint)
     print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
