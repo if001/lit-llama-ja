@@ -262,7 +262,7 @@ def train(
         t1 = time.time()
 
         if not is_accumulating:
-            fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
+            # fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
 
             optimizer.step()
             optimizer.zero_grad()
