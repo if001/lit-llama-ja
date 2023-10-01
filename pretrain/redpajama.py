@@ -10,6 +10,7 @@ from typing import Tuple, Optional
 import lightning as L
 from lightning.fabric.strategies import FSDPStrategy, DeepSpeedStrategy
 from lightning.fabric.utilities.load import _lazy_load
+from lightning.pytorch.loggers import TensorBoardLogger
 
 import torch
 from torch.utils.data import DataLoader
@@ -63,6 +64,7 @@ learning_rate = 0.0008
 batch_size = 128
 # micro_batch_size = 5
 micro_batch_size = 4
+micro_batch_size = 2
 # max_iters = 80000  # num_epochs * (epoch_size // micro_batch_size) // devices
 max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
 weight_decay = 0.1
@@ -73,6 +75,21 @@ decay_lr = True
 warmup_iters = 2000
 lr_decay_iters = max_iters
 min_lr = 0.00008
+
+
+## for 125M
+learning_rate = 0.0006
+min_lr = 0.00006
+batch_size = 128
+micro_batch_size = 4
+max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+weight_decay = 0.1
+beta1 = 0.9
+beta2 = 0.95
+grad_clip = 1.0
+decay_lr = True
+warmup_iters = 2000
+lr_decay_iters = max_iters
 
 
 # Data proportions from https://arxiv.org/pdf/2302.13971.pdf Table 1
@@ -105,7 +122,8 @@ def main(
     model_size: str = "7B",
     out_dir: str = "out/training",
     load_dir: Optional[str] = None,
-    restart_iter: int = 0
+    restart_iter: int = 0,
+    log_dir: str = "./logs"
 ) -> None:
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -130,7 +148,7 @@ def main(
     # strategy = 'ddp'
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
 
     fabric.launch()
     fabric.seed_everything(1337)
@@ -194,7 +212,6 @@ def main(
     train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir, restart_iter)
     fabric.print(f"Saving checkpoint to {out_dir}")
     save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{max_iters:06d}-ckpt.pth")
-                
 
 def train(
     fabric: L.Fabric,
@@ -205,7 +222,7 @@ def train(
     grad_accum_steps: int,
     devices: int,
     out_dir: str,
-    restart_iter: int = 0
+    restart_iter: int = 0,
 ) -> None:
     """The training loop.
 
@@ -245,7 +262,7 @@ def train(
         t1 = time.time()
 
         if not is_accumulating:
-            # fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
+            fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
 
             optimizer.step()
             optimizer.zero_grad()
