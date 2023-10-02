@@ -653,7 +653,7 @@ llama_2 = [
     ),
     dict(
         org="meta-llama",
-        name="Llama-2-150M{}-hf",
+        name="Llama-2-130M{}-hf",
         vocab_size=35000,
         padding_multiple=64,
         block_size=2048,
