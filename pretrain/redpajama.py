@@ -327,14 +327,17 @@ def train(
         prev_t1 = t1
 
         if iter_num % log_interval == 0:
-            tokens_sec_str = f"{tokens / step_time:.0f}" if not is_accumulating else "-"
+            # tokens_sec_str = f"{tokens / step_time:.0f}" if not is_accumulating else "-"
 
+            fabric.print(
+                    f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, lr: {lr}, step_count: {step_count}"
+            )
             fabric.log_dict(
                 {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}
             )
-            fabric.print(
-                    f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, speed: {tokens_sec_str} toks/s/device"
-            )
+            # fabric.print(
+            #         f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, speed: {tokens_sec_str} toks/s/device"
+            # )
 
         if not is_accumulating:
             tokens = 0
