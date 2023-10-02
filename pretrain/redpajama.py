@@ -91,19 +91,19 @@ warmup_iters = 2000
 lr_decay_iters = max_iters
 
 
-# ## for 125M
-# learning_rate = 0.001
-# min_lr = 0.00001
-# batch_size = 128
-# micro_batch_size = 2
-# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-# weight_decay = 0.1
-# beta1 = 0.9
-# beta2 = 0.95
-# grad_clip = 1.0
-# decay_lr = True
-# warmup_iters = 2000
-# lr_decay_iters = max_iters
+## for 125M
+learning_rate = 0.001
+min_lr = 0.00001
+batch_size = 128
+micro_batch_size = 2
+max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+weight_decay = 0.1
+beta1 = 0.9
+beta2 = 0.95
+grad_clip = 1.0
+decay_lr = True
+warmup_iters = 2000
+lr_decay_iters = max_iters
 
 
 # Data proportions from https://arxiv.org/pdf/2302.13971.pdf Table 1
