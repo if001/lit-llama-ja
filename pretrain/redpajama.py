@@ -129,6 +129,25 @@ train_data_config = [
     ('aozorabunko-clean-sin',1.0)
 ]
 
+
+def format_number(num):
+    if abs(num) >= 10**12:  # Trillion
+        return "{:.2f}T".format(num / 10**12)
+    elif abs(num) >= 10**9:  # Billion
+        return "{:.2f}B".format(num / 10**9)
+    elif abs(num) >= 10**6:  # Million
+        return "{:.2f}M".format(num / 10**6)
+    else:
+        return str(num)
+    
+def show_total_params(model):
+    print('params', model.parameters())
+
+    model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+    params = sum([np.prod(p.size()) for p in model_parameters])    
+    print('trainable params: ', format_number(params))
+
+    
 def main(
     devices: int = 4,
     train_data_dir: Path = "data/lit-redpajama",
@@ -218,7 +237,9 @@ def main(
         foreach=False,
     )
 
-    model, optimizer = fabric.setup(model, optimizer)   
+    model, optimizer = fabric.setup(model, optimizer)       
+    show_total_params(model)
+    exit(0)
 
     process_batch_size = batch_size // devices
     gradient_accumulation_iters = process_batch_size // micro_batch_size    
