@@ -1213,7 +1213,7 @@ phi = [
     ),
      dict(
         org="microsoft",
-        name="phi-1_5-300M",
+        name="phi-1_5-350M",
         vocab_size=35000,
         padded_vocab_size=35000,
         block_size=2048,        
