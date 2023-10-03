@@ -180,7 +180,8 @@ def main(
     # strategy = 'ddp'
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
+    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=TensorBoardLogger(log_dir, name="model"))
 
     fabric.launch()
     fabric.seed_everything(1337)
@@ -227,6 +228,7 @@ def main(
 
     # if compile:
     #     model = torch.compile(model)
+    model = torch.compile(model)
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -295,7 +297,7 @@ def train(
         t1 = time.time()
 
         if not is_accumulating:
-            # fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
+            fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
 
             optimizer.step()
             optimizer.zero_grad()
