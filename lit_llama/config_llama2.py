@@ -1203,9 +1203,9 @@ phi = [
         vocab_size=35000,
         padded_vocab_size=35000,        
         block_size=2048,        
-        n_layer=18,
-        n_head=20,
-        n_embd=1020,
+        n_layer=10,
+        n_head=12,
+        n_embd=720,
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
@@ -1213,12 +1213,12 @@ phi = [
     ),
      dict(
         org="microsoft",
-        name="phi-1_5-350M",
+        name="phi-1_5-300M",
         vocab_size=35000,
         padded_vocab_size=35000,
         block_size=2048,        
-        n_layer=20,
-        n_head=20,
+        n_layer=22,
+        n_head=24,
         n_embd=960,
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
