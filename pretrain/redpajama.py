@@ -78,6 +78,7 @@ min_lr = 0.00008
 
 ## for 49M
 learning_rate = 0.0009
+learning_rate = 0.0009
 min_lr = 0.00009
 batch_size = 128
 micro_batch_size = 2
@@ -94,6 +95,7 @@ lr_decay_iters = max_iters
 ## for 125M
 learning_rate = 0.001
 learning_rate = 0.0009
+learning_rate = 0.005
 min_lr = 0.00001
 batch_size = 128
 micro_batch_size = 2
