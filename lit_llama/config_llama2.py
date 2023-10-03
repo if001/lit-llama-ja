@@ -666,7 +666,7 @@ llama_2 = [
         bias=False,
         _norm_class="RMSNorm",
         _mlp_class="LLaMAMLP",
-        intermediate_size=3600,
+        intermediate_size=3000,
         norm_eps=1.0e-8,
     ),
     dict(
