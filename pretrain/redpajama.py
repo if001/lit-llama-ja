@@ -234,11 +234,11 @@ def main(
 
     # if compile:
     #     model = torch.compile(model)
-    for v in model.state_dict:
+    for v in model.state_dict():
         print(v)
     model = torch.compile(model)
     print('-'*300)
-    for v in model.state_dict:
+    for v in model.state_dict():
         print(v)
     exit(0)
 
