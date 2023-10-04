@@ -332,7 +332,7 @@ def train(
                 fabric.log_dict(
                     {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}
                 )
-                fabric.loggers.save()
+                fabric.loggers[0].save()
 
             if step_count % save_interval == 0:
                 fabric.print("-"*200)
