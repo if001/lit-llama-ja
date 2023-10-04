@@ -187,7 +187,8 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
     logger = TensorBoardLogger(log_dir, name="model")
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=logger)
+    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=logger)
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", loggers=logger)
 
     fabric.launch()
     fabric.seed_everything(1337)
