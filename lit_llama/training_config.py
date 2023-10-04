@@ -46,6 +46,8 @@ class TrainingConfig():
         print(f'save training config... {output_file}')
 
     def debug(self):
+        print('='*100)
+        print('print training config...')
         for k, v in self.__dict__.items():
             print(f"{k}: {v}")
         print('='*100)
@@ -70,12 +72,13 @@ class TrainingConfig():
             max_iters = 143000
             conf = dict(
                 model_size=model_size,
-                learning_rate=0.005,
-                min_lr=0.00006,
+                learning_rate=0.01,
+                min_lr=0.0001,
+                # min_lr=0.00006,
                 batch_size=32,
                 micro_batch_size=2,
                 max_iters=max_iters,
-                weight_decay=0.001,
+                weight_decay=0.01,
                 beta1=0.9,
                 beta2=0.95,
                 grad_clip=2.0,
