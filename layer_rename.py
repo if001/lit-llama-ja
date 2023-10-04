@@ -32,9 +32,9 @@ def main(
         new_name = name_mapping[compiled_name]
         new_state_dict[new_name] = param
 
-    compiled_model.load_state_dict(new_state_dict)
+    model.load_state_dict(new_state_dict)
     
-    torch.save(compiled_model.state_dict(), save_file)
+    torch.save(model.state_dict(), save_file)
 
 
 if __name__ == '__main__':
