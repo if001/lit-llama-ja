@@ -189,7 +189,8 @@ def main(
     logger = TensorBoardLogger(log_dir, name="model")
     
     ## precision="16-true" ## for v100
-    precision="bf16-mixed" ## for A100
+    # precision="bf16-mixed" ## for A100
+    precision="f16-mixed"
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision, loggers=logger)
 
     fabric.launch()
