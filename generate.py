@@ -130,6 +130,8 @@ def main(
         with fabric.init_module(empty_init=True), quantization(mode=quantize):
             model = GPT.from_name(model_name)
 
+        for v in checkpoint:
+            print(v)
         model.load_state_dict(checkpoint)
     print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
 
