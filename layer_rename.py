@@ -16,10 +16,11 @@ def main(
     config = Llama2Config.from_name(model_size)
 
     model = GPT(config)
-    state_dict = _lazy_load(checkpoint_file)
-    model.load_state_dict(state_dict, strict=True)
 
     compiled_model = torch.compile(model)
+    state_dict = _lazy_load(checkpoint_file)
+    compiled_model.load_state_dict(state_dict, strict=True)
+
 
     original_names = list(model.state_dict().keys())
     compiled_names = list(compiled_model.state_dict().keys())
@@ -38,4 +39,5 @@ def main(
 
 if __name__ == '__main__':
     from jsonargparse.cli import CLI
+
     CLI(main)    
