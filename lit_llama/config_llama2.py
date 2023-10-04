@@ -115,7 +115,9 @@ class Llama2Config:
             return RMSNorm
         return getattr(torch.nn, self._norm_class)
 
-    def debug(self):        
+    def debug(self):
+        print('='*100)
+        print('print config...')
         for k, v in self.__dict__.items():
             print(f"{k}: {v}")
         print('='*100)
