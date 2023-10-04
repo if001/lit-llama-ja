@@ -190,7 +190,7 @@ def main(
     
     ## precision="16-true" ## for v100
     # precision="bf16-mixed" ## for A100
-    precision="f16-mixed"
+    precision="16-mixed"
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision, loggers=logger)
 
     fabric.launch()
