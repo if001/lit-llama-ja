@@ -5,9 +5,9 @@ from lit_llama.config_llama2 import Llama2Config
 from lightning.fabric.utilities.load import _lazy_load
 
 def main(
-        model_size,        
-        checkpoint_file,
-        save_file
+        model_size: str,
+        checkpoint_file: str,
+        save_file: str,
 ):
     print('load model: ', model_size)
     print('checkpoint_file: ', checkpoint_file)
