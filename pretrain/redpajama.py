@@ -102,7 +102,8 @@ min_lr = 0.00001
 batch_size = 128
 micro_batch_size = 2
 max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-weight_decay = 0.0001
+## weight_decay = 0.0001
+weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.95
 grad_clip = 1.0
@@ -185,7 +186,7 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=TensorBoardLogger(log_dir, name="model"))
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=TensorBoardLogger(root_dir=log_dir, name="model"))
 
     fabric.launch()
     fabric.seed_everything(1337)
@@ -232,8 +233,14 @@ def main(
 
     # if compile:
     #     model = torch.compile(model)
+    for v in model.state_dict:
+        print(v)
     model = torch.compile(model)
-
+    print('-'*300)
+    for v in model.state_dict:
+        print(v)
+    exit(0)
+    
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=learning_rate,
