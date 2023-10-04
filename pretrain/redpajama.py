@@ -28,6 +28,7 @@ from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fa
 
 from lit_llama.model_llama2 import GPT
 from lit_llama.config_llama2 import Llama2Config
+from lit_llama.training_config import TrainingConfig
 
 
 # out_dir = "out/training"
@@ -58,58 +59,59 @@ log_interval = 500
 # lr_decay_iters = max_iters
 # min_lr = 6e-5
 
-# # Hyperparameters for 49M
-learning_rate = 0.0008
-# batch_size = 125
-batch_size = 128
-# micro_batch_size = 5
-micro_batch_size = 4
-micro_batch_size = 2
-# max_iters = 80000  # num_epochs * (epoch_size // micro_batch_size) // devices
-max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-weight_decay = 0.1
-beta1 = 0.9
-beta2 = 0.95
-grad_clip = 1.0
-decay_lr = True
-warmup_iters = 2000
-lr_decay_iters = max_iters
-min_lr = 0.00008
+# # # Hyperparameters for 49M
+# learning_rate = 0.0008
+# # batch_size = 125
+# batch_size = 128
+# # micro_batch_size = 5
+# micro_batch_size = 4
+# micro_batch_size = 2
+# # max_iters = 80000  # num_epochs * (epoch_size // micro_batch_size) // devices
+# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+# weight_decay = 0.1
+# beta1 = 0.9
+# beta2 = 0.95
+# grad_clip = 1.0
+# decay_lr = True
+# warmup_iters = 2000
+# lr_decay_iters = max_iters
+# min_lr = 0.00008
 
-## for 49M
-learning_rate = 0.0009
-learning_rate = 0.0009
-min_lr = 0.00009
-batch_size = 128
-micro_batch_size = 2
-max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-weight_decay = 0.1
-beta1 = 0.9
-beta2 = 0.95
-grad_clip = 1.0
-decay_lr = True
-warmup_iters = 2000
-lr_decay_iters = max_iters
+# ## for 49M
+# learning_rate = 0.0009
+# learning_rate = 0.0009
+# min_lr = 0.00009
+# batch_size = 128
+# micro_batch_size = 2
+# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+# weight_decay = 0.1
+# beta1 = 0.9
+# beta2 = 0.95
+# grad_clip = 1.0
+# decay_lr = True
+# warmup_iters = 2000
+# lr_decay_iters = max_iters
 
 
-## for 125M
+# ## for 125M
 
-## for 350M
-learning_rate = 0.001
-learning_rate = 0.0009
-## learning_rate = 0.005
-min_lr = 0.00001
-batch_size = 128
-micro_batch_size = 2
-max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-## weight_decay = 0.0001
-weight_decay = 0.001
-beta1 = 0.9
-beta2 = 0.95
-grad_clip = 2.0
-decay_lr = True
-warmup_iters = 1000
-lr_decay_iters = max_iters
+# ## for 350M
+# learning_rate = 0.001
+# learning_rate = 0.005
+# ## learning_rate = 0.005
+# min_lr = 0.00006
+# batch_size = 128
+# batch_size = 32
+# micro_batch_size = 2
+# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
+# ## weight_decay = 0.0001
+# weight_decay = 0.001
+# beta1 = 0.9
+# beta2 = 0.95
+# grad_clip = 2.0
+# decay_lr = True
+# warmup_iters = 1000
+# lr_decay_iters = max_iters
 
 
 # Data proportions from https://arxiv.org/pdf/2302.13971.pdf Table 1
@@ -162,6 +164,10 @@ def main(
     restart_iter: int = 0,
     log_dir: str = "./logs"
 ) -> None:
+    trainingConfig = TrainingConfig.from_name(model_size)
+    trainingConfig.debug()
+    trainingConfig.save(out_dir)
+
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
     )
@@ -188,9 +194,8 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
     logger = TensorBoardLogger(log_dir, name="model")
     
-    ## precision="16-true" ## for v100
+    precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
-    precision="16-mixed"
     fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision, loggers=logger)
 
     fabric.launch()
@@ -202,11 +207,12 @@ def main(
     # config = LLaMAConfig.from_name("7B")
     config = Llama2Config.from_name(model_size)
     config.debug()
+    config.save(out_dir)
     print('out_dir: ', out_dir)
     print('val data dir:', val_data_dir)
 
     train_dataloader, val_dataloader = create_dataloaders(
-        batch_size=micro_batch_size,
+        batch_size=trainingConfig.micro_batch_size,
         block_size=config.block_size,
         fabric=fabric,
         train_data_dir=train_data_dir,
@@ -242,24 +248,25 @@ def main(
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=learning_rate,
-        weight_decay=weight_decay,
-        betas=(beta1, beta2),
+        lr=trainingConfig.learning_rate,
+        weight_decay=trainingConfig.weight_decay,
+        betas=(trainingConfig.beta1, trainingConfig.beta2),
         foreach=False,
     )
 
     model, optimizer = fabric.setup(model, optimizer)       
     show_total_params(model)    
 
-    process_batch_size = batch_size // devices
-    gradient_accumulation_iters = process_batch_size // micro_batch_size    
+    process_batch_size = trainingConfig.batch_size // devices
+    gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
-    train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir, restart_iter)
+    train(trainingConfig, fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir, restart_iter)
     fabric.print(f"Saving checkpoint to {out_dir}")
-    save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{max_iters:06d}-ckpt.pth")
+    save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     logger.save()
 
 def train(
+    trainingConfig: TrainingConfig,
     fabric: L.Fabric,
     model: torch.nn.Module,
     optimizer: torch.optim.Optimizer,
@@ -268,7 +275,7 @@ def train(
     grad_accum_steps: int,
     devices: int,
     out_dir: str,
-    restart_iter: int = 0,
+    restart_iter: int = 0,    
 ) -> None:
     """The training loop.
 
@@ -287,7 +294,7 @@ def train(
         t0 = time.time()
 
         # determine and set the learning rate for this iteration
-        lr = get_lr(iter_num) if decay_lr else learning_rate
+        lr = trainingConfig.get_lr(iter_num) if trainingConfig.decay_lr else trainingConfig.learning_rate
         for param_group in optimizer.param_groups:
             param_group["lr"] = lr
 
@@ -308,7 +315,7 @@ def train(
         t1 = time.time()
 
         if not is_accumulating:
-            fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
+            fabric.clip_gradients(model, optimizer, max_norm=trainingConfig.grad_clip)
 
             optimizer.step()
             optimizer.zero_grad()
@@ -319,7 +326,7 @@ def train(
             if val_dataloader is not None and step_count % eval_interval == 0:
                 val_loss = validate(fabric, model, val_dataloader)
                 print('-'*100)
-                fabric.print(f"step {iter_num}: val loss {val_loss:.4f}")
+                fabric.print(f"step: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
                 fabric.barrier()
                 fabric.log_dict(
@@ -336,7 +343,7 @@ def train(
 
         dt = t1 - t0
 
-        tokens += micro_batch_size * model.config.block_size
+        tokens += trainingConfig.micro_batch_size * model.config.block_size
         step_time += t1 - prev_t1
         prev_t1 = t1
 
@@ -357,7 +364,7 @@ def train(
             tokens = 0
             step_time = 0.0
 
-        if iter_num > max_iters:
+        if iter_num > trainingConfig.max_iters:
             break
 
 
@@ -450,21 +457,6 @@ def create_dataloaders(
         else None
     )
     return train_dataloader, val_dataloader
-
-
-# learning rate decay scheduler (cosine with warmup)
-def get_lr(it):
-    # 1) linear warmup for warmup_iters steps
-    if it < warmup_iters:
-        return learning_rate * it / warmup_iters
-    # 2) if it > lr_decay_iters, return min learning rate
-    if it > lr_decay_iters:
-        return min_lr
-    # 3) in between, use cosine decay down to min learning rate
-    decay_ratio = (it - warmup_iters) / (lr_decay_iters - warmup_iters)
-    assert 0 <= decay_ratio <= 1
-    coeff = 0.5 * (1.0 + math.cos(math.pi * decay_ratio))  # coeff ranges 0..1
-    return min_lr + coeff * (learning_rate - min_lr)
 
 
 if __name__ == "__main__":

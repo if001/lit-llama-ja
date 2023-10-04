@@ -115,18 +115,24 @@ class Llama2Config:
             return RMSNorm
         return getattr(torch.nn, self._norm_class)
 
-    def debug(self):
-        print('name: ', self.name)
-        print('block_size: ', self.block_size)
-        print('vocab_size: ', self.vocab_size)
-        print('padded_vocab_size: ', self.padded_vocab_size)
-        print('n_layer: ', self.n_layer)
-        print('n_head: ', self.n_head)
-        print('n_embd: ', self.n_embd)
-        print('n_query_groups: ', self.n_query_groups)
-        print('norm_class: ', self._norm_class)
-        print('mlp_class: ', self._mlp_class)
+    def debug(self):        
+        for k, v in self.__dict__.items():
+            print(f"{k}: {v}")
         print('='*100)
+
+    def save(self, output_dir):
+        """
+        Save member variables of this instance to a JSON file.
+
+        Parameters:
+        - output_dir: The output dir of the JSON file to save to.
+        """        
+        member_vars = {k: v for k, v in self.__dict__.items() if not callable(v)}
+        
+        output_file = f'{output_dir}/model_config.json'
+        with open(output_file, 'w') as f:
+            json.dump(member_vars, f, ensure_ascii=False, indent=4)
+        print(f'save model config... {output_file}')
 
 ########################
 # Stability AI StableLM
