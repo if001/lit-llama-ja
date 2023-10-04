@@ -108,7 +108,7 @@ beta1 = 0.9
 beta2 = 0.95
 grad_clip = 2.0
 decay_lr = True
-warmup_iters = 2000
+warmup_iters = 1000
 lr_decay_iters = max_iters
 
 
@@ -187,8 +187,10 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
     logger = TensorBoardLogger(log_dir, name="model")
-    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=logger)
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", loggers=logger)
+    
+    precision="16-true" ## for v100
+    precision="bf16-mixed" ## for A100
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision, loggers=logger)
 
     fabric.launch()
     fabric.seed_everything(1337)
