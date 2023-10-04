@@ -222,7 +222,7 @@ def main(
 
     with fabric.device:
         # torch.set_default_dtype(torch.bfloat16)        
-        torch.set_default_dtype(torch.float16)
+        # torch.set_default_dtype(torch.float16)
         print('dtype: ', torch.get_default_dtype())
         model = GPT(config)
         ## model = LLaMA(config)
@@ -307,7 +307,7 @@ def train(
         t1 = time.time()
 
         if not is_accumulating:
-            # fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
+            fabric.clip_gradients(model, optimizer, max_norm=grad_clip)
 
             optimizer.step()
             optimizer.zero_grad()
