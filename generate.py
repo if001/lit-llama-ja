@@ -123,7 +123,7 @@ def main(
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
     fabric = L.Fabric(devices=1, precision=precision)
 
-    print("Loading model ...", file=sys.stderr)
+    print(f"Loading model ...{model_name}", file=sys.stderr)
     t0 = time.time()
     with lazy_load(checkpoint_path) as checkpoint:
         # name = llama_model_lookup(checkpoint)
