@@ -186,7 +186,8 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=TensorBoardLogger(root_dir=log_dir, name="model"))
+    logger = TensorBoardLogger(log_dir, name="model")
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", loggers=logger)
 
     fabric.launch()
     fabric.seed_everything(1337)
@@ -240,7 +241,7 @@ def main(
     for v in model.state_dict:
         print(v)
     exit(0)
-    
+
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=learning_rate,
@@ -258,6 +259,7 @@ def main(
     train(fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir, restart_iter)
     fabric.print(f"Saving checkpoint to {out_dir}")
     save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{max_iters:06d}-ckpt.pth")
+    logger.save()
 
 def train(
     fabric: L.Fabric,
