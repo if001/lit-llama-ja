@@ -234,13 +234,6 @@ def main(
 
     # if compile:
     #     model = torch.compile(model)
-    for v in model.state_dict():
-        print(v)
-    model = torch.compile(model)
-    print('-'*300)
-    for v in model.state_dict():
-        print(v)
-    exit(0)
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
@@ -330,8 +323,8 @@ def train(
 
             if step_count % save_interval == 0:
                 fabric.print("-"*200)
-                fabric.print(f"Saving checkpoint to {out_dir}")
-                fabric.print("-"*200)                
+                fabric.print(f"Saving checkpoint to {out_dir} _ iter-{iter_num:06d}-ckpt.pth")
+                fabric.print("-"*200)
                 save_model_checkpoint_with_fabric(
                     fabric, model, out_dir, f"iter-{iter_num:06d}-ckpt.pth"
                 )
