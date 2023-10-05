@@ -31,6 +31,7 @@ class LLaMAConfig:
     n_layer: int = 32
     n_head: int = 32
     n_embd: int = 4096
+    norm_eps: float = 1e-5
 
     def __post_init__(self):
         if self.padded_vocab_size is None:
