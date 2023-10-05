@@ -293,6 +293,24 @@ for kind in ("", "-chat"):
 # OpenLM Research Open LLaMA
 #############################
 open_LLaMA = [
+    dict(
+        org="openlm-research",
+        name="open_llama_130M",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=2048,
+        n_layer=12,
+        n_head=10,
+        n_embd=780,
+        n_query_groups=10,
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=False,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=1024,
+        norm_eps=1.0e-6,
+    ),
     # https://huggingface.co/openlm-research/open_llama_3b/blob/main/config.json
     dict(
         org="openlm-research",
@@ -828,28 +846,28 @@ for c in llama_2:
         configs.append(copy)
 
 
-llama = [
-     dict(
-        org="meta-llama",
-        name="Llama-130M",
-        vocab_size=35000,
-        padding_multiple=64,
-        block_size=2048,
-        n_layer=12,
-        n_head=10,
-        n_embd=780,
-        n_query_groups=10,
-        rotary_percentage=1.0,
-        parallel_residual=False,
-        bias=False,
-        _norm_class="RMSNorm",
-        _mlp_class="GptNeoxMLP",
-        intermediate_size=1024,
-        norm_eps=1.0e-6,
-    ),
-    ]
-for c in llama_2:
-    configs.append(c)
+# llama = [
+#      dict(
+#         org="meta-llama",
+#         name="Llama-130M",
+#         vocab_size=35000,
+#         padding_multiple=64,
+#         block_size=2048,
+#         n_layer=12,
+#         n_head=10,
+#         n_embd=780,
+#         n_query_groups=10,
+#         rotary_percentage=1.0,
+#         parallel_residual=False,
+#         bias=False,
+#         _norm_class="RMSNorm",
+#         _mlp_class="GptNeoxMLP",
+#         intermediate_size=1024,
+#         norm_eps=1.0e-6,
+#     ),
+# ]
+# for c in llama:
+#     configs.append(c)
 
 
 ##########################
@@ -1292,8 +1310,8 @@ phi = [
         lm_head_bias=True,
         gelu_approximate="tanh",
         intermediate_size=1024,
-        norm_eps=1.0e-6,
-        _norm_class="LayerNorm",
+        norm_eps=1e-5
+        # norm_eps=1e-6
     ),
     dict(
         org="microsoft",
