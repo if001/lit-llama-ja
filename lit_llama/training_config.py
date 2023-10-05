@@ -86,7 +86,7 @@ class TrainingConfig():
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
-        if model_size == 'Llama-125M':            
+        elif model_size == "open_llama_130M":
             max_iters = 143000
             conf = dict(
                 model_size=model_size,
