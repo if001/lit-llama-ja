@@ -30,8 +30,7 @@ class LLaMAConfig:
     padded_vocab_size: Optional[int] = None
     n_layer: int = 32
     n_head: int = 32
-    n_embd: int = 4096
-    norm_eps: float = 1e-5
+    n_embd: int = 4096    
 
     def __post_init__(self):
         if self.padded_vocab_size is None:
@@ -85,7 +84,7 @@ class LLaMA(nn.Module):
             dict(
                 wte=nn.Embedding(config.padded_vocab_size, config.n_embd),
                 h=nn.ModuleList(Block(config) for _ in range(config.n_layer)),
-                ln_f=RMSNorm(config.n_embd, config.norm_eps),
+                ln_f=RMSNorm(config.n_embd),
             )
         )
 
@@ -298,7 +297,7 @@ class RMSNorm(nn.Module):
         # x_normed = x / (rms_x + self.eps)
         print('x*x', type(x*x))
         print('dim', self.dim, type(float(self.dim)))        
-        norm_x = torch.mean(x * x, dim=(self.dim), keepdim=True)
+        norm_x = torch.mean(x * x, dim=self.dim, keepdim=True)
         x_normed = x * torch.rsqrt(norm_x + self.eps)
         return self.scale * x_normed
 
