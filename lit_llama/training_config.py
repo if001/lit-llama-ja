@@ -86,5 +86,23 @@ class TrainingConfig():
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
+        if model_size == 'Llama-125M':            
+            max_iters = 143000
+            conf = dict(
+                model_size=model_size,
+                learning_rate = 0.0008,
+                min_lr = 0.00008,
+                batch_size = 128,                
+                micro_batch_size = 4,
+                max_iters = max_iters,
+                weight_decay = 0.1,
+                beta1 = 0.9,
+                beta2 = 0.95,
+                grad_clip = 1.0,
+                decay_lr = True,
+                warmup_iters = 2000,
+                lr_decay_iters = max_iters,                
+            )
+            return cls(**conf)
         else:
             assert "invalid model size"
