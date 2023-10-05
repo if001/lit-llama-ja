@@ -296,6 +296,8 @@ class RMSNorm(nn.Module):
         # norm_x = x.norm(2, dim=self.dim, keepdim=True)
         # rms_x = norm_x * d_x ** (-1. / 2)
         # x_normed = x / (rms_x + self.eps)
+        print('x*x', type(x*x))
+        print('dim', self.dim, type(float(self.dim)))        
         norm_x = torch.mean(x * x, dim=float(self.dim), keepdim=True)
         x_normed = x * torch.rsqrt(norm_x + self.eps)
         return self.scale * x_normed
