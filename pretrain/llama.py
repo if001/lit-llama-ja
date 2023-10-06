@@ -217,15 +217,11 @@ def train(
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
-            logits = model(input_ids)            
-            print('logits: ', logits.is_contiguous())
-            print('targets: ', targets.is_contiguous())
-            loss = torch.nn.functional.cross_entropy(
-                logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            )
-            print('loss: ', loss)
-            hoge = chunked_cross_entropy(logits, targets, chunk_size=0)
-            print('hoge', hoge)
+            logits = model(input_ids)
+            # loss = torch.nn.functional.cross_entropy(
+            #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
+            # )
+            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
@@ -298,10 +294,10 @@ def validate(
         input_ids = val_data[:, 0 : model.config.block_size].contiguous()
         targets = val_data[:, 1 : model.config.block_size + 1].contiguous()
         logits = model(input_ids)
-        loss = torch.nn.functional.cross_entropy(
-            logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-        )
-        ## loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+        # loss = torch.nn.functional.cross_entropy(
+        #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
+        # )        
+        loss = chunked_cross_entropy(logits, targets, chunk_size=0)
         losses[k] = loss.item()
     out = losses.mean()
     model.train()

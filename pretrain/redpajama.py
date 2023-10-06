@@ -308,8 +308,8 @@ def train(
             logits = model(input_ids)
             # loss = torch.nn.functional.cross_entropy(
             #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            # )
-            loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+            # )            
+            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
@@ -382,9 +382,10 @@ def validate(
         input_ids = val_data[:, 0 : model.config.block_size].contiguous()
         targets = val_data[:, 1 : model.config.block_size + 1].contiguous()
         logits = model(input_ids)
-        loss = torch.nn.functional.cross_entropy(
-            logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-        )
+        # loss = torch.nn.functional.cross_entropy(
+        #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
+        # )
+        loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
         losses[k] = loss.item()
     out = losses.mean()
     model.train()
