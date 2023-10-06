@@ -218,10 +218,10 @@ def train(
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
             logits = model(input_ids)
-            # loss = torch.nn.functional.cross_entropy(
-            #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            # )
-            loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+            loss = torch.nn.functional.cross_entropy(
+                logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
+            )
+            # loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
@@ -297,6 +297,7 @@ def validate(
         loss = torch.nn.functional.cross_entropy(
             logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
         )
+        # loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
         losses[k] = loss.item()
     out = losses.mean()
     model.train()

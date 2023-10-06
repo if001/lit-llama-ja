@@ -124,6 +124,7 @@ class TrainingConfig():
             return cls(**conf)
         elif model_size == "148M":
             max_iters = 143000
+            max_iters = 153000
             conf = dict(
                 model_size="llama-148M",
                 learning_rate = 0.0008,
@@ -137,7 +138,7 @@ class TrainingConfig():
                 grad_clip = 1.0,
                 decay_lr = True,
                 warmup_iters = 2000,
-                lr_decay_iters = max_iters,                
+                lr_decay_iters = max_iters,
             )
             return cls(**conf)
         else:
