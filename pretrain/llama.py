@@ -220,8 +220,8 @@ def train(
             logits = model(input_ids)            
             print('logits: ', logits.is_contiguous())
             print('targets: ', targets.is_contiguous())
-            print('logits size'. logits.size())
-            print('targets size'. targets.size())
+            print('logits size', logits.size())
+            print('targets size', targets.size())
             loss = torch.nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
             )
