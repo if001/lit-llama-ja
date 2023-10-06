@@ -218,9 +218,11 @@ def train(
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
             logits = model(input_ids)            
+            print('logits: ', logits.is_contiguous())
+            print('targets: ', targets.is_contiguous())
             loss = torch.nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            )
+            )            
             loss2 = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
             print('loss: ', loss)
             print('loss2: ', loss2)
