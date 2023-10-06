@@ -222,10 +222,13 @@ def train(
             print('targets: ', targets.is_contiguous())
             loss = torch.nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            )            
-            loss2 = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+            )
             print('loss: ', loss)
-            print('loss2: ', loss2)
+            logits2 = logits.reshape(-1, logits.size(-1))
+            targets2 = targets.reshape(-1)
+            hoge = torch.nn.functional.cross_entropy(logits2, targets2, ignore_index=-1) 
+            print('loss2: ', hoge)
+            # loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)                    
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()

@@ -540,8 +540,7 @@ def chunked_cross_entropy(
     # the memory spike's magnitude
 
     # lm_head was chunked (we are fine-tuning)    
-    if isinstance(logits, list):
-        print('not in!!!!!!!!!!!')
+    if isinstance(logits, list):        
         # don't want to chunk cross entropy
         if chunk_size == 0:
             logits = torch.cat(logits, dim=1)
@@ -561,8 +560,7 @@ def chunked_cross_entropy(
     # no chunking at all
     logits = logits.reshape(-1, logits.size(-1))
     targets = targets.reshape(-1)
-    if chunk_size == 0:
-        print('chunk_size 00000')
+    if chunk_size == 0:        
         return torch.nn.functional.cross_entropy(logits, targets, ignore_index=-1)
 
     # lm_head wasn't chunked, chunk cross entropy
