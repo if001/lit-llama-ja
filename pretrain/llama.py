@@ -220,10 +220,12 @@ def train(
             logits = model(input_ids)            
             print('logits: ', logits.is_contiguous())
             print('targets: ', targets.is_contiguous())
+            print('logits size'. logits.size())
+            print('targets size'. targets.size())
             loss = torch.nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
             )
-            print('loss: ', loss)     
+            print('loss: ', loss)
             hoge = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)                    
             print('hoge', hoge)
             fabric.backward(loss / grad_accum_steps)
