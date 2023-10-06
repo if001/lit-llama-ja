@@ -217,12 +217,13 @@ def train(
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
-            logits = model(input_ids)
-            print('isinstance(logits, list)',isinstance(logits, list))
+            logits = model(input_ids)            
             loss = torch.nn.functional.cross_entropy(
                 logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
             )
-            ## loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+            loss2 = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+            print('loss: ', loss)
+            print('loss2: ', loss2)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
