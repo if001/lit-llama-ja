@@ -357,6 +357,7 @@ def train(
             fabric.log_dict(
                 {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}
             )
+            fabric.log("loss_2", loss)
             # fabric.print(
             #         f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, speed: {tokens_sec_str} toks/s/device"
             # )
