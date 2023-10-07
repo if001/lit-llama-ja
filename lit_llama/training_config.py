@@ -69,12 +69,12 @@ class TrainingConfig():
     @classmethod
     def from_name(cls, model_size):
         if model_size == "Llama-2-250M-hf":
-            max_iters = 143000
+            max_iters = 183000
             conf = dict(
                 model_size=model_size,
                 learning_rate=9e-4,
                 min_lr=9e-5,
-                batch_size=128,
+                batch_size=160,
                 micro_batch_size=4,
                 max_iters=max_iters,
                 weight_decay=0.01,

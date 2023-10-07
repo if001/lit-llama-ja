@@ -385,7 +385,7 @@ def validate(
         # loss = torch.nn.functional.cross_entropy(
         #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
         # )
-        loss = chunked_cross_entropy(logits[..., :-1, :], targets[..., 1:], chunk_size=0)
+        loss = chunked_cross_entropy(logits, targets, chunk_size=0)        
         losses[k] = loss.item()
     out = losses.mean()
     model.train()
