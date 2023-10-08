@@ -92,15 +92,15 @@ class TrainingConfig():
                 model_size=model_size,
                 learning_rate=1e-3,
                 min_lr=1e-4,
-                batch_size=128,
-                micro_batch_size=4,
+                batch_size=256,
+                micro_batch_size=2,
                 max_iters=max_iters,
                 weight_decay=0.01,
                 beta1=0.9,
                 beta2=0.95,
                 grad_clip=1.0,
                 decay_lr=True,
-                warmup_iters=1000,
+                warmup_iters=2000,
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
