@@ -90,8 +90,8 @@ class TrainingConfig():
             max_iters = 253000
             conf = dict(
                 model_size=model_size,
-                learning_rate=1e-4,
-                min_lr=1e-5,
+                learning_rate=5e-5,
+                min_lr=5e-6,
                 batch_size=1024,
                 micro_batch_size=2,
                 max_iters=max_iters,
