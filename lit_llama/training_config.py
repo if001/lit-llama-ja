@@ -90,8 +90,8 @@ class TrainingConfig():
             max_iters = 253000
             conf = dict(
                 model_size=model_size,
-                learning_rate=5e-5,
-                min_lr=5e-6,
+                learning_rate=5e-3,
+                min_lr=5e-4,
                 batch_size=64,
                 micro_batch_size=2,
                 max_iters=max_iters,
@@ -100,7 +100,7 @@ class TrainingConfig():
                 beta2=0.95,
                 grad_clip=1.0,
                 decay_lr=True,
-                warmup_iters=2000,
+                warmup_iters=1000,
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
