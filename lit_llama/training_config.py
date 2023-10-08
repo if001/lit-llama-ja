@@ -92,7 +92,7 @@ class TrainingConfig():
                 model_size=model_size,
                 learning_rate=1e-3,
                 min_lr=1e-4,
-                batch_size=256,
+                batch_size=512,
                 micro_batch_size=2,
                 max_iters=max_iters,
                 weight_decay=0.01,
