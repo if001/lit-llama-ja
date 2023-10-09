@@ -90,12 +90,30 @@ class TrainingConfig():
             max_iters = 253000
             conf = dict(
                 model_size=model_size,
-                learning_rate=5e-3,
-                min_lr=5e-4,
-                batch_size=64,
-                micro_batch_size=2,
+                learning_rate=1e-3,
+                min_lr=1e-4,
+                batch_size=128,
+                micro_batch_size=4,
                 max_iters=max_iters,
-                weight_decay=0.1,
+                weight_decay=0.01,
+                beta1=0.9,
+                beta2=0.95,
+                grad_clip=1.0,
+                decay_lr=True,
+                warmup_iters=1000,
+                lr_decay_iters=max_iters,
+            )
+            return cls(**conf)
+        elif model_size == "Llama-2-350M_v2-hf":
+            max_iters = 253000
+            conf = dict(
+                model_size=model_size,
+                learning_rate=1e-3,
+                min_lr=1e-4,
+                batch_size=200,
+                micro_batch_size=4,
+                max_iters=max_iters,
+                weight_decay=0.01,
                 beta1=0.9,
                 beta2=0.95,
                 grad_clip=1.0,
