@@ -326,13 +326,13 @@ def train(
             if val_dataloader is not None and step_count % eval_interval == 0:
                 val_loss = validate(fabric, model, val_dataloader)
                 print('-'*100)
-                fabric.print(f"step: {iter_num},  val loss: {val_loss:.4f}")
+                fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
                 fabric.barrier()
                 fabric.log_dict(
-                    {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}
+                    {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}, step=iter_num
                 )
-                fabric.loggers[0].save()
+                ## fabric.loggers[0].save()
 
             if step_count % save_interval == 0:
                 fabric.print("-"*200)
@@ -355,7 +355,7 @@ def train(
                     f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, lr: {lr}, step_count: {step_count}"
             )
             fabric.log_dict(
-                {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}
+                {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
             )
             fabric.log("loss_2", loss)
             # fabric.print(
