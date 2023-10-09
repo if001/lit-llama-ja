@@ -122,6 +122,24 @@ class TrainingConfig():
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
+        elif model_size == "Llama-2-400M-hf":
+            max_iters = 253000
+            conf = dict(
+                model_size=model_size,
+                learning_rate=1e-4,
+                min_lr=1e-5,
+                batch_size=256,
+                micro_batch_size=4,
+                max_iters=max_iters,
+                weight_decay=0.01,
+                beta1=0.9,
+                beta2=0.95,
+                grad_clip=1.0,
+                decay_lr=True,
+                warmup_iters=1000,
+                lr_decay_iters=max_iters,
+            )
+            return cls(**conf)
         elif model_size == "open_llama_130M":
             max_iters = 143000
             conf = dict(
