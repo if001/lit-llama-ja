@@ -13,11 +13,10 @@ def main(
 
     config = Llama2Config.from_name(model_size)
 
-    model = GPT(config)
-
-    compiled_model = torch.compile(model)
+    model = GPT(config)    
     state_dict = _lazy_load(checkpoint_file)
-    compiled_model.load_state_dict(state_dict, strict=True)
+    model.load_state_dict(state_dict, strict=True)
+
     print('-'*100)
     for v in model.state_dict():
         print(v)
