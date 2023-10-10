@@ -154,12 +154,14 @@ def copy_weights_llama(
                     param = saver.store_early(param)
                 state_dict[to_name] = param
         else:
-            if "transformer.h" in name and not name.endswith(".scale"):
+            if "transformer.h" in name:
                 print('debug', name)
                 from_name, number = layer_template(name, 2)
                 print('debug from_name', from_name)
                 to_name = weight_map[from_name]
                 to_name = to_name.format(number)
+            elif name.endswith(".scale"):
+                print('scale', name)                
             else:
                 to_name = weight_map[name]
             param = load_param(param, name, None)
