@@ -17,7 +17,8 @@ sys.path.append(str(wd))
 # from lit_gpt import Config
 from lit_llama.config_llama2 import Llama2Config
 # from lit_gpt.utils import incremental_save, lazy_load
-from lit_llama.utils import incremental_save, lazy_load
+from lit_llama.utils import incremental_save
+from lightning.fabric.utilities.load import _lazy_load as lazy_load
 # from scripts.convert_hf_checkpoint import layer_template, load_param
 
 def layer_template(layer_name: str, idx: int) -> Tuple[str, int]:
