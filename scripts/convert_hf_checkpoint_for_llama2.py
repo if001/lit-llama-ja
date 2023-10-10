@@ -18,7 +18,24 @@ sys.path.append(str(wd))
 from lit_llama.config_llama2 import Llama2Config
 # from lit_gpt.utils import incremental_save, lazy_load
 from lit_llama.utils import incremental_save, lazy_load
-from scripts.convert_hf_checkpoint import layer_template, load_param
+# from scripts.convert_hf_checkpoint import layer_template, load_param
+
+def layer_template(layer_name: str, idx: int) -> Tuple[str, int]:
+    split = layer_name.split(".")
+    number = int(split[idx])
+    split[idx] = "{}"
+    from_name = ".".join(split)
+    return from_name, number
+
+def load_param(param: Union[torch.Tensor, NotYetLoadedTensor], name: str, dtype: Optional[torch.dtype]) -> torch.Tensor:
+    if hasattr(param, "_load_tensor"):
+        # support tensors loaded via `lazy_load()`
+        print(f"Loading {name!r} into RAM")
+        param = param._load_tensor()
+    if dtype is not None and type(dtype) is not NotYetLoadedTensor and dtype != param.dtype:
+        print(f"Converting {name!r} from {param.dtype} to {dtype}")
+        param = param.to(dtype)
+    return param
 
 
 def copy_weights_falcon(
@@ -188,7 +205,7 @@ def copy_weights_phi(
 
 
 def qkv_split(
-    param: Union[torch.Tensor, NotYetLoadedTensor], config: Config
+    param: Union[torch.Tensor, NotYetLoadedTensor], config: Llama2Config
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     q_per_kv = config.n_head // config.n_query_groups
     qs = []
