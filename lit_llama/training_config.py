@@ -123,7 +123,7 @@ class TrainingConfig():
             )
             return cls(**conf)
         elif model_size == "Llama-2-400M-hf":
-            max_iters = 253000
+            max_iters = 453000
             conf = dict(
                 model_size=model_size,
                 learning_rate=1e-4,
