@@ -83,9 +83,6 @@ class Llama2Config:
 
     @classmethod
     def from_name(cls, name: str, **kwargs: Any) -> Self:
-        print('debug', name_to_config)
-        print('debug222', name in name_to_config)
-        print('debug222', name_to_config[name])
         conf_dict = name_to_config[name].copy()
         if "condense_ratio" in kwargs:  # legacy name
             kwargs["rope_condense_ratio"] = kwargs.pop("condense_ratio")
