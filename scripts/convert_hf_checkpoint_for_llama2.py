@@ -230,7 +230,10 @@ def check_conversion_supported(lit_weights: Dict[str, torch.Tensor]) -> None:
 
 
 @torch.inference_mode()
-def convert_lit_checkpoint(config: Llama2Config, output_path: Path, checkpoint_path: Path) -> None:    
+def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: Path) -> None:
+    # config = Llama2Config.from_json(config_path)
+    config = Llama2Config.from_name(model_size)
+
     if "falcon" in config.name:
         copy_fn = partial(copy_weights_falcon, config.name)
     elif config._mlp_class == "LLaMAMLP":
@@ -248,12 +251,7 @@ def convert_lit_checkpoint(config: Llama2Config, output_path: Path, checkpoint_p
         gc.collect()
         saver.save(sd)
 
-def main(checkpoint_path: Path, output_path: Path, config_path: Path) -> None:
-    # config = Llama2Config.from_json(config_path)
-    config = Llama2Config.from_name(config_path)
-    convert_lit_checkpoint(config, output_path, checkpoint_path)
-
 if __name__ == "__main__":
     from jsonargparse import CLI
 
-    CLI(main, as_positional=False)
+    CLI(convert_lit_checkpoint, as_positional=False)
