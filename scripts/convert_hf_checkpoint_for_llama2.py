@@ -155,6 +155,7 @@ def copy_weights_llama(
                 state_dict[to_name] = param
         else:
             if "transformer.h" in name:
+                print('name', name)
                 from_name, number = layer_template(name, 2)
                 to_name = weight_map[from_name]
                 to_name = to_name.format(number)
