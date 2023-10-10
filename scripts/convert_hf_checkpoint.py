@@ -13,8 +13,10 @@ import torch
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
-from lit_llama.model import LLaMA, LLaMAConfig
+# from lit_llama.model import LLaMA, LLaMAConfig
 from lit_llama.utils import EmptyInitOnDevice, lazy_load, incremental_save
+from lit_llama.model_llama2 import GPT
+from lit_llama.config_llama2 import Llama2Config
 
 
 @torch.no_grad()
@@ -44,10 +46,10 @@ def convert_hf_checkpoint(
     dtype = dt
 
     print("Initializing lit-llama")
-    config = LLaMAConfig.from_name(model_size)
+    config = Llama2Config.from_name(model_size)
 
     with EmptyInitOnDevice(device="meta", dtype=dtype):
-        model = LLaMA(config)
+        model = GPT(config)
 
     qkv_size = model.transformer.h[0].attn.c_attn.weight.shape[0] // 3
 
