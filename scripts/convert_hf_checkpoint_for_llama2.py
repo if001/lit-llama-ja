@@ -256,4 +256,4 @@ def main(checkpoint_path: Path, output_path: Path, config_path: Path) -> None:
 if __name__ == "__main__":
     from jsonargparse import CLI
 
-    CLI(convert_lit_checkpoint, as_positional=False)
+    CLI(main, as_positional=False)
