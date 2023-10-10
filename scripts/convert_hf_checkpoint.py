@@ -6,6 +6,8 @@ import shutil
 import sys
 from pathlib import Path
 import os
+from typing import Union, Tuple, Optional
+from lightning.fabric.utilities.load import _NotYetLoadedTensor as NotYetLoadedTensor
 
 import torch
 
@@ -166,6 +168,22 @@ def convert_hf_checkpoint(
         assert out.dtype == out_hf.dtype
         assert torch.testing.assert_close(out, out_hf)
 
+def layer_template(layer_name: str, idx: int) -> Tuple[str, int]:
+    split = layer_name.split(".")
+    number = int(split[idx])
+    split[idx] = "{}"
+    from_name = ".".join(split)
+    return from_name, number
+
+def load_param(param: Union[torch.Tensor, NotYetLoadedTensor], name: str, dtype: Optional[torch.dtype]) -> torch.Tensor:
+    if hasattr(param, "_load_tensor"):
+        # support tensors loaded via `lazy_load()`
+        print(f"Loading {name!r} into RAM")
+        param = param._load_tensor()
+    if dtype is not None and type(dtype) is not NotYetLoadedTensor and dtype != param.dtype:
+        print(f"Converting {name!r} from {param.dtype} to {dtype}")
+        param = param.to(dtype)
+    return param
 
 if __name__ == "__main__":
     from jsonargparse import CLI
