@@ -591,7 +591,6 @@ nous_research = [
 ]
 configs.extend(nous_research)
 
-print('debug!!!!!!!!!!!!!!!!!')
 ###############
 # Meta LLaMA 2
 ###############
@@ -1332,3 +1331,4 @@ phi = [
 configs.extend(phi)
 
 name_to_config = {config["name"]: config for config in configs}
+print('debug2222222222', name_to_config)
