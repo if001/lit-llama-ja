@@ -5,6 +5,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+import os
 
 import torch
 
@@ -31,7 +32,11 @@ def convert_hf_checkpoint(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # the tokenizer is the same for all model sizes, so we store it in the parent dir
-    shutil.copy(checkpoint_dir / "tokenizer.model", output_dir.parent)
+    tokenizer_file = checkpoint_dir.parent / "tokenizer.model"
+    if os.path.isfile(tokenizer_file):
+        shutil.copy(tokenizer_file, output_dir.parent)
+    else:
+        print('tokenizer not found!! not copy!!')    
 
     dt = getattr(torch, dtype, None)
     if not isinstance(dt, torch.dtype):
