@@ -202,9 +202,7 @@ def copy_weights_llama_v2(
                 state_dict[to_name] = param
         else:
             if "transformer.h" in name and not name.endswith(".scale"):
-                print('debug', name)
                 from_name, number = layer_template(name, 2)
-                print('debug from_name', from_name)
                 to_name = weight_map[from_name]
                 to_name = to_name.format(number)
             elif name.endswith(".scale"):
