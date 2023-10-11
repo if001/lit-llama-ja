@@ -35,7 +35,6 @@ def convert_config(model_size):
     config = Llama2Config.from_name(model_size)
     print(t_config)
     print('='*100)
-
     t_config.hidden_size = config.block_size
     t_config.intermediate_size = config.intermediate_size
 
@@ -45,6 +44,10 @@ def convert_config(model_size):
     t_config.num_hidden_layers = config.n_head
     t_config.num_key_value_heads = config.n_head
     t_config.rms_norm_eps = config.norm_eps
+
+    ## tokenizer config
+    t_config.bos_token_id = 1
+    t_config.eos_token_id = 2
     t_config.vocab_size = 35000
     print(t_config)
     print('='*100)

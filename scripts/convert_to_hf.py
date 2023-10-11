@@ -4,7 +4,7 @@ import torch
 
 def main(save_dir: str = "", model_size: str = "", weight_path: str = ""):        
     t_config = convert_config(model_size)
-    model = AutoModel(t_config)    
+    model = AutoModel.from_config(t_config)
 
     pytorch_weights = torch.load(weight_path)
     model.load_state_dict(pytorch_weights)
