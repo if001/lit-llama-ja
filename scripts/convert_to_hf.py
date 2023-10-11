@@ -5,9 +5,12 @@ import torch
 def main(save_dir: str = "", model_size: str = "", weight_path: str = ""):        
     t_config = convert_config(model_size)
     model = AutoModel.from_config(t_config)
+    for v in model.state_dict():
+        print(v)
 
     pytorch_weights = torch.load(weight_path)
     model.load_state_dict(pytorch_weights)
+
     model.save_pretrained(save_dir=save_dir)
 
 if __name__ == "__main__":
