@@ -170,6 +170,53 @@ def copy_weights_llama(
             state_dict[to_name] = param
 
 
+def copy_weights_llama_v2(
+    config: Llama2Config,
+    state_dict: Dict[str, torch.Tensor],
+    lit_weights: Dict[str, Union[torch.Tensor, NotYetLoadedTensor]],
+    saver: Optional[incremental_save] = None,
+):
+    weight_map = {
+        "transformer.wte.weight": "embed_tokens.weight",
+        "transformer.h.{}.norm_1.weight": "layers.{}.input_layernorm.weight",
+        "transformer.h.{}.attn.proj.weight": "layers.{}.self_attn.o_proj.weight",
+        "transformer.h.{}.norm_2.weight": "layers.{}.post_attention_layernorm.weight",
+        "transformer.h.{}.mlp.fc_1.weight": "layers.{}.mlp.gate_proj.weight",
+        "transformer.h.{}.mlp.fc_2.weight": "layers.{}.mlp.up_proj.weight",
+        "transformer.h.{}.mlp.proj.weight": "layers.{}.mlp.down_proj.weight",
+        "transformer.ln_f.weight": "norm.weight",
+        "lm_head.weight": "lm_head.weight",
+    }
+
+    for name, param in lit_weights.items():
+        if name.endswith(".attn.attn.weight"):
+            from_name, number = layer_template(name, 2)
+            q = "layers.{}.self_attn.q_proj.weight".format(number)
+            k = "layers.{}.self_attn.k_proj.weight".format(number)
+            v = "layers.{}.self_attn.v_proj.weight".format(number)
+            qkv = load_param(param, name, None)
+            qp, kp, vp = qkv_split(qkv, config)
+            for to_name, param in zip((q, k, v), (qp, kp, vp)):
+                if saver is not None:
+                    param = saver.store_early(param)
+                state_dict[to_name] = param
+        else:
+            if "transformer.h" in name and not name.endswith(".scale"):
+                print('debug', name)
+                from_name, number = layer_template(name, 2)
+                print('debug from_name', from_name)
+                to_name = weight_map[from_name]
+                to_name = to_name.format(number)
+            elif name.endswith(".scale"):
+                print('scale', name)                
+            else:
+                to_name = weight_map[name]
+            param = load_param(param, name, None)
+            if saver is not None:
+                param = saver.store_early(param)
+            state_dict[to_name] = param
+
+
 def copy_weights_phi(
     config: Llama2Config,
     state_dict: Dict[str, torch.Tensor],
@@ -242,7 +289,8 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
     if "falcon" in config.name:
         copy_fn = partial(copy_weights_falcon, config.name)
     elif config._mlp_class == "LLaMAMLP":
-        copy_fn = partial(copy_weights_llama, config)
+        ## copy_fn = partial(copy_weights_llama, config)
+        copy_fn = partial(copy_weights_llama_v2, config)
     else:
         copy_fn = copy_weights_gpt_neox
 
