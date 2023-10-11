@@ -1,5 +1,10 @@
 ## lit_llama config to transformers config
+import sys
+from pathlib import Path
+wd = Path(__file__).parent.parent.resolve()
+sys.path.append(str(wd))
 from transformers import LlamaConfig
+
 from lit_llama.config_llama2 import Llama2Config
 
 # LlamaConfig {
