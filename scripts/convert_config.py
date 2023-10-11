@@ -51,7 +51,7 @@ def convert_config(model_size):
     t_config.vocab_size = 35000
     print(t_config)
     print('='*100)
-
+    return t_config
     
 def main(model_size: str = ""):
     convert_config(model_size)
