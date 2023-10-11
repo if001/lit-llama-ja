@@ -301,6 +301,10 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
         copy_fn(sd, lit_weights, saver=saver)
         gc.collect()
         saver.save(sd)
+        
+        print("="*100)
+        for v in sd:
+            print(v)
 
 if __name__ == "__main__":
     from jsonargparse import CLI
