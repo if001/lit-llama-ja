@@ -35,12 +35,11 @@ def convert_config(model_size):
     config = Llama2Config.from_name(model_size)
     print(t_config)
     print('='*100)
-    t_config.hidden_size = config.block_size
+    t_config.hidden_size = config.n_embd
+    t_config.max_position_embeddings = config.block_size
     t_config.intermediate_size = config.intermediate_size
 
     t_config.num_attention_heads = config.n_head
-    # config.n_embd // config.n_head
-
     t_config.num_hidden_layers = config.n_head
     t_config.num_key_value_heads = config.n_head
     t_config.rms_norm_eps = config.norm_eps
