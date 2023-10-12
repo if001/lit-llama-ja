@@ -197,7 +197,7 @@ def copy_weights_llama_v2(
             qkv = load_param(param, name, None)
             qp, kp, vp = qkv_split(qkv, config)
             for to_name, param in zip((q, k, v), (qp, kp, vp)):
-                print('debug: ', to_name, param.size())
+                ## print('debug: ', to_name, param.size())
                 if saver is not None:
                     param = saver.store_early(param)
                 state_dict[to_name] = param
@@ -206,8 +206,6 @@ def copy_weights_llama_v2(
                 from_name, number = layer_template(name, 2)
                 to_name = weight_map[from_name]
                 to_name = to_name.format(number)
-            # elif name.endswith(".scale"):
-            #     print('scale', name)
             else:
                 to_name = weight_map[name]
             param = load_param(param, name, None)

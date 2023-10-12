@@ -2,12 +2,12 @@
 ## layer名を変更したあとのweightをhuggingfaceように変換する
 
 from convert_config import convert_config
-from transformers import AutoModel
+from transformers import AutoModelForCausalLM
 import torch
 
 def main(save_dir: str = "", model_size: str = "", weight_path: str = ""):        
     t_config = convert_config(model_size)
-    model = AutoModel.from_config(t_config)
+    model = AutoModelForCausalLM.from_config(t_config)
     for k in model.state_dict():
         print(k)
 
