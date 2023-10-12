@@ -48,7 +48,7 @@ def convert_config(model_size):
     ## tokenizer config
     t_config.bos_token_id = 1
     t_config.eos_token_id = 2
-    t_config.vocab_size = 35000
+    t_config.vocab_size = 35000 + 8
     print(t_config)
     print('='*100)
     return t_config
