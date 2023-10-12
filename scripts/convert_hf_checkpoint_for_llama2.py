@@ -378,7 +378,7 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
         
         print("="*100)
         for k in sd:
-            print(k, sd[k].size())
+            print(k)
 
 if __name__ == "__main__":
     from jsonargparse import CLI
