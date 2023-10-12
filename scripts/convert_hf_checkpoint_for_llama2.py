@@ -258,11 +258,14 @@ def qkv_split(
     param: Union[torch.Tensor, NotYetLoadedTensor], config: Llama2Config
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     q_per_kv = config.n_head // config.n_query_groups
+    print('p_ker_kv, n_headm n_query_group', q_per_kv, config.n_head, config.n_query_groups)
     qs = []
     ks = []
     vs = []
     for chunk in torch.chunk(param, config.n_query_groups):
+        print('split: ', [config.head_size * q_per_kv, config.head_size, config.head_size])
         split = torch.split(chunk, [config.head_size * q_per_kv, config.head_size, config.head_size])
+        print('qs: ', split[0].size)
         qs.append(split[0])
         ks.append(split[1])
         vs.append(split[2])
