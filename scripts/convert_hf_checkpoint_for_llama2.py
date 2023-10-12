@@ -266,13 +266,16 @@ def qkv_split(
     for chunk in torch.chunk(param, config.n_query_groups):
         print('split: ', [config.head_size * q_per_kv, config.head_size, config.head_size])
         split = torch.split(chunk, [config.head_size * q_per_kv, config.head_size, config.head_size])
-        print('qs: ', split[0].size())
+        print('ks: ', split[1].size())
         qs.append(split[0])
         ks.append(split[1])
         vs.append(split[2])
     q = torch.cat(qs)    
     k = torch.cat(ks)
     v = torch.cat(vs)
+    print('q size', q.size())
+    print('k size', k.size())
+    print('v size', v.size())
     return q, k, v
 
 
@@ -307,8 +310,8 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
         saver.save(sd)
         
         print("="*100)
-        for v in sd:
-            print(v)
+        for k, v in sd:
+            print(k, v.size())
 
 if __name__ == "__main__":
     from jsonargparse import CLI
