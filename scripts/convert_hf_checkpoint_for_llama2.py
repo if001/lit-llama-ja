@@ -199,6 +199,7 @@ def copy_weights_llama_v2(
             for to_name, param in zip((q, k, v), (qp, kp, vp)):
                 if saver is not None:
                     param = saver.store_early(param)
+                print('debug size: ', param.size())
                 state_dict[to_name] = param
         else:
             if "transformer.h" in name:
@@ -269,8 +270,7 @@ def qkv_split(
         qs.append(split[0])
         ks.append(split[1])
         vs.append(split[2])
-    q = torch.cat(qs)
-    print('q:', q.size())
+    q = torch.cat(qs)    
     k = torch.cat(ks)
     v = torch.cat(vs)
     return q, k, v
