@@ -188,7 +188,9 @@ def copy_weights_llama_v2(
         "lm_head.weight": "lm_head.weight",
     }
 
-    for name, param in lit_weights.items():
+    for name, param in lit_weights.items():        
+        if "transformer.wte.weight" in name:
+            print(name, param.size())
         if name.endswith(".attn.attn.weight"):
             from_name, number = layer_template(name, 2)
             q = "layers.{}.self_attn.q_proj.weight".format(number)
@@ -201,7 +203,7 @@ def copy_weights_llama_v2(
                 if saver is not None:
                     param = saver.store_early(param)
                 state_dict[to_name] = param
-        else:
+        else:            
             if "transformer.h" in name:
                 from_name, number = layer_template(name, 2)
                 to_name = weight_map[from_name]
@@ -320,27 +322,17 @@ def qkv_split(
     param: Union[torch.Tensor, NotYetLoadedTensor], config: Llama2Config
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     q_per_kv = config.n_head // config.n_query_groups
-    print('p_ker_kv, n_head, n_query_group', q_per_kv, config.n_head, config.n_query_groups)
     qs = []
     ks = []
     vs = []
-    print('param: ', param.size())
     for chunk in torch.chunk(param, config.n_query_groups):
-        print('chunk: ', chunk.size())
-        print('split: ', [config.head_size * q_per_kv, config.head_size, config.head_size])
         split = torch.split(chunk, [config.head_size * q_per_kv, config.head_size, config.head_size])
-        print('qs: ', split[0].size())
-        print('ks: ', split[1].size())
-        print('vs: ', split[2].size())
         qs.append(split[0])
         ks.append(split[1])
         vs.append(split[2])
     q = torch.cat(qs)    
     k = torch.cat(ks)
     v = torch.cat(vs)
-    print('q size', q.size())
-    print('k size', k.size())
-    print('v size', v.size())
     return q, k, v
 
 
