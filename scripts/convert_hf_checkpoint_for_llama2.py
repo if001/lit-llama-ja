@@ -5,7 +5,7 @@ import gc
 import sys
 from functools import partial
 from pathlib import Path
-from typing import Dict, Optional, Tuple, Union
+from typing import Dict, Optional, Tuple, Union, List
 
 import torch
 from lightning.fabric.utilities.load import _NotYetLoadedTensor as NotYetLoadedTensor
@@ -216,6 +216,67 @@ def copy_weights_llama_v2(
             state_dict[to_name] = param
 
 
+def copy_weights_hf_llama_v3(
+    config: Llama2Config,
+    qkv_weights: Dict[int, List[Optional[NotYetLoadedTensor]]],
+    state_dict: Dict[str, torch.Tensor],
+    hf_weights: Dict[str, Union[torch.Tensor, NotYetLoadedTensor]],
+    saver: Optional[incremental_save] = None,
+    dtype: Optional[torch.dtype] = None,
+) -> None:
+    weight_map = {
+        "model.embed_tokens.weight": "transformer.wte.weight",
+        "model.layers.{}.input_layernorm.weight": "transformer.h.{}.norm_1.weight",
+        "model.layers.{}.self_attn.q_proj.weight": None,
+        "model.layers.{}.self_attn.k_proj.weight": None,
+        "model.layers.{}.self_attn.v_proj.weight": None,
+        "model.layers.{}.self_attn.o_proj.weight": "transformer.h.{}.attn.proj.weight",
+        "model.layers.{}.self_attn.rotary_emb.inv_freq": None,
+        "model.layers.{}.post_attention_layernorm.weight": "transformer.h.{}.norm_2.weight",
+        "model.layers.{}.mlp.gate_proj.weight": "transformer.h.{}.mlp.fc_1.weight",
+        "model.layers.{}.mlp.up_proj.weight": "transformer.h.{}.mlp.fc_2.weight",
+        "model.layers.{}.mlp.down_proj.weight": "transformer.h.{}.mlp.proj.weight",
+        "model.norm.weight": "transformer.ln_f.weight",
+        "lm_head.weight": "lm_head.weight",
+    }
+
+    for name, param in hf_weights.items():
+        if "model.layers" in name:
+            from_name, number = layer_template(name, 2)
+            qkv = qkv_weights.setdefault(number, [None, None, None])
+            if "q_proj" in name:
+                qkv[0] = param
+            elif "k_proj" in name:
+                qkv[1] = param
+            elif "v_proj" in name:
+                qkv[2] = param
+            to_name = weight_map[from_name]
+            if to_name is None:
+                continue
+            to_name = to_name.format(number)
+        else:
+            to_name = weight_map[name]
+        param = load_param(param, name, dtype)
+        if saver is not None:
+            param = saver.store_early(param)
+        state_dict[to_name] = param
+
+    for i, (q, k, v) in list(qkv_weights.items()):
+        if q is None or k is None or v is None:
+            # split across different .bin files
+            continue
+        q = load_param(q, f"layer {i} q", dtype)
+        k = load_param(k, f"layer {i} k", dtype)
+        v = load_param(v, f"layer {i} v", dtype)
+        q_per_kv = config.n_head // config.n_query_groups
+        qs = torch.split(q, config.head_size * q_per_kv)
+        ks = torch.split(k, config.head_size)
+        vs = torch.split(v, config.head_size)
+        cycled = [t for group in zip(qs, ks, vs) for t in group]
+        qkv = torch.cat(cycled)
+        state_dict[f"transformer.h.{i}.attn.attn.weight"] = qkv
+        del qkv_weights[i]
+
 def copy_weights_phi(
     config: Llama2Config,
     state_dict: Dict[str, torch.Tensor],
@@ -266,7 +327,9 @@ def qkv_split(
     for chunk in torch.chunk(param, config.n_query_groups):
         print('split: ', [config.head_size * q_per_kv, config.head_size, config.head_size])
         split = torch.split(chunk, [config.head_size * q_per_kv, config.head_size, config.head_size])
+        print('qs: ', split[0].size())
         print('ks: ', split[1].size())
+        print('vs: ', split[2].size())
         qs.append(split[0])
         ks.append(split[1])
         vs.append(split[2])
@@ -296,6 +359,8 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
     elif config._mlp_class == "LLaMAMLP":
         ## copy_fn = partial(copy_weights_llama, config)
         copy_fn = partial(copy_weights_llama_v2, config)
+        ## qkv_weights = {}
+        ## copy_fn = partial(copy_weights_hf_llama_v3, config, qkv_weights)
     else:
         copy_fn = copy_weights_gpt_neox
 
@@ -310,8 +375,8 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
         saver.save(sd)
         
         print("="*100)
-        for k, v in sd:
-            print(k, v.size())
+        for k in sd:
+            print(k, sd[k].size())
 
 if __name__ == "__main__":
     from jsonargparse import CLI
