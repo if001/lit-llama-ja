@@ -324,7 +324,9 @@ def qkv_split(
     qs = []
     ks = []
     vs = []
+    print('param: ', param.size())
     for chunk in torch.chunk(param, config.n_query_groups):
+        print('chunk: ', chunk.size())
         print('split: ', [config.head_size * q_per_kv, config.head_size, config.head_size])
         split = torch.split(chunk, [config.head_size * q_per_kv, config.head_size, config.head_size])
         print('qs: ', split[0].size())
