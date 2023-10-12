@@ -41,7 +41,8 @@ def convert_config(model_size):
 
     t_config.num_attention_heads = config.n_head
     t_config.num_hidden_layers = config.n_head
-    t_config.num_key_value_heads = config.n_head
+    t_config.num_key_value_heads = config.n_query_groups
+
     t_config.rms_norm_eps = config.norm_eps
 
     ## tokenizer config
