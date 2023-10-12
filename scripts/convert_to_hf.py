@@ -1,3 +1,6 @@
+## convert_hf_checkpoint_for_llama2.pyで
+## layer名を変更したあとのweightをhuggingfaceように変換する
+
 from convert_config import convert_config
 from transformers import AutoModel
 import torch

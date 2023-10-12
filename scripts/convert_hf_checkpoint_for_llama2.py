@@ -178,13 +178,13 @@ def copy_weights_llama_v2(
 ):
     weight_map = {
         "transformer.wte.weight": "embed_tokens.weight",
-        "transformer.h.{}.norm_1.weight": "layers.{}.input_layernorm.weight",
+        "transformer.h.{}.norm_1.scale": "layers.{}.input_layernorm.weight",
         "transformer.h.{}.attn.proj.weight": "layers.{}.self_attn.o_proj.weight",
-        "transformer.h.{}.norm_2.weight": "layers.{}.post_attention_layernorm.weight",
+        "transformer.h.{}.norm_2.scale": "layers.{}.post_attention_layernorm.weight",
         "transformer.h.{}.mlp.fc_1.weight": "layers.{}.mlp.gate_proj.weight",
         "transformer.h.{}.mlp.fc_2.weight": "layers.{}.mlp.up_proj.weight",
         "transformer.h.{}.mlp.proj.weight": "layers.{}.mlp.down_proj.weight",
-        "transformer.ln_f.weight": "norm.weight",
+        "transformer.ln_f.scale": "norm.weight",
         "lm_head.weight": "lm_head.weight",
     }
 
@@ -201,12 +201,12 @@ def copy_weights_llama_v2(
                     param = saver.store_early(param)
                 state_dict[to_name] = param
         else:
-            if "transformer.h" in name and not name.endswith(".scale"):
+            if "transformer.h" in name:
                 from_name, number = layer_template(name, 2)
                 to_name = weight_map[from_name]
                 to_name = to_name.format(number)
-            elif name.endswith(".scale"):
-                print('scale', name)                
+            # elif name.endswith(".scale"):
+            #     print('scale', name)
             else:
                 to_name = weight_map[name]
             param = load_param(param, name, None)
