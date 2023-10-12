@@ -197,9 +197,9 @@ def copy_weights_llama_v2(
             qkv = load_param(param, name, None)
             qp, kp, vp = qkv_split(qkv, config)
             for to_name, param in zip((q, k, v), (qp, kp, vp)):
+                print('debug: ', to_name, param.size())
                 if saver is not None:
                     param = saver.store_early(param)
-                print('debug size: ', param.size())
                 state_dict[to_name] = param
         else:
             if "transformer.h" in name:
