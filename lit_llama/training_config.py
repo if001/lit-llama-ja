@@ -214,4 +214,4 @@ class TrainingConfig():
             )
             return cls(**conf)
         else:
-            raise ValueError("invalid model size")
+            raise ValueError("invalid model size", model_size)
