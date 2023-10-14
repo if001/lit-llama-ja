@@ -15,7 +15,8 @@ def main(save_dir: str = "", model_size: str = "", weight_path: str = ""):
     model.load_state_dict(pytorch_weights)
 
     # model.save_pretrained(save_dir=save_dir)
-    model.save_pretrained(save_dir, push_to_hub=True, repo_name="if001/llama2_ja_small")
+    # model.save_pretrained(save_dir, push_to_hub=True, repo_name="if001/llama2_ja_small")
+    model.push_to_hub("if001/llama2_ja_small")
 
 if __name__ == "__main__":
     from jsonargparse import CLI
