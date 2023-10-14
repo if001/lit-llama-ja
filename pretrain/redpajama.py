@@ -137,6 +137,14 @@ train_data_config = [
     ('aozorabunko-clean-sin',1.0)
 ]
 
+## 日本語: 997.79M, 英語: 3.80B/3
+train_data_config = [ 
+    ('wikipedia-ja-20230720', 1.0),
+    ('wikipedia-en-20230720', 0.3),
+    ('open-text-books', 1.0),
+    ('aozorabunko-clean-sin',1.0)
+]
+
 
 def format_number(num):
     if abs(num) >= 10**12:  # Trillion
