@@ -191,9 +191,9 @@ def copy_weights_llama_v2(
     for name, param in lit_weights.items():
         if name.endswith(".attn.attn.weight"):
             from_name, number = layer_template(name, 2)
-            q = "layers.{}.self_attn.q_proj.weight".format(number)
-            k = "layers.{}.self_attn.k_proj.weight".format(number)
-            v = "layers.{}.self_attn.v_proj.weight".format(number)
+            q = "model.layers.{}.self_attn.q_proj.weight".format(number)
+            k = "model.layers.{}.self_attn.k_proj.weight".format(number)
+            v = "model.layers.{}.self_attn.v_proj.weight".format(number)
             qkv = load_param(param, name, None)
             qp, kp, vp = qkv_split(qkv, config)
             for to_name, param in zip((q, k, v), (qp, kp, vp)):
@@ -201,7 +201,7 @@ def copy_weights_llama_v2(
                 if saver is not None:
                     param = saver.store_early(param)
                 state_dict[to_name] = param
-        else:            
+        else:
             if "transformer.h" in name:
                 from_name, number = layer_template(name, 2)
                 to_name = weight_map[from_name]
@@ -364,9 +364,9 @@ def convert_lit_checkpoint(model_size: str, output_path: Path, checkpoint_path: 
         gc.collect()
         saver.save(sd)
         
-        print("="*100)
-        for k in sd:
-            print(k)
+    print("="*100)
+    for k in sd:
+        print(k)
 
 if __name__ == "__main__":
     from jsonargparse import CLI
