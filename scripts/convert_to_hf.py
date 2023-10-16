@@ -1,11 +1,11 @@
-## convert_hf_checkpoint_for_llama2.pyで
-## layer名を変更したあとのweightをhuggingfaceように変換する
+## convert_hf_checkpoint_for_llama2.pyでlayer名を変更したあとのweightをhuggingface用に変換
+## huggingfaceへupload
 
 from convert_config import convert_config
 from transformers import AutoModelForCausalLM
 import torch
 
-def main(save_dir: str = "", model_size: str = "", weight_path: str = ""):        
+def main(model_size: str = "", weight_path: str = "", repo_id: str = ""):
     t_config = convert_config(model_size)
     model = AutoModelForCausalLM.from_config(t_config)
     for k in model.state_dict():
@@ -16,7 +16,7 @@ def main(save_dir: str = "", model_size: str = "", weight_path: str = ""):
 
     # model.save_pretrained(save_dir=save_dir)
     # model.save_pretrained(save_dir, push_to_hub=True, repo_name="if001/llama2_ja_small")
-    model.push_to_hub("if001/llama2_ja_small")
+    model.push_to_hub(repo_id)
 
 if __name__ == "__main__":
     from jsonargparse import CLI
