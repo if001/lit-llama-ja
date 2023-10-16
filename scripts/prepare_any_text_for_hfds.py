@@ -40,6 +40,8 @@ def prepare(
     dataset = dataset.map(prepare).shuffle(seed=seed).train_test_split(test_size=test_split_ratio)   
   
     ds = dataset['train'].select([i for i in range(5)])
+
+    tokenizer = Tokenizer(tokenizer_path)
     a = [prepare_line(line, tokenizer, max_seq_length) for line in tqdm(ds)]
     print(a)
     exit(0)
