@@ -33,8 +33,8 @@ from lit_llama.tokenizer import HFTokenizer
 instruction_tuning = True
 eval_interval = 1000
 save_interval = 1000
-eval_iters = 100
-log_interval = 100
+eval_iters = 1000
+log_interval = 5000
 devices = 1
 
 # Hyperparameters
