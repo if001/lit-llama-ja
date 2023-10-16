@@ -78,7 +78,8 @@ def main(
 
     with fabric.device:
         torch.set_default_tensor_type(torch.HalfTensor)
-        model = GPT(config).bfloat16()
+        # model = GPT(config).bfloat16()
+        model = GPT(config).float16()
         torch.set_default_tensor_type(torch.FloatTensor)
         model.load_state_dict(checkpoint, strict=False) 
 
