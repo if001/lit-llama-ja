@@ -11,7 +11,7 @@ import requests
 import json
 from datasets import load_dataset
 from torch.utils.data import random_split
-from lit_llama.tokenizer import Tokenizer
+from lit_llama.tokenizer import Tokenizer, HFTokenizer
 from tqdm import tqdm
 
 
@@ -41,13 +41,14 @@ def prepare(
   
     ds = dataset['train'].select([i for i in range(5)])
 
-    tokenizer = Tokenizer(tokenizer_path)
+    tokenizer = HFTokenizer(model_path=tokenizer_path)    
     a = [prepare_line(line, tokenizer, max_seq_length) for line in tqdm(ds)]
     print(a)
     exit(0)
 
-    print('load tokenizer...', tokenizer_path)
-    tokenizer = Tokenizer(tokenizer_path)
+    print('load tokenizer...', tokenizer_path)    
+    tokenizer = HFTokenizer(model_path=tokenizer_path)
+
     print("Processing train split ...")
     train_set = [
         prepare_line(line, tokenizer, max_seq_length) for line in tqdm(dataset['train'])
