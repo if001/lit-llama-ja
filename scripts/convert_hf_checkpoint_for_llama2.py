@@ -189,7 +189,6 @@ def copy_weights_llama_v2(
     }
 
     for name, param in lit_weights.items():
-        print(name)        
         if name.endswith(".attn.attn.weight"):
             from_name, number = layer_template(name, 2)
             q = "model.layers.{}.self_attn.q_proj.weight".format(number)
