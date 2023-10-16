@@ -21,11 +21,14 @@ wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
 from generate import generate
-from lit_llama.model import Block, LLaMA, LLaMAConfig
-from lit_llama.tokenizer import Tokenizer
+# from lit_llama.model import Block, LLaMA, LLaMAConfig
+# from lit_llama.tokenizer import Tokenizer
+
 from lit_llama.utils import save_model_checkpoint
 from scripts.prepare_alpaca import generate_prompt
-
+from lit_llama.config_llama2 import Llama2Config
+from lit_llama.model_llama2 import GPT
+from lit_llama.tokenizer import HFTokenizer
 
 instruction_tuning = True
 eval_interval = 1000
@@ -49,15 +52,17 @@ warmup_iters = 100
 
 
 def main(
+    model_size: str = "7B",
     data_dir: str = "data/alpaca",
     pretrained_path: str = "checkpoints/lit-llama/7B/lit-llama.pth",
     out_dir: str = "out/full/alpaca",
 ):
 
-    auto_wrap_policy = partial(transformer_auto_wrap_policy, transformer_layer_cls={Block})
-    strategy = FSDPStrategy(auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True)
-
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
+    # auto_wrap_policy = partial(transformer_auto_wrap_policy, transformer_layer_cls={Block})
+    # strategy = FSDPStrategy(auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True)
+        
+    precision="16-mixed" ## for v100
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision)
     fabric.launch()
     fabric.seed_everything(1337 + fabric.global_rank)
 
@@ -66,14 +71,14 @@ def main(
 
     train_data, val_data = load_datasets(data_dir=data_dir)
 
-    config = LLaMAConfig.from_name("7B")
+    config = Llama2Config.from_name(model_size)
     config.block_size = block_size
 
     checkpoint = torch.load(pretrained_path)
 
     with fabric.device:
         torch.set_default_tensor_type(torch.HalfTensor)
-        model = LLaMA(config).bfloat16()
+        model = GPT(config).bfloat16()
         torch.set_default_tensor_type(torch.FloatTensor)
         model.load_state_dict(checkpoint, strict=False) 
 
@@ -141,7 +146,8 @@ def train(
 
 
 def generate_response(model, instruction):
-    tokenizer = Tokenizer("checkpoints/lit-llama/tokenizer.model")
+    tokenizer = HFTokenizer("/content/drive/MyDrive/tokenizer/spm/tokenizer_35000.json")
+
     sample = {"instruction": instruction, "input": ""}
     prompt = instruction
     if instruction_tuning:
