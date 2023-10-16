@@ -40,12 +40,12 @@ def prepare(
     dataset = dataset.map(prepare).shuffle(seed=seed).train_test_split(test_size=test_split_ratio)   
     print('dataset[train]', dataset['train'])
     print('dataset[test]', dataset['test'])
-    print(dataset['train'][0])
-    print(dataset['train'][1])
-    print(dataset['train'][2])
-    print(dataset['test'][0])
-    print(dataset['test'][1])
-    print(dataset['test'][2])
+    print(dataset['train'][0]['text'])
+    print(dataset['train'][1]['text'])
+    print(dataset['train'][2]['text'])
+    print(dataset['test'][0]['text'])
+    print(dataset['test'][1]['text'])
+    print(dataset['test'][2]['text'])
 
     exit(0)
     print('load tokenizer...', tokenizer_path)
@@ -67,8 +67,8 @@ def prepare_line(line: str, tokenizer: Tokenizer, max_length: int):
     """Processes a single sample.
 
     This function processes the line to produce the tokenized version of it.
-    """
-    encoded_full_prompt = tokenize(tokenizer, line, max_length=max_length, eos=False)
+    """    
+    encoded_full_prompt = tokenize(tokenizer, line['text'], max_length=max_length, eos=False)
     return {
         "input_ids": encoded_full_prompt,
         "labels": encoded_full_prompt,
