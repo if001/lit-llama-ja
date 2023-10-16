@@ -25,7 +25,7 @@ from generate import generate
 # from lit_llama.tokenizer import Tokenizer
 
 from lit_llama.utils import save_model_checkpoint
-from scripts.prepare_alpaca import generate_prompt
+from scripts.prepare_alpaca import generate_prompt, generate_prompt_ja
 from lit_llama.config_llama2 import Llama2Config
 from lit_llama.model_llama2 import GPT
 from lit_llama.tokenizer import HFTokenizer
@@ -154,7 +154,7 @@ def generate_response(model, instruction):
     sample = {"instruction": instruction, "input": ""}
     prompt = instruction
     if instruction_tuning:
-        prompt = generate_prompt(sample)
+        prompt = generate_prompt_ja(sample)
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=model.device)
 
     output = generate(
@@ -180,8 +180,11 @@ def validate(fabric: L.Fabric, model: torch.nn.Module, val_data: np.ndarray) -> 
     out = losses.mean()
 
     # produce an example:
-    instruction = "Recommend a movie for me to watch during the weekend and explain the reason."
-    
+    instruction = "ユーザー:\n週末に見るべき映画を推薦し、その理由を説明してください。\n\nシステム:\n"
+    with fabric.init_tensor():
+        # do not set `max_seq_length=max_returned_token` because memory is not a concern here
+        model.set_kv_cache(batch_size=1)
+
     output = generate_response(model, instruction)
     fabric.print(instruction)
     fabric.print(output)
