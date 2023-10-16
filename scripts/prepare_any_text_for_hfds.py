@@ -68,7 +68,7 @@ def prepare_line(line: str, tokenizer: Tokenizer, max_length: int):
     This function processes the line to produce the tokenized version of it.
     """
     print('line[text]', line['text'])
-    encoded_full_prompt = tokenize(tokenizer, line['text'], max_length=max_length, eos=False)
+    encoded_full_prompt = tokenize(tokenizer, line['text'], max_length=max_length, eos=True)
     print('encoded_full_prompt', encoded_full_prompt)
     print('-'*100)
     return {
