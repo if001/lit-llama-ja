@@ -77,10 +77,10 @@ def main(
     checkpoint = torch.load(pretrained_path)
 
     with fabric.device:
-        torch.set_default_tensor_type(torch.HalfTensor)
+        # torch.set_default_tensor_type(torch.HalfTensor)
         # model = GPT(config).bfloat16()
         model = GPT(config)
-        torch.set_default_tensor_type(torch.FloatTensor)
+        # torch.set_default_tensor_type(torch.FloatTensor)
         model.load_state_dict(checkpoint, strict=False) 
 
     model = fabric.setup_module(model)
