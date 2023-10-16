@@ -46,13 +46,13 @@ def prepare(
     train_set = [
         prepare_line(line, tokenizer, max_seq_length) for line in tqdm(dataset['train'])
     ]
-    torch.save(train_set, str(save_path) / "train.pt")
+    torch.save(train_set, save_path / "train.pt")
 
     print("Processing test split ...")
     test_set = [
         prepare_line(line, tokenizer, max_seq_length) for line in tqdm(dataset['test'])
     ]
-    torch.save(test_set, str(save_path) / "test.pt")
+    torch.save(test_set, save_path / "test.pt")
 
 
 def prepare_line(line: str, tokenizer: Tokenizer, max_length: int):
