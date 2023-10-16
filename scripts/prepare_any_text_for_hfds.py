@@ -33,7 +33,7 @@ def prepare(
     """
     
     def prepare(example):
-        example["text"] = 'ユーザー: ' + example["instruction"] + "\n" + "システム: " + example["output"]
+        example["text"] = 'ユーザー:\n' + example["instruction"] + "\n\n" + "システム:\n" + example["output"]
         return example
     
     dataset = load_dataset(data_repo_id, split="train")
