@@ -47,7 +47,7 @@ epoch_size = 50000  # train dataset size
 num_epochs = 5
 max_iters = num_epochs * (epoch_size // micro_batch_size) // devices
 weight_decay = 0.0
-block_size = 512
+block_size = 2048
 warmup_iters = 100
 
 
