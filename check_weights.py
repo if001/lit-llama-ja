@@ -12,6 +12,7 @@ def main(
     print('checkpoint_file: ', checkpoint_file)
 
     config = Llama2Config.from_name(model_size)
+    config.debug()
 
     model = GPT(config)    
     state_dict = _lazy_load(checkpoint_file)
