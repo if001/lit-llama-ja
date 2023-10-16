@@ -35,7 +35,7 @@ eval_interval = 1000
 save_interval = 1000
 eval_iters = 100
 log_interval = 100
-devices = 4
+devices = 1
 
 # Hyperparameters
 learning_rate = 3e-5
@@ -148,6 +148,7 @@ def train(
 def generate_response(model, instruction):
     tokenizer = HFTokenizer("/content/drive/MyDrive/tokenizer/spm/tokenizer_35000.json")
 
+    # sample = {"instruction": instruction, "input": ""}
     sample = {"instruction": instruction, "input": ""}
     prompt = instruction
     if instruction_tuning:
