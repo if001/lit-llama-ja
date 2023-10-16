@@ -21,7 +21,7 @@ IGNORE_INDEX = -1
 def prepare(
     save_path: Path = Path("data/any"),
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
-    test_split_ratio: float = 0.9,  # default 90% train, 10% validation
+    test_split_ratio: float = 0.1,
     max_seq_length: int = 256,
     seed: int = 42,
     data_repo_id: str = "repo/id",
@@ -41,6 +41,9 @@ def prepare(
   
     print('load tokenizer...', tokenizer_path)    
     tokenizer = HFTokenizer(model_path=tokenizer_path)
+
+    print('dataset[train]', dataset['train'])
+    print('dataset[test]', dataset['test'])
 
     print("Processing train split ...")
     train_set = [
