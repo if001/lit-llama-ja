@@ -14,11 +14,6 @@ import pandas as pd
 import os
 import json
 
-from datasets import load_dataset
-import pandas as pd
-import os
-import json
-
 def prompt(instruct, output, input):
     if input:
         return f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{instruct}\n\n### 入力: {input}\n\n### 出力:\n{output}'
@@ -38,7 +33,7 @@ def set_ppl(model_path, sp_model_path, data):
         text = unicodedata.normalize('NFD', text)
         tokens = sp.encode(text, out_type=str)
         sentence = " ".join(tokens)
-        return model.perplexity(sentence)
+        return int(model.perplexity(sentence))
 
     for v in data:
         if 'input' in v and v['input'] != "":
