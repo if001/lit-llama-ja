@@ -54,7 +54,7 @@ def prepare(
         print(ds)
         print('-'*50)
         datasets.append(ds)
-    ds = concatenate_datasets(ds)
+    ds = concatenate_datasets(datasets)
     print('merged')
     print(ds)
     dataset = ds.train_test_split(test_size=test_split_ratio)
