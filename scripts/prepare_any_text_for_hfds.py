@@ -68,15 +68,7 @@ def prepare(
     print('merged')
     print(ds)
     print('-'*50)
-    print(ds[0]['text'])
-    print('='*100)
-    print(ds[1]['text'])
-    print('='*100)
-    print(ds[2]['text'])
-    print('='*100)
-    print(ds[3]['text'])
-    
-    exit(0)
+
     dataset = ds.train_test_split(test_size=test_split_ratio)
     print('dataset[train]', dataset['train'])
     print('dataset[test]', dataset['test'])
