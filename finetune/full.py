@@ -39,7 +39,7 @@ devices = 1
 
 # Hyperparameters
 # learning_rate = 3e-5
-learning_rate = 8e-4
+learning_rate = 8e-5
 # batch_size = 128 / devices
 batch_size = 64 / devices
 micro_batch_size = 2
