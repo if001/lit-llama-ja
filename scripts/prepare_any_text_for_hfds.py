@@ -24,6 +24,7 @@ def prepare(
     max_seq_length: int = 256,
     seed: int = 42,
     data_repo_id: str = "repo/id",
+    json_file_path: str = ""
 ) -> None:
     """Prepare any dataset for finetuning (akin to Shakespheare full tuning).
 
@@ -31,7 +32,7 @@ def prepare(
     which stores the preprocessed and tokenized prompts and labels.
     """
     
-    def prepare(example):
+    def _prepare(example):
         ins = example["instruction"]
         out = example["output"]
         if 'input' in example:
@@ -49,19 +50,28 @@ def prepare(
     datasets = []
     for repo_id in data_repo_id_list:
         ds = load_dataset(repo_id, split="train")
-        ds = ds.map(prepare).shuffle(seed=seed)
+        ds = ds.map(_prepare).shuffle(seed=seed)
         print(repo_id)
         print(ds)
         print('-'*50)
         datasets.append(ds)
+
+    if json_file_path != "":        
+        ds = load_dataset('json', data_files='my_file.json', split='train')
+        ds = ds.map(_prepare).shuffle(seed=seed)
+        print('json...', json_file_path)
+        print(ds)
+        print('-'*50)
+        datasets.append(ds)
+    
     ds = concatenate_datasets(datasets)
-    print('merged')
+    print('merged')    
     print(ds)
+    print('-'*50)    
     dataset = ds.train_test_split(test_size=test_split_ratio)
     print('dataset[train]', dataset['train'])
     print('dataset[test]', dataset['test'])
     
-    exit(0)
     print('load tokenizer...', tokenizer_path)    
     tokenizer = HFTokenizer(model_path=tokenizer_path)
 
