@@ -48,13 +48,13 @@ def prepare(
         data_repo_id_list = [data_repo_id]
     
     datasets = []
-    for repo_id in data_repo_id_list:
-        ds = load_dataset(repo_id, split="train")
-        ds = ds.map(_prepare).shuffle(seed=seed)
-        print(repo_id)
-        print(ds)
-        print('-'*50)
-        datasets.append(ds)
+    # for repo_id in data_repo_id_list:
+    #     ds = load_dataset(repo_id, split="train")
+    #     ds = ds.map(_prepare).shuffle(seed=seed)
+    #     print(repo_id)
+    #     print(ds)
+    #     print('-'*50)
+    #     datasets.append(ds)
 
     if json_file_path != "":        
         ds = load_dataset('json', data_files=json_file_path, split='train')
@@ -64,10 +64,14 @@ def prepare(
         print('-'*50)
         datasets.append(ds)
     
-    ds = concatenate_datasets(datasets)
+    ds = concatenate_datasets(datasets).shuffle(seed=seed)
     print('merged')    
     print(ds)
-    print('-'*50)    
+    print('-'*50)
+    print(ds['train'][0]['text'])
+    print(ds['train'][1]['text'])
+    
+    exit(0)
     dataset = ds.train_test_split(test_size=test_split_ratio)
     print('dataset[train]', dataset['train'])
     print('dataset[test]', dataset['test'])
