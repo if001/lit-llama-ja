@@ -38,7 +38,7 @@ def prepare(
         if 'input' in example:
             inp = example['input']
             example["text"] = f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n### 入力: {inp}\n\n### 出力:\n{out}'
-        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\### 出力:\n{out}'
+        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n\### 出力:\n{out}'
         return example
     
     data_repo_id_list = []
@@ -65,7 +65,7 @@ def prepare(
         datasets.append(ds)
     
     ds = concatenate_datasets(datasets).shuffle(seed=seed)
-    print('merged')    
+    print('merged')
     print(ds)
     print('-'*50)
     print(ds[0]['text'])
