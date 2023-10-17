@@ -32,9 +32,12 @@ def prepare(
     """
     
     def prepare(example):
+        ins = example["instruction"]
+        out = example["out"]
         if 'input' in example:
-            example["text"] = f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{example["instruction"]}\n\n### 入力: {example['input']}\n\n### 出力:\n{example["output"]}'
-        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{example["instruction"]}\n\### 出力:\n{example["output"]}'
+            inp = example['input']
+            example["text"] = f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n### 入力: {inp}\n\n### 出力:\n{out}'
+        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\### 出力:\n{out}'
         return example
     
     data_repo_id_list = []
