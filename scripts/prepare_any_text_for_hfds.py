@@ -9,8 +9,7 @@ sys.path.append(str(wd))
 import torch
 import requests
 import json
-from datasets import load_dataset
-from torch.utils.data import random_split
+from datasets import load_dataset, concatenate_datasets
 from lit_llama.tokenizer import Tokenizer, HFTokenizer
 from tqdm import tqdm
 
@@ -33,17 +32,35 @@ def prepare(
     """
     
     def prepare(example):
-        example["text"] = 'ユーザー:\n' + example["instruction"] + "\n\n" + "システム:\n" + example["output"]
+        if 'input' in example:
+            example["text"] = f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{example["instruction"]}\n\n### 入力: {example['input']}\n\n### 出力:\n{example["output"]}'
+        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{example["instruction"]}\n\### 出力:\n{example["output"]}'
         return example
     
-    dataset = load_dataset(data_repo_id, split="train")
-    dataset = dataset.map(prepare).shuffle(seed=seed).train_test_split(test_size=test_split_ratio)   
-  
-    print('load tokenizer...', tokenizer_path)    
-    tokenizer = HFTokenizer(model_path=tokenizer_path)
-
+    data_repo_id_list = []
+    if "," in data_repo_id:
+        data_repo_id_list = data_repo_id.split(",")
+    else:
+        data_repo_id_list = [data_repo_id]
+    
+    datasets = []
+    for repo_id in data_repo_id_list:
+        ds = load_dataset(repo_id, split="train")
+        ds = ds.map(prepare).shuffle(seed=seed)
+        print(repo_id)
+        print(ds)
+        print('-'*50)
+        datasets.append(ds)
+    ds = concatenate_datasets(ds)
+    print('merged')
+    print(ds)
+    dataset = ds.train_test_split(test_size=test_split_ratio)
     print('dataset[train]', dataset['train'])
     print('dataset[test]', dataset['test'])
+    
+    exit(0)
+    print('load tokenizer...', tokenizer_path)    
+    tokenizer = HFTokenizer(model_path=tokenizer_path)
 
     print("Processing train split ...")
     train_set = [
