@@ -33,7 +33,7 @@ def prepare(
     
     def prepare(example):
         ins = example["instruction"]
-        out = example["out"]
+        out = example["output"]
         if 'input' in example:
             inp = example['input']
             example["text"] = f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n### 入力: {inp}\n\n### 出力:\n{out}'
