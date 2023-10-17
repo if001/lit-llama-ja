@@ -43,10 +43,12 @@ def set_ppl(model_path, sp_model_path, data):
     for v in data:
         if 'input' in v:
             v['input_ppl'] = cal_ppl(v['input'])
-            v['full_ppl'] = cal_ppl(v['instruction'], v['output'], v['input'])            
+            _text = prompt(v['instruction'], v['output'], v['input'])
+            v['full_ppl'] = cal_ppl(_text)
         else:
             v['input_ppl'] = 0
-            v['full_ppl'] = cal_ppl(v['instruction'], v['output'], None)
+            _text = prompt(v['instruction'], v['output'], v['input'])
+            v['full_ppl'] = cal_ppl(_text)
         v['instruction_ppl'] = cal_ppl(v['instruction'])
         v['output_ppl'] = cal_ppl(v['output'])
         
