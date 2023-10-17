@@ -38,7 +38,7 @@ def prepare(
         if 'input' in example:
             inp = example['input']
             example["text"] = f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n### 入力: {inp}\n\n### 出力:\n{out}'
-        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n\### 出力:\n{out}'
+        example["text"] = f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{ins}\n\n### 出力:\n{out}'
         return example
     
     data_repo_id_list = []
@@ -48,13 +48,13 @@ def prepare(
         data_repo_id_list = [data_repo_id]
     
     datasets = []
-    # for repo_id in data_repo_id_list:
-    #     ds = load_dataset(repo_id, split="train")
-    #     ds = ds.map(_prepare).shuffle(seed=seed)
-    #     print(repo_id)
-    #     print(ds)
-    #     print('-'*50)
-    #     datasets.append(ds)
+    for repo_id in data_repo_id_list:
+        ds = load_dataset(repo_id, split="train")
+        ds = ds.map(_prepare).shuffle(seed=seed)
+        print(repo_id)
+        print(ds)
+        print('-'*50)
+        datasets.append(ds)
 
     if json_file_path != "":        
         ds = load_dataset('json', data_files=json_file_path, split='train')
