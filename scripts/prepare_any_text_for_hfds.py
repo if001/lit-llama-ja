@@ -57,7 +57,7 @@ def prepare(
         datasets.append(ds)
 
     if json_file_path != "":        
-        ds = load_dataset('json', data_files='my_file.json', split='train')
+        ds = load_dataset('json', data_files=json_file_path, split='train')
         ds = ds.map(_prepare).shuffle(seed=seed)
         print('json...', json_file_path)
         print(ds)
