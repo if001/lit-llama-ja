@@ -127,10 +127,14 @@ def generate_prompt(example):
 def generate_prompt_ja(example):
     """Generates a standardized message to prompt the model with an instruction, optional input and a
     'response' field."""
+    instruction = example['instruction']
+    return f"""以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。
+### 指示:
+{instruction}
 
-    return (
-        f"### ユーザー:\n{example['instruction']}\n\n### システム:\n"
-    )
+### 出力:
+"""
+
 
 
 if __name__ == "__main__":
