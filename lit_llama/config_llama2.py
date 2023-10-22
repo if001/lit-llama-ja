@@ -55,6 +55,7 @@ class Llama2Config:
     intermediate_size: Optional[int] = None
     rope_condense_ratio: int = 1
     rope_base: int = 10000
+    nef: False
 
     def __post_init__(self):
         assert self.n_embd % self.n_head == 0
@@ -766,6 +767,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=11008,
         norm_eps=1.0e-8,
+        nef=True
     ),
      dict(
         org="meta-llama",

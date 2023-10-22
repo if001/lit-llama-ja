@@ -8,6 +8,7 @@ from typing import Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
+import torch.functional as F
 from lightning_utilities.core.imports import RequirementCache
 from typing_extensions import Self
 
@@ -24,9 +25,15 @@ class GPT(nn.Module):
         self.config = config
 
         self.lm_head = nn.Linear(config.n_embd, config.padded_vocab_size, bias=config.lm_head_bias)
+        if config.nef:
+            embed = EmbeddingNEFTune(config)
+        else:
+            ## orignal
+            embed = nn.Embedding(config.padded_vocab_size, config.n_embd)
+            
         self.transformer = nn.ModuleDict(
             dict(
-                wte=nn.Embedding(config.padded_vocab_size, config.n_embd),
+                wte=embed,
                 h=nn.ModuleList(Block(config) for _ in range(config.n_layer)),
                 ln_f=config.norm_class(config.n_embd, eps=config.norm_eps),
             )
@@ -136,6 +143,22 @@ class GPT(nn.Module):
         for block in self.transformer.h:
             block.attn.kv_cache = None
 
+class EmbeddingNEFTune(nn.Module):
+    """
+    Embedding with NEFTune
+    https://github.com/neelsjain/NEFTune
+    """
+
+    def __init__(self, config: Config) -> None:
+        super().__init__()
+        self.noise_alpha = 5
+        self.org_embed = nn.Embedding(config.padded_vocab_size, config.n_embd)
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:        
+        embed_init = self.org_embed(input)        
+        dims = torch.tensor(embed_init.size(1) * embed_init.size(2))
+        mag_norm = self.noise_alpha/torch.sqrt(dims)
+        return embed_init + torch.zeros_like(embed_init).uniform_(-mag_norm, mag_norm)
 
 class Block(nn.Module):
     def __init__(self, config: Config) -> None:
