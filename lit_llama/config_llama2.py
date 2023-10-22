@@ -677,6 +677,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=3000,
         norm_eps=1.0e-6,
+        nef=True
     ),
     dict(
         org="meta-llama",
