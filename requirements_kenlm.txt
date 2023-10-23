@@ -1,2 +1,3 @@
 https://github.com/kpu/kenlm/archive/master.zip
 sentencepiece
+transformers

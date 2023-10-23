@@ -19,19 +19,16 @@ def prompt(instruct, output, input):
         return f'以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{instruct}\n\n### 入力: {input}\n\n### 出力:\n{output}'
     return f'以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい。\n\n### 指示:\n{instruct}\n\n### 出力:\n{output}'
 
-def set_ppl(model_path, sp_model_path, data):
-    import kenlm
-    import sentencepiece
+def set_ppl(model_path, encoder, data):
+    import kenlm    
     import unicodedata
     print('process ppl...')
 
     model = kenlm.LanguageModel(model_path)
-    sp = sentencepiece.SentencePieceProcessor()
-    sp.load(sp_model_path)
 
     def cal_ppl(text):
-        text = unicodedata.normalize('NFD', text)
-        tokens = sp.encode(text, out_type=str)
+        text = unicodedata.normalize('NFD', text)        
+        tokens = encoder(text)
         sentence = " ".join(tokens)
         return int(model.perplexity(sentence))
 
@@ -53,7 +50,7 @@ def main(
         json_file_path: str = "./oasst1_89k_ja.json",
         output_file_path: str = 'oasst1_ja_converted.json',
         model_path: str = "",
-        sp_model_path: str = ""
+        tokenizer_model_or_path: str = ""
     ):
     # oasst1のオリジナルデータのロード
     ds = load_dataset("OpenAssistant/oasst1")
@@ -108,8 +105,23 @@ def main(
 
         learn_datas.append(learn_data)
 
-    if model_path != '' and sp_model_path != '':
-        learn_datas = set_ppl(model_path, sp_model_path, learn_datas)
+    if model_path != '' and tokenizer_model_or_path != '':
+        if '/' in tokenizer_model_or_path:
+            print("load hf tokenizer...", tokenizer_model_or_path)
+            from transformers import AutoTokenizer
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_model_or_path, trust_remote_code=True)
+            def hf_encoder(text):
+                return tokenizer.tokenize(text)
+            encoder = hf_encoder
+        else:
+            print('load sentencepiece...', tokenizer_model_or_path)
+            import sentencepiece            
+            sp = sentencepiece.SentencePieceProcessor()
+            sp.load(tokenizer_model_or_path)
+            def sp_encoder(text):
+                return sp.encode(text, out_type=str)
+            encoder = sp_encoder
+        learn_datas = set_ppl(model_path, encoder, learn_datas)
 
     json_learn_data = json.dumps(learn_datas, indent=4, ensure_ascii=False)
     with open(output_file_path, 'w', encoding="utf-8") as f:
