@@ -12,6 +12,7 @@ from functools import partial
 
 import lightning as L
 from lightning.fabric.strategies import FSDPStrategy
+from lightning.pytorch.loggers import TensorBoardLogger
 import numpy as np
 import torch
 from torch.distributed.fsdp.wrap import transformer_auto_wrap_policy
@@ -62,9 +63,10 @@ def main(
 
     # auto_wrap_policy = partial(transformer_auto_wrap_policy, transformer_layer_cls={Block})
     # strategy = FSDPStrategy(auto_wrap_policy=auto_wrap_policy, activation_checkpointing=Block, limit_all_gathers=True)
-        
+    log_dir = out_dir + '/logs'
+    logger = TensorBoardLogger(log_dir, name="model")
     precision="16-mixed" ## for v100
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision)
+    fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision, loggers=logger)
     fabric.launch()
     fabric.seed_everything(1337 + fabric.global_rank)
 
@@ -137,8 +139,11 @@ def train(
             if step_count % eval_interval == 0:
                 val_loss = validate(fabric, model, val_data)
                 print('-'*100)
-                fabric.print(f"step {iter_num}: val loss {val_loss:.4f}")
+                fabric.print(f"step {iter_num}: val loss {val_loss:.4f}")                
                 print('-'*100)
+                fabric.log_dict(
+                    {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}, step=iter_num
+                )
                 fabric.barrier()
 
             if step_count % save_interval == 0:
@@ -149,6 +154,9 @@ def train(
         dt = time.time() - t0
         if iter_num % log_interval == 0:
             fabric.print(f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms")
+            fabric.log_dict(
+                {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
+            )
 
 
 def generate_response(model, instruction):
