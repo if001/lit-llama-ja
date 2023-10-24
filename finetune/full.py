@@ -25,7 +25,7 @@ from generate import generate
 # from lit_llama.model import Block, LLaMA, LLaMAConfig
 # from lit_llama.tokenizer import Tokenizer
 
-from lit_llama.utils import save_model_checkpoint
+from lit_llama.utils import save_model_checkpoint, chunked_cross_entropy
 from scripts.prepare_alpaca import generate_prompt, generate_prompt_ja
 from lit_llama.config_llama2 import Llama2Config
 from lit_llama.model_llama2 import GPT
@@ -128,7 +128,8 @@ def train(
         input_ids, targets = get_batch(fabric, train_data)
         with fabric.no_backward_sync(model, enabled=is_accumulating):
             logits = model(input_ids)
-            loss = loss_fn(logits, targets)
+            # loss = loss_fn(logits, targets)
+            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             fabric.backward(loss / gradient_accumulation_iters)
 
         if not is_accumulating:
