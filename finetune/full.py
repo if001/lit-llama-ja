@@ -42,7 +42,7 @@ devices = 1
 # learning_rate = 3e-5
 learning_rate = 3e-5
 batch_size = 128 / devices
-micro_batch_size = 2
+micro_batch_size = 4
 gradient_accumulation_iters = batch_size // micro_batch_size
 assert gradient_accumulation_iters > 0
 # epoch_size = 50000  # train dataset size
@@ -89,7 +89,7 @@ def main(
 
     model = fabric.setup_module(model)
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, foreach=False)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate, foreach=False, weight_decay=weight_decay)
     optimizer = fabric.setup_optimizers(optimizer)
 
     train(fabric, model, optimizer, train_data, val_data, out_dir)
