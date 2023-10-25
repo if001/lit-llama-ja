@@ -32,8 +32,8 @@ from lit_llama.model_llama2 import GPT
 from lit_llama.tokenizer import HFTokenizer
 
 instruction_tuning = True
-eval_interval = 1000
-save_interval = 1000
+eval_interval = 50
+save_interval = 50
 eval_iters = 1000
 log_interval = 5000
 devices = 1
@@ -41,7 +41,7 @@ devices = 1
 # Hyperparameters
 # learning_rate = 3e-5
 learning_rate = 4e-5
-batch_size = 256 / devices
+batch_size = 128 / devices
 micro_batch_size = 1
 gradient_accumulation_iters = batch_size // micro_batch_size
 assert gradient_accumulation_iters > 0
@@ -49,7 +49,7 @@ assert gradient_accumulation_iters > 0
 epoch_size = 150000  # train dataset size
 num_epochs = 10
 max_iters = num_epochs * (epoch_size // micro_batch_size) // devices
-weight_decay = 0.01
+weight_decay = 0.001
 block_size = 2048
 warmup_iters = 2000
 
