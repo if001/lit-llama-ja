@@ -75,7 +75,9 @@ def prepare(
     
     print('load tokenizer...', tokenizer_path)    
     tokenizer = HFTokenizer(model_path=tokenizer_path)
-
+    ds2 = dataset['train'].select(range(10))
+    prepare_line(line, tokenizer, max_seq_length) for line in tqdm(ds2)
+    exit(0)
     print("Processing train split ...")
     train_set = [
         prepare_line(line, tokenizer, max_seq_length) for line in tqdm(dataset['train'])
