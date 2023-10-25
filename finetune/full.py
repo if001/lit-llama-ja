@@ -40,7 +40,7 @@ devices = 1
 
 # Hyperparameters
 # learning_rate = 3e-5
-learning_rate = 3e-5
+learning_rate = 1e-5
 batch_size = 128 / devices
 micro_batch_size = 1
 gradient_accumulation_iters = batch_size // micro_batch_size
@@ -51,7 +51,7 @@ num_epochs = 10
 max_iters = num_epochs * (epoch_size // micro_batch_size) // devices
 weight_decay = 0.01
 block_size = 2048
-warmup_iters = 500
+warmup_iters = 2000
 
 
 def main(
