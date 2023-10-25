@@ -40,7 +40,7 @@ devices = 1
 
 # Hyperparameters
 # learning_rate = 3e-5
-learning_rate = 1e-5
+learning_rate = 4e-5
 batch_size = 128 / devices
 micro_batch_size = 1
 gradient_accumulation_iters = batch_size // micro_batch_size
@@ -156,9 +156,12 @@ def train(
         dt = time.time() - t0
         if iter_num % log_interval == 0:
             fabric.print(f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms")
-            fabric.log_dict(
-                {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
-            )
+            try:
+                fabric.log_dict(
+                    {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
+                )
+            except Exception as e:
+                print('fabric log dict error:', e)
 
 
 def generate_response(model, instruction):
