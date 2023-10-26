@@ -32,8 +32,8 @@ from lit_llama.model_llama2 import GPT
 from lit_llama.tokenizer import HFTokenizer
 
 instruction_tuning = True
-eval_interval = 200
-save_interval = 200
+eval_interval = 50
+save_interval = 50
 eval_iters = 1000
 log_interval = 5000
 devices = 1
@@ -48,6 +48,7 @@ devices = 1
 # warmup_iters = 2000
 
 learning_rate = 8e-5
+learning_rate = 3e-4
 batch_size = 512 / devices
 weight_decay = 0.01
 warmup_iters = 2000
