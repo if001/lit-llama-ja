@@ -340,9 +340,12 @@ def train(
                 fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
                 fabric.barrier()
-                fabric.log_dict(
-                    {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}, step=iter_num
-                )
+                try:
+                    fabric.log_dict(
+                        {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}, step=iter_num
+                    )
+                except Exception as e:
+                    print("error", e)
                 ## fabric.loggers[0].save()
 
             if step_count % save_interval == 0:
