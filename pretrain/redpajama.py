@@ -214,6 +214,7 @@ def main(
 
     # config = LLaMAConfig.from_name("7B")
     config = Llama2Config.from_name(model_size)
+    config.nef = False
     config.debug()
     config.save(out_dir)
     print('out_dir: ', out_dir)
