@@ -150,7 +150,7 @@ class TrainingConfig():
                 batch_size=256,
                 micro_batch_size=1,
                 max_iters=max_iters,
-                weight_decay=0.0001,
+                weight_decay=0.001,
                 beta1=0.9,
                 beta2=0.95,
                 grad_clip=1.0,
