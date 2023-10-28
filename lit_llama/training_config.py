@@ -155,7 +155,7 @@ class TrainingConfig():
                 beta2=0.95,
                 grad_clip=1.0,
                 decay_lr=True,
-                warmup_iters=1000,
+                warmup_iters=500,
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)

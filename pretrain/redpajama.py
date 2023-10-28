@@ -39,11 +39,11 @@ from lit_llama.training_config import TrainingConfig
 
 save_interval = 1000
 save_interval = 100
-save_interval = 50
-save_interval = 25
+# save_interval = 50
+# save_interval = 25
 eval_interval = 100
-eval_interval = 50
-eval_interval = 25
+# eval_interval = 50
+# eval_interval = 25
 eval_iters = 100
 log_interval = 500
 
