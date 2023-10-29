@@ -41,9 +41,13 @@ save_interval = 1000
 save_interval = 100
 save_interval = 50
 save_interval = 25
+save_interval = 8192
+
 eval_interval = 100
 eval_interval = 50
 eval_interval = 25
+eval_interval = 8192
+
 eval_iters = 100
 log_interval = 500
 
@@ -174,7 +178,11 @@ def main(
     out_dir: str = "out/training",
     load_dir: Optional[str] = None,
     restart_iter: int = 0,
-    log_dir: str = "./logs"
+    log_dir: str = "./logs",
+    batch_size: int = 128,
+    lr: float = 1e-4,
+    weight_decay: float = 0.001,
+    interrupt: bool = False
 ) -> None:
     trainingConfig = TrainingConfig.from_name(model_size)
     trainingConfig.debug()
@@ -204,7 +212,10 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
-    logger = TensorBoardLogger(log_dir, name="model")
+
+    # logger = TensorBoardLogger(log_dir, name="model")
+    
+    logger = TensorBoardLogger(log_dir, name=f"model_b-{batch_size}_lr-{lr}_wd-{weight_decay}")
     
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
@@ -273,7 +284,9 @@ def main(
     process_batch_size = trainingConfig.batch_size // devices
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
-    train(trainingConfig, fabric, model, optimizer, train_dataloader, val_dataloader, gradient_accumulation_iters, devices, out_dir, restart_iter)
+    train(trainingConfig, fabric, model, optimizer, train_dataloader, 
+          val_dataloader, gradient_accumulation_iters, devices, out_dir, 
+          restart_iter, interrupt)
     fabric.print(f"Saving checkpoint to {out_dir}")
     save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     logger.save()
@@ -289,6 +302,7 @@ def train(
     devices: int,
     out_dir: str,
     restart_iter: int = 0,    
+    interrupt: bool = False
 ) -> None:
     """The training loop.
 
@@ -301,6 +315,8 @@ def train(
     tokens = 0
     tokens_sec = 0.0
     prev_t1 = time.time()
+    save_interval = save_interval / trainingConfig.batch_size
+    eval_interval = eval_interval / trainingConfig.batch_size    
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
@@ -348,6 +364,9 @@ def train(
                     )
                 except Exception as e:
                     print("error", e)
+                if interrupt:
+                    print('interrupt!!')
+                    break
                 ## fabric.loggers[0].save()
 
             if step_count % save_interval == 0:
