@@ -115,6 +115,10 @@ def main(
     interrupt: bool = False
 ) -> None:
     trainingConfig = TrainingConfig.from_name(model_size)
+    trainingConfig.batch_size = batch_size
+    trainingConfig.learning_rate = lr
+    trainingConfig.weight_decay = weight_decay
+
     trainingConfig.debug()
     trainingConfig.save(out_dir)
 
@@ -303,6 +307,7 @@ def train(
                     d = {"iter": iter_num, "step": step_count, "val_loss": f"{val_loss:.4f}", "loss": f"{loss.item():.4f}"}
                     with open(output_file, 'w') as f:
                         json.dump(d, f, ensure_ascii=False, indent=4)
+                    print('save ', output_file)
                     break
                 ## fabric.loggers[0].save()
 
