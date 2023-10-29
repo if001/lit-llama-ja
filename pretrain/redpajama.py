@@ -3,6 +3,7 @@ import sys
 import math
 import glob
 import time
+import json
 from functools import partial
 from pathlib import Path
 from typing import Tuple, Optional
@@ -215,7 +216,7 @@ def main(
 
     # logger = TensorBoardLogger(log_dir, name="model")
     
-    logger = TensorBoardLogger(log_dir, name=f"model_b-{batch_size}_lr-{lr}_wd-{weight_decay}")
+    logger = TensorBoardLogger(log_dir, name=f"model_b{batch_size}_lr{lr}_wd{weight_decay}")
     
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
@@ -366,6 +367,10 @@ def train(
                     print("error", e)
                 if interrupt:
                     print('interrupt!!')
+                    output_file = f'{out_dir}/search_param-b{trainingConfig.batch_size}-lr{trainingConfig.learning_rate}-wb{trainingConfig.weight_decay}.json'
+                    d = {"iter": iter_num, "step": step_count, "val_loss": val_loss, "loss": loss}
+                    with open(output_file, 'w') as f:
+                        json.dump(d, f, ensure_ascii=False, indent=4)
                     break
                 ## fabric.loggers[0].save()
 
