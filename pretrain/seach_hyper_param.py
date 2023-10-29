@@ -1,4 +1,6 @@
 import subprocess
+import redpajama
+
 
 base_cmd=[
     "pretrain/redpajama.py",
@@ -19,11 +21,25 @@ cnt = 0
 for batch in batchs:
     for lr in lrs:
         for weight_decay in weight_decays:
-            cnt += 1
-            add = [
-                f"--batch_size {batch}",
-                f"--lr {lr}",
-                f"--weight_decay {weight_decay}"
-            ]
-            cmd = base_cmd.copy() + add
-            subprocess.run(cmd)
+            print(f'start batch:{batch} lr:{lr} weight_decay:{weight_decay}')            
+            redpajama.main(
+                devices=1,
+                train_data_dir="data/ja_full_data",
+                val_data_dir="data/ja_data",
+                model_size="Llama-2-400M-hf",
+                out_dir="/content/drive/MyDrive/pre_trained/llama2/400M_search",
+                log_dir="/content/drive/MyDrive/pre_trained/llama2/400M_search/logs",
+                batch_size=batch,
+                lr=lr,
+                weight_decay=weight_decay,
+                interrupt=True
+            )
+            print('-'*100)
+            # cnt += 1
+            # add = [
+            #     f"--batch_size {batch}",
+            #     f"--lr {lr}",
+            #     f"--weight_decay {weight_decay}"
+            # ]
+            # cmd = base_cmd.copy() + add            
+            # subprocess.run(cmd)
