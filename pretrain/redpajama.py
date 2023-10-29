@@ -118,7 +118,8 @@ def main(
     trainingConfig.batch_size = batch_size
     trainingConfig.learning_rate = lr
     trainingConfig.weight_decay = weight_decay
-
+    print('trainingConfig.batch_size', trainingConfig.batch_size)
+    print('batch_size', batch_size)
     trainingConfig.debug()
     trainingConfig.save(out_dir)
 
