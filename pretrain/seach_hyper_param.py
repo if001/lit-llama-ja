@@ -27,4 +27,3 @@ for batch in batchs:
             ]
             cmd = base_cmd.copy() + add
             subprocess.run(cmd)
-print(cnt)
