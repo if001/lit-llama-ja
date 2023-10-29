@@ -300,7 +300,7 @@ def train(
                 if interrupt:
                     print('interrupt!!')
                     output_file = f'{out_dir}/search_param-b{trainingConfig.batch_size}-lr{trainingConfig.learning_rate}-wb{trainingConfig.weight_decay}.json'
-                    d = {"iter": iter_num, "step": step_count, "val_loss": val_loss, "loss": loss}
+                    d = {"iter": iter_num, "step": step_count, "val_loss": f"{val_loss:.4f}", "loss": f"{loss.item():.4f}"}
                     with open(output_file, 'w') as f:
                         json.dump(d, f, ensure_ascii=False, indent=4)
                     break
