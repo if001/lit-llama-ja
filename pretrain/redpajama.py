@@ -337,9 +337,7 @@ def train(
                     {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
                 )
             except Exception as e:
-                print("error", e)
-
-            fabric.log("loss_2", loss)
+                print("error", e)            
             # fabric.print(
             #         f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, speed: {tokens_sec_str} toks/s/device"
             # )

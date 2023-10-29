@@ -17,11 +17,22 @@ batchs = [16, 32, 64, 128, 256]
 lrs = [1e-4, 5e-4, 1e-5, 5e-5, 1e-6]
 weight_decays = [0.1, 0.01, 0.001, 0.0001]
 
+skip_set = [
+    [16, 0.0001, 0.1],
+    [16, 0.0001, 0.1]
+    [16, 0.0001, 0.1]
+    [16, 0.0001, 0.1]
+    [16, 0.0001, 0.1]
+]
+
 cnt = 0
 for batch in batchs:
     for lr in lrs:
         for weight_decay in weight_decays:
-            print(f'start batch:{batch} lr:{lr} weight_decay:{weight_decay}')            
+            print(f'start batch:{batch} lr:{lr} weight_decay:{weight_decay}')
+            if [batch, lr, weight_decay] in skip_set:
+                print('skip...', )
+                continue            
             redpajama.main(
                 devices=1,
                 train_data_dir="data/ja_full_data",
