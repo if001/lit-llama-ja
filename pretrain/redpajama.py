@@ -38,90 +38,20 @@ from lit_llama.training_config import TrainingConfig
 # eval_iters = 100
 # log_interval = 1
 
-save_interval = 1000
-save_interval = 100
-save_interval = 50
-save_interval = 25
-save_interval = 8192
+# save_interval = 1000
+# save_interval = 100
+# save_interval = 50
+# save_interval = 25
+# save_interval = 8192
 
-eval_interval = 100
-eval_interval = 50
-eval_interval = 25
-eval_interval = 8192
-
-eval_iters = 100
-log_interval = 500
+# eval_interval = 100
+# eval_interval = 50
+# eval_interval = 25
+# eval_interval = 8192
+# eval_iters = 100
+# log_interval = 500
 
 # compile = False
-
-# # Hyperparameters for 7B
-# learning_rate = 6e-4
-# batch_size = 125
-# micro_batch_size = 5
-# max_iters = 600000  # num_epochs * (epoch_size // micro_batch_size) // devices
-# weight_decay = 1e-1
-# beta1 = 0.9
-# beta2 = 0.95
-# grad_clip = 1.0
-# decay_lr = True
-# warmup_iters = 2000
-# lr_decay_iters = max_iters
-# min_lr = 6e-5
-
-# # # Hyperparameters for 49M
-# learning_rate = 0.0008
-# # batch_size = 125
-# batch_size = 128
-# # micro_batch_size = 5
-# micro_batch_size = 4
-# micro_batch_size = 2
-# # max_iters = 80000  # num_epochs * (epoch_size // micro_batch_size) // devices
-# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-# weight_decay = 0.1
-# beta1 = 0.9
-# beta2 = 0.95
-# grad_clip = 1.0
-# decay_lr = True
-# warmup_iters = 2000
-# lr_decay_iters = max_iters
-# min_lr = 0.00008
-
-# ## for 49M
-# learning_rate = 0.0009
-# learning_rate = 0.0009
-# min_lr = 0.00009
-# batch_size = 128
-# micro_batch_size = 2
-# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-# weight_decay = 0.1
-# beta1 = 0.9
-# beta2 = 0.95
-# grad_clip = 1.0
-# decay_lr = True
-# warmup_iters = 2000
-# lr_decay_iters = max_iters
-
-
-# ## for 125M
-
-# ## for 350M
-# learning_rate = 0.001
-# learning_rate = 0.005
-# ## learning_rate = 0.005
-# min_lr = 0.00006
-# batch_size = 128
-# batch_size = 32
-# micro_batch_size = 2
-# max_iters = 143000  # num_epochs * (epoch_size // micro_batch_size) // devices
-# ## weight_decay = 0.0001
-# weight_decay = 0.001
-# beta1 = 0.9
-# beta2 = 0.95
-# grad_clip = 2.0
-# decay_lr = True
-# warmup_iters = 1000
-# lr_decay_iters = max_iters
-
 
 # Data proportions from https://arxiv.org/pdf/2302.13971.pdf Table 1
 # data_config = [
@@ -133,26 +63,25 @@ log_interval = 500
 #     ("stackexchange", 2.0),
 #     ("wikipedia", 4.5),
 # ]
-val_data_config = [
-    # ("aozorabunko-clean-sin", 1.0),
-    ("wikinews-ja-20230728", 1.0),
-    ("wikinews-en-20230728", 1.0),
-]
-train_data_config = [ 
-    ('wikipedia-ja-20230720', 1.0),
-    ('wikipedia-en-20230720', 1.0),
-    ('open-text-books', 1.0),
-    ('oscar_2023_filtered', 1.0),
-    ('aozorabunko-clean-sin',1.0)
-]
-
-## 日本語: 997.79M, 英語: 3.80B/3
-train_data_config = [ 
-    ('wikipedia-ja-20230720', 1.0),
-    ('wikipedia-en-20230720', 0.3),
-    ('open-text-books', 1.0),
-    ('aozorabunko-clean-sin',1.0)
-]
+# val_data_config = [
+#     # ("aozorabunko-clean-sin", 1.0),
+#     ("wikinews-ja-20230728", 1.0),
+#     ("wikinews-en-20230728", 1.0),
+# ]
+# train_data_config = [ 
+#     ('wikipedia-ja-20230720', 1.0),
+#     ('wikipedia-en-20230720', 1.0),
+#     ('open-text-books', 1.0),
+#     ('oscar_2023_filtered', 1.0),
+#     ('aozorabunko-clean-sin',1.0)
+# ]
+# ## 日本語: 997.79M, 英語: 3.80B/3
+# train_data_config = [ 
+#     ('wikipedia-ja-20230720', 1.0),
+#     ('wikipedia-en-20230720', 0.3),
+#     ('open-text-books', 1.0),
+#     ('aozorabunko-clean-sin',1.0)
+# ]
 
 
 def format_number(num):
@@ -316,8 +245,11 @@ def train(
     tokens = 0
     tokens_sec = 0.0
     prev_t1 = time.time()
-    save_interval = save_interval / trainingConfig.batch_size
-    eval_interval = eval_interval / trainingConfig.batch_size    
+
+    log_interval = 500
+    eval_iters = 100
+    save_interval = 8192 / trainingConfig.batch_size
+    eval_interval = 8192 / trainingConfig.batch_size    
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
@@ -354,7 +286,7 @@ def train(
             t1 = time.time()
 
             if val_dataloader is not None and step_count % eval_interval == 0:
-                val_loss = validate(fabric, model, val_dataloader)
+                val_loss = validate(fabric, model, val_dataloader, eval_iters=eval_iters)
                 print('-'*100)
                 fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
@@ -416,7 +348,7 @@ def train(
 
 @torch.no_grad()
 def validate(
-    fabric: L.Fabric, model: torch.nn.Module, val_dataloader: DataLoader
+    fabric: L.Fabric, model: torch.nn.Module, val_dataloader: DataLoader, eval_iters = 100
 ) -> torch.Tensor:
     fabric.print("Validating ...")
     model.eval()
@@ -479,6 +411,18 @@ def create_dataloaders(
     val_data_dir: Optional[str] = None,
     seed: int = 12345,
 ) -> Tuple[DataLoader, DataLoader]:
+    train_data_config = [ 
+        ('wikipedia-ja-20230720', 1.0),
+        ('wikipedia-en-20230720', 1.0),
+        ('open-text-books', 1.0),
+        ('oscar_2023_filtered', 1.0),
+        ('aozorabunko-clean-sin',1.0)
+    ]
+    val_data_config = [
+        # ("aozorabunko-clean-sin", 1.0),
+        ("wikinews-ja-20230728", 1.0),
+        ("wikinews-en-20230728", 1.0),
+    ]
     # Increase by one because we need the next word as well
     effective_block_size = block_size + 1
     train_dataloader = create_dataloader(
