@@ -224,7 +224,10 @@ def main(
           restart_iter, interrupt)
     fabric.print(f"Saving checkpoint to {out_dir}")
     save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
-    logger.save()
+    try:
+        logger.save()
+    except Exception as e:
+        print("error", e)
 
 def train(
     trainingConfig: TrainingConfig,
