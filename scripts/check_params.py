@@ -19,6 +19,7 @@ def main(
             val_loss_arr.append(float(obj['val_loss']))
             # iter = obj['iter']
             name = os.path.splitext(os.path.basename(file))[0]            
+            name = name.replace('search_param-', '')
             # labels.append(f'{iter}-{name}')
             labels.append(name)
     print(len(labels))
