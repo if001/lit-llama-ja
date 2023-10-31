@@ -116,6 +116,7 @@ def main(
 ) -> None:
     trainingConfig = TrainingConfig.from_name(model_size)
     if interrupt:
+        print('interrupt setting!!!')
         trainingConfig.batch_size = batch_size
         trainingConfig.learning_rate = lr
         trainingConfig.weight_decay = weight_decay
