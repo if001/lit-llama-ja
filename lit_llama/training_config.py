@@ -145,17 +145,17 @@ class TrainingConfig():
             max_iters = 453000
             conf = dict(
                 model_size=model_size,
-                learning_rate=8e-4,
-                min_lr=8e-5,
-                batch_size=512,
+                learning_rate=1e-4,
+                min_lr=1e-5,
+                batch_size=16,
                 micro_batch_size=1,
                 max_iters=max_iters,
-                weight_decay=0.01,
+                weight_decay=0.001,
                 beta1=0.9,
                 beta2=0.95,
                 grad_clip=1.0,
                 decay_lr=True,
-                warmup_iters=1000,
+                warmup_iters=500,
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
