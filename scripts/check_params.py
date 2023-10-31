@@ -27,12 +27,12 @@ def main(
     fig = plt.figure(figsize=[25,15])
     ax1 = fig.add_subplot(2, 2, 1)
     ax1.grid()    
-    ax1.plot(t, loss_arr, label="loss")
+    ax1.scatter(t, loss_arr, label="loss")
     ax1.set_xticklabels(labels, rotation=45)
 
     ax2 = fig.add_subplot(2, 2, 2)
     ax2.grid()
-    ax2.plot(t, val_loss_arr, label="val_loss")
+    ax2.scatter(t, val_loss_arr, label="val_loss")
     ax2.set_xticklabels(labels, rotation=45)
 
     plt.show()
