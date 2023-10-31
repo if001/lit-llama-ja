@@ -33,7 +33,8 @@ def main(
     ax2.plot(t, val_loss_arr, label="val_loss")
     ax2.set_xticklabels(labels)
 
-    plt.setp(labels, rotation=45, fontsize=10)
+    _labels = ax1.get_yticklabels()
+    plt.setp(_labels, rotation=45, fontsize=10)
     plt.show()
 
 if __name__ == "__main__":
