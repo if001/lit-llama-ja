@@ -22,7 +22,7 @@ def main(
             labels.append(f'{iter}-{file_name}')
 
     t = range(len(labels))
-    fig = plt.figure(figsize=[10,5])
+    fig = plt.figure(figsize=[25,15])
     ax1 = fig.add_subplot(2, 2, 1)
     ax1.grid()    
     ax1.plot(t, loss_arr, label="loss")
