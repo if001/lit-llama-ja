@@ -35,7 +35,7 @@ def main(
     ax2.grid()
     ax2.plot(t, val_loss_arr, label="val_loss")
     ax2.set_xticklabels(labels)
-    plt.show()
+    # plt.show()
 
 if __name__ == "__main__":
     from jsonargparse.cli import CLI
