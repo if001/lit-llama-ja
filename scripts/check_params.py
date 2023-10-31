@@ -26,15 +26,13 @@ def main(
     ax1 = fig.add_subplot(2, 2, 1)
     ax1.grid()    
     ax1.plot(t, loss_arr, label="loss")
-    ax1.set_xticklabels(labels)
+    ax1.set_xticklabels(labels, rotation=45)
 
     ax2 = fig.add_subplot(2, 2, 2)
     ax2.grid()
     ax2.plot(t, val_loss_arr, label="val_loss")
-    ax2.set_xticklabels(labels)
+    ax2.set_xticklabels(labels, rotation=45)
 
-    _labels = ax1.get_yticklabels()
-    plt.setp(_labels, rotation=45, fontsize=10)
     plt.show()
 
 if __name__ == "__main__":
