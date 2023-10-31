@@ -1,7 +1,7 @@
 import glob
 import json
+import os
 import matplotlib.pyplot as plt
-
 
 def main(
         target_dir: str = "./",
@@ -18,8 +18,8 @@ def main(
             loss_arr.append(float(obj['loss']))
             val_loss_arr.append(float(obj['val_loss']))
             iter = obj['iter']
-            file_name = file.replace("search_param-", "")
-            labels.append(f'{iter}-{file_name}')
+            name = os.path.splitext(os.path.basename(file))[0]            
+            labels.append(f'{iter}-{name}')
 
     t = range(len(labels))
     fig = plt.figure(figsize=[25,15])
