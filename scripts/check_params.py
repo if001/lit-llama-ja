@@ -13,8 +13,11 @@ def main(
     loss_arr = []
     val_loss_arr = []
     for file in files:        
-        with open(file, 'r') as f:            
+        with open(file, 'r') as f:
             obj = json.load(f)
+            print(file)
+            print(obj)
+            print('-'*100)
             loss_arr.append(float(obj['loss']))
             val_loss_arr.append(float(obj['val_loss']))
             iter = obj['iter']
