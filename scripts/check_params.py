@@ -17,7 +17,7 @@ def main(
             obj = json.load(f)
             loss_arr.append(float(obj['loss']))
             val_loss_arr.append(float(obj['val_loss']))
-            iter = obj['iter'])
+            iter = obj['iter']
             file_name = file.replace(file, "search_param-")
             labels.append(f'{iter}-{file_name}')
 
