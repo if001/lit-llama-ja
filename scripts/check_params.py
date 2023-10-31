@@ -21,17 +21,15 @@ def main(
             file_name = file.replace(file, "search_param-")
             labels.append(f'{iter}-{file_name}')
 
-
+    t = range(len(labels))
+    print(len(labels))
     fig = plt.figure()    
     ax1 = fig.add_subplot(2, 2, 1)
-    ax2 = fig.add_subplot(2, 2, 2)
-    
-
-    ax1.grid()
-    t = range(len(labels))
+    ax1.grid()    
     ax1.plot(t, loss_arr, label="loss")
     ax1.set_xticklabels(labels)
 
+    ax2 = fig.add_subplot(2, 2, 2)
     ax2.grid()
     ax2.plot(t, val_loss_arr, label="val_loss")
     ax2.set_xticklabels(labels)
