@@ -14,6 +14,8 @@ def main(
     val_loss_arr = []
     for file in files:
         with open(file, 'r') as f:
+            if not 'b16' in file:
+                continue
             obj = json.load(f)
             loss_arr.append(float(obj['loss']))
             val_loss_arr.append(float(obj['val_loss']))
