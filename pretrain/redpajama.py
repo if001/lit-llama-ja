@@ -301,12 +301,17 @@ def train(
                 fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
                 fabric.barrier()
+                l = {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}
                 try:
-                    fabric.log_dict(
-                        {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}, step=iter_num
-                    )
+                    fabric.log_dict(l, step=iter_num)
                 except Exception as e:
                     print("error", e)
+                    print('type(l)', type(l))
+                    print('type(iter_num)', type(iter_num))
+                    print('type(val_loss)', type(val_loss))
+                    print('type(step_count)', type(step_count))
+                    print('type(lr)', type(lr))
+
                 if interrupt:
                     print('interrupt!!')
                     output_file = f'{out_dir}/search_param-b{trainingConfig.batch_size}-lr{trainingConfig.learning_rate}-wb{trainingConfig.weight_decay}.json'
@@ -319,7 +324,7 @@ def train(
 
             if step_count % save_interval == 0:
                 fabric.print("-"*200)
-                fabric.print(f"Saving checkpoint to {out_dir} _ iter-{iter_num:06d}-ckpt.pth")
+                fabric.print(f"Saving checkpoint to {out_dir}/iter-{iter_num:06d}-ckpt.pth")
                 fabric.print("-"*200)
                 save_model_checkpoint_with_fabric(
                     fabric, model, out_dir, f"iter-{iter_num:06d}-ckpt.pth"
