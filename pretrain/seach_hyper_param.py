@@ -17,7 +17,8 @@ base_cmd=[
 # batchs = [16, 64, 256]
 batchs = [2, 4, 8]
 # lrs = [1e-4, 5e-4, 1e-5, 5e-5, 1e-6]
-lrs = [1e-4, 1e-5, 1e-6]
+# lrs = [1e-4, 1e-5, 1e-6]
+lrs = [1e-6, 1e-7, 1e-8]
 # weight_decays = [0.1, 0.01, 0.001, 0.0001]
 weight_decays = [0.001]
 
