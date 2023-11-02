@@ -119,6 +119,7 @@ def main(
         print('interrupt setting!!!')
         trainingConfig.batch_size = batch_size
         trainingConfig.learning_rate = lr
+        trainingConfig.min_lr = lr * 10
         trainingConfig.weight_decay = weight_decay
     trainingConfig.debug()
     trainingConfig.save(out_dir)
@@ -259,6 +260,8 @@ def train(
     eval_iters = 100
     save_interval = 8192 / trainingConfig.batch_size
     eval_interval = 8192 / trainingConfig.batch_size
+    save_interval = 4096 / trainingConfig.batch_size
+    eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
 
