@@ -255,7 +255,7 @@ def train(
     prev_t1 = time.time()
 
     log_interval = 500
-    log_interval = 20
+    log_interval = 100
     eval_iters = 100
     save_interval = 8192 / trainingConfig.batch_size
     eval_interval = 8192 / trainingConfig.batch_size
