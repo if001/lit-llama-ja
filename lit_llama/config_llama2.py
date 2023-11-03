@@ -786,7 +786,7 @@ llama_2 = [
         _norm_class="RMSNorm",
         _mlp_class="LLaMAMLP",
         intermediate_size=8000,
-        norm_eps=1.0e-8,
+        norm_eps=1.0e-6,
     ),
     dict(
         org="meta-llama",
