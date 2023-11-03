@@ -39,7 +39,7 @@ for batch in batchs:
                 val_data_dir="data/ja_data",
                 model_size="Llama-2-400M-hf",
                 out_dir="/content/drive/MyDrive/pre_trained/llama2/400M_search",
-                log_dir="/content/drive/MyDrive/pre_trained/llama2/400M_search/logs",
+                log_dir="/content/drive/MyDrive/pre_trained/llama2/400M_search/logs_lr",
                 batch_size=batch,
                 lr=lr,
                 weight_decay=weight_decay,
