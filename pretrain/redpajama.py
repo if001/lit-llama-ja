@@ -102,7 +102,7 @@ def show_total_params(model):
 def reconnect_drive():
     from google.colab import drive
     drive._mount('/content/drive')
-    print('reconnect...')
+    print('reconnect to drive...')
 
 def main(
     devices: int = 4,
@@ -118,8 +118,6 @@ def main(
     weight_decay: float = 0.001,
     interrupt: bool = False
 ) -> None:
-    reconnect_drive()
-    exit(0)
     trainingConfig = TrainingConfig.from_name(model_size)
     if interrupt:
         print('interrupt setting!!!')
@@ -316,11 +314,7 @@ def train(
                     fabric.log_dict(l, step=iter_num)
                 except Exception as e:
                     print("error", e)
-                    print('type(l)', type(l))
-                    print('type(iter_num)', type(iter_num))
-                    print('type(val_loss)', type(val_loss))
-                    print('type(step_count)', type(step_count))
-                    print('type(lr)', type(lr))
+                    reconnect_drive()
 
                 if interrupt:
                     print('interrupt!!')
@@ -357,7 +351,8 @@ def train(
                     {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
                 )
             except Exception as e:
-                print("error", e)            
+                print("error", e)
+                reconnect_drive()      
             # fabric.print(
             #         f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, speed: {tokens_sec_str} toks/s/device"
             # )
