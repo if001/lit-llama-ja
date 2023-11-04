@@ -9,3 +9,4 @@ datasets  # evaluate.py
 zstandard  # prepare_redpajama.py
 tokenizers
 deepspeed
+colabtools

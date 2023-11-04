@@ -99,7 +99,11 @@ def show_total_params(model):
     params = sum([np.prod(p.size()) for p in model_parameters])    
     print('trainable params: ', format_number(params))
 
-    
+def reconnect_drive():
+    from google.colab import drive
+    drive.mount('/content/drive')
+    print('reconnect...')
+
 def main(
     devices: int = 4,
     train_data_dir: Path = "data/lit-redpajama",
@@ -114,6 +118,8 @@ def main(
     weight_decay: float = 0.001,
     interrupt: bool = False
 ) -> None:
+    reconnect_drive()
+    exit(0)
     trainingConfig = TrainingConfig.from_name(model_size)
     if interrupt:
         print('interrupt setting!!!')
