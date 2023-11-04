@@ -20,7 +20,7 @@ batchs = [4]
 # lrs = [1e-4, 5e-4, 1e-5, 5e-5, 1e-6]
 # lrs = [1e-3, 1e-4, 1e-5]
 lrs = [1e-4]
-models = ["Llama-2-400M-hf", "Llama-2-400M_v3-hf", "Llama-2-400M_v4-hf"]
+models = ["Llama-2-400M_v4-hf", "Llama-2-400M-hf", "Llama-2-400M_v3-hf"]
 # weight_decays = [0.1, 0.01, 0.001, 0.0001]
 weight_decays = [0.001]
 
