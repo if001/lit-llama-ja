@@ -344,7 +344,7 @@ def train(
             # tokens_sec_str = f"{tokens / step_time:.0f}" if not is_accumulating else "-"
 
             fabric.print(
-                    f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, lr: {lr}, step_count: {step_count}"
+                    f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, lr: {lr}, step_count: {step_count}, tokens: {tokens}"
             )
             try:
                 fabric.log_dict(
