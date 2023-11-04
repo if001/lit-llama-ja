@@ -101,7 +101,7 @@ def show_total_params(model):
 
 def reconnect_drive():
     from google.colab import drive
-    drive.mount('/content/drive')
+    drive._mount('/content/drive')
     print('reconnect...')
 
 def main(
