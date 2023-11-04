@@ -226,7 +226,7 @@ def main(
 
     train(trainingConfig, fabric, model, optimizer, train_dataloader, 
           val_dataloader, gradient_accumulation_iters, devices, out_dir, 
-          restart_iter, interrupt)
+          restart_iter, interrupt, model_size)
     fabric.print(f"Saving checkpoint to {out_dir}")
     save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     try:
@@ -245,7 +245,8 @@ def train(
     devices: int,
     out_dir: str,
     restart_iter: int = 0,    
-    interrupt: bool = False
+    interrupt: bool = False,
+    model_size: str = ""
 ) -> None:
     """The training loop.
 
@@ -318,7 +319,7 @@ def train(
 
                 if interrupt:
                     print('interrupt!!')
-                    output_file = f'{out_dir}/search_param-b{trainingConfig.batch_size}-lr{trainingConfig.learning_rate}-wb{trainingConfig.weight_decay}.json'
+                    output_file = f'{out_dir}/search_param-{model_size}-b{trainingConfig.batch_size}-lr{trainingConfig.learning_rate}-wb{trainingConfig.weight_decay}.json'
                     d = {"iter": iter_num, "step": step_count, "val_loss": f"{val_loss:.4f}", "loss": f"{loss.item():.4f}"}
                     with open(output_file, 'w') as f:
                         json.dump(d, f, ensure_ascii=False, indent=4)
