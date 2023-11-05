@@ -1370,6 +1370,20 @@ phi = [
         shared_attention_norm=True,
         lm_head_bias=True,
         gelu_approximate="tanh",
+    ),
+    dict(
+        org="microsoft",
+        name="phi-1_5-400M",
+        vocab_size=35000,
+        padded_vocab_size=35000,
+        block_size=2048,
+        n_layer=12,
+        n_head=12,
+        n_embd=1080,
+        rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
+        shared_attention_norm=True,
+        lm_head_bias=True,
+        gelu_approximate="tanh",
     )
 ]
 configs.extend(phi)
