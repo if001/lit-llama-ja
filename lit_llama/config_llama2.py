@@ -825,6 +825,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=5000,
         norm_eps=1.0e-6,
+        _description="474M layer数少ないパターン",
     ),
     dict(
         org="meta-llama",
