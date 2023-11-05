@@ -807,6 +807,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=4400,
         norm_eps=1.0e-6,
+        _description="416M head数少ないパターン",
     ),
     dict(
         org="meta-llama",
