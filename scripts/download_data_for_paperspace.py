@@ -53,6 +53,8 @@ def main(
         zip_filename = download_directory / Path(url).name                
         if not zip_filename.exists():
             download_file(url, headers, download_directory)
+        else:
+            print('has file...', zip_filename)
 
         print('unzip...')
         with zipfile.ZipFile(zip_filename, 'r') as zip_ref:

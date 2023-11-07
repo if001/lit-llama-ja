@@ -1384,6 +1384,37 @@ phi = [
         shared_attention_norm=True,
         lm_head_bias=True,
         gelu_approximate="tanh",
+        _description="419M iter: 450559,  val loss: 3.6",
+    ),
+    dict(
+        org="microsoft",
+        name="phi-1_5-400M_deep_layer",
+        vocab_size=35000,
+        padded_vocab_size=35000,
+        block_size=2048,
+        n_layer=32,
+        n_head=1,
+        n_embd=1600,
+        rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
+        shared_attention_norm=True,
+        lm_head_bias=True,
+        gelu_approximate="tanh",
+        _description="419M",
+    ),
+    dict(
+        org="microsoft",
+        name="phi-1_5-400M_multi_head",
+        vocab_size=35000,
+        padded_vocab_size=35000,
+        block_size=2048,
+        n_layer=1,
+        n_head=32,
+        n_embd=1600,
+        rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
+        shared_attention_norm=True,
+        lm_head_bias=True,
+        gelu_approximate="tanh",
+        _description="419M",
     )
 ]
 configs.extend(phi)

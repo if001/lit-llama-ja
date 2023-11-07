@@ -2,10 +2,9 @@
 # lightning @ git+https://github.com/Lightning-AI/lightning@master
 
 ## for paperspace
---extra-index-url https://download.pytorch.org/whl/cu116
-torch==1.13.1+cu116
-torchvision==0.14.1+cu116
-torchaudio==0.13.1
+torch==2.0.1
+torchvision==0.15.2
+torchaudio==2.0.2
 
 # torch
 lightning

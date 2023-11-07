@@ -118,6 +118,9 @@ def main(
     weight_decay: float = 0.001,
     interrupt: bool = False
 ) -> None:
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    Path(log_dir).mkdir(parents=True, exist_ok=True)
+
     trainingConfig = TrainingConfig.from_name(model_size)
     if interrupt:
         print('interrupt setting!!!')
