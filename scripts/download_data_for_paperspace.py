@@ -28,7 +28,7 @@ def main(
         destination_dir: str = ""
 ):
     headers = {
-        "header": f"Authorization: Bearer {hf_token}"
+        "Authorization": f"Bearer {hf_token}"
     }
     print('h', headers)
     base_url='https://huggingface.co/datasets/if001/llama_train_bin/resolve/main/'
