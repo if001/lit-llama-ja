@@ -5,18 +5,25 @@ import os
 import requests
 from pathlib import Path
 from typing import List
+from tqdm import tqdm
+
 
 def download_file(url, headers, destination):
     """
     指定されたURLからファイルをダウンロードし、指定されたディレクトリに保存する
     """
     local_filename = destination / Path(url).name
+    file_size = int(requests.head(url).headers["content-length"])
 
-    with requests.get(url, headers=headers, stream=True) as r:
-        r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
+    print(f'donwload {url}')
+    res = requests.get(url, headers=headers, stream=True)
+    pbar = tqdm(total=file_size, unit="B", unit_scale=True)
+    res.raise_for_status()
+    with open(local_filename, 'wb') as f:
+        for chunk in res.iter_content(chunk_size=8192):
+            f.write(chunk)
+            pbar.update(len(chunk))
+        pbar.close()
     return local_filename
 
 def main(
@@ -47,15 +54,17 @@ def main(
         if not zip_filename.exists():
             download_file(url, headers, download_directory)
 
+        print('unzip...')
         with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
             zip_ref.extractall(extraction_directory)
         
-        # 解凍ディレクトリ内のfull_dataディレクトリから全てのjsonファイルを移動先に移動する
+        print('move...')
         full_data_path = extraction_directory / zip_sub_dir
         for json_file in full_data_path.glob('*.bin'):
             json_file.rename(destination_directory / json_file.name)
-
+        
         # full_dataディレクトリを削除する
+        print('clean...')
         for item in full_data_path.iterdir():
             if item.is_dir():
                 os.rmdir(item)
