@@ -29,8 +29,7 @@ def main(
 ):
     headers = {
         "Authorization": f"Bearer {hf_token}"
-    }
-    print('h', headers)
+    }    
     base_url='https://huggingface.co/datasets/if001/llama_train_bin/resolve/main/'
     zip_urls = [ base_url+v for v in targets]
 
