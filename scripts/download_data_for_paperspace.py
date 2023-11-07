@@ -52,7 +52,7 @@ def main(
         
         # 解凍ディレクトリ内のfull_dataディレクトリから全てのjsonファイルを移動先に移動する
         full_data_path = extraction_directory / zip_sub_dir
-        for json_file in full_data_path.glob('*.json'):
+        for json_file in full_data_path.glob('*.bin'):
             json_file.rename(destination_directory / json_file.name)
 
         # full_dataディレクトリを削除する
