@@ -1,5 +1,9 @@
-torch>=2.0.0
-lightning @ git+https://github.com/Lightning-AI/lightning@master
+# torch>=2.0.0
+# lightning @ git+https://github.com/Lightning-AI/lightning@master
+torch
+torchvision
+torchaudio
+lightning
 sentencepiece
 tqdm  # convert_checkpoint.py
 numpy  # train.py dataset memmap
