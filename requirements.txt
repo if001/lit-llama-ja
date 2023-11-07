@@ -1,8 +1,13 @@
 # torch>=2.0.0
 # lightning @ git+https://github.com/Lightning-AI/lightning@master
-torch
-# torchvision
-# torchaudio
+
+## for paperspace
+pytorch==1.13.1
+torchvision==0.14.1
+torchaudio==0.13.1
+pytorch-cuda=11.6
+
+# torch
 lightning
 sentencepiece
 tqdm  # convert_checkpoint.py
