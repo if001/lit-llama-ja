@@ -26,10 +26,11 @@ def main(
         extraction_dir: str = "",
         zip_sub_dir: str = "",
         destination_dir: str = ""
-):        
+):
     headers = {
         "header": f"Authorization: Bearer {hf_token}"
     }
+    print('h', headers)
     base_url='https://huggingface.co/datasets/if001/llama_train_bin/resolve/main/'
     zip_urls = [ base_url+v for v in targets]
 
