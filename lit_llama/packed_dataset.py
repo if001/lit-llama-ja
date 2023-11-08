@@ -147,7 +147,7 @@ class PackedDatasetIterator:
         #       (or text file) with the sequence of all files to be
         #       fetched/loaded.
         self._filenames = filenames
-        print('debug:', self._filenames)
+        # print('debug:', self._filenames)
         self._file_idx = 0
 
         self._n_chunks = n_chunks
