@@ -222,8 +222,7 @@ def main(
     )
 
     model, optimizer = fabric.setup(model, optimizer)       
-    show_total_params(model)    
-    exit(0)
+    show_total_params(model)
 
     process_batch_size = trainingConfig.batch_size // devices
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
@@ -267,8 +266,8 @@ def train(
     log_interval = 500
     log_interval = 1000
     eval_iters = 100
-    save_interval = 10240 / trainingConfig.batch_size
-    eval_interval = 10240 / trainingConfig.batch_size
+    save_interval = 8192 / trainingConfig.batch_size
+    eval_interval = 8192 / trainingConfig.batch_size
     # save_interval = 4096 / trainingConfig.batch_size
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500

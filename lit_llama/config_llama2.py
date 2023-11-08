@@ -1399,7 +1399,7 @@ phi = [
         shared_attention_norm=True,
         lm_head_bias=True,
         gelu_approximate="tanh",
-        _description="419M",
+        _description="427.53M",
     ),
     dict(
         org="microsoft",

@@ -16,8 +16,8 @@ def main(
     # lrs = [1e-4, 5e-4, 1e-5, 5e-5, 1e-6]
     # lrs = [1e-3, 1e-4, 1e-5]
     lrs = [1e-4]
-    models = ["phi-1_5-400M", "phi-1_5-400M_deep_layer", "phi-1_5-400M_multi_head"]
-    models = ["phi-1_5-400M_deep_layer"]
+    models = ["phi-1_5-400M_deep_layer", "phi-1_5-400M_multi_head", "phi-1_5-400M"]
+
     # weight_decays = [0.1, 0.01, 0.001, 0.0001]
     weight_decays = [0.001]
 
