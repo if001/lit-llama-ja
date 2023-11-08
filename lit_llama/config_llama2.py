@@ -1409,7 +1409,7 @@ phi = [
         block_size=2048,
         n_layer=1,
         n_head=40,
-        n_embd=4400,
+        n_embd=4000,
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
