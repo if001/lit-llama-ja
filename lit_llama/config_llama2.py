@@ -1392,9 +1392,9 @@ phi = [
         vocab_size=35000,
         padded_vocab_size=35000,
         block_size=2048,
-        n_layer=25,
+        n_layer=18,
         n_head=1,
-        n_embd=2500,
+        n_embd=1800,
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
