@@ -223,6 +223,7 @@ def main(
 
     model, optimizer = fabric.setup(model, optimizer)       
     show_total_params(model)    
+    exit(0)
 
     process_batch_size = trainingConfig.batch_size // devices
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
