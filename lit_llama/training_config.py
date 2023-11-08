@@ -159,7 +159,12 @@ class TrainingConfig():
                 lr_decay_iters=max_iters,
             )
             return cls(**conf)
-        elif model_size == "Llama-2-400M_v3-hf" or model_size == "Llama-2-400M_v4-hf" or model_size == "Llama-2-400M_v5-hf" or model_size == "phi-1_5-400M":
+        elif (model_size == "Llama-2-400M_v3-hf"
+                or model_size == "Llama-2-400M_v4-hf"
+                or model_size == "Llama-2-400M_v5-hf" 
+                or model_size == "phi-1_5-400M"
+                or model_size == "phi-1_5-400M_multi_head"
+                or model_size == "phi-1_5-400M_deep_layer"):
             max_iters = 453000
             conf = dict(
                 model_size=model_size,
