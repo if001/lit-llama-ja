@@ -158,7 +158,7 @@ def main(
 
     # logger = TensorBoardLogger(log_dir, name="model")
     
-    logger = TensorBoardLogger(log_dir, name=f"model_b{batch_size}_lr{lr}_wd{weight_decay}")
+    logger = TensorBoardLogger(log_dir, name=f"model_{model_size}_b{batch_size}_lr{lr}_wd{weight_decay}")
     
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
@@ -266,8 +266,10 @@ def train(
     log_interval = 500
     log_interval = 1000
     eval_iters = 100
-    save_interval = 8192 / trainingConfig.batch_size
-    eval_interval = 8192 / trainingConfig.batch_size
+    # save_interval = 8192 / trainingConfig.batch_size
+    # eval_interval = 8192 / trainingConfig.batch_size
+    eval_interval = 12000 / trainingConfig.batch_size
+    save_interval = 12000 / trainingConfig.batch_size
     # save_interval = 4096 / trainingConfig.batch_size
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
