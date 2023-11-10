@@ -1,5 +1,6 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
 from pathlib import Path
 from typing import Any, Literal, Optional, Type, Union, List
 
@@ -58,12 +59,12 @@ class Llama2Config:
     nef: bool = False
     _description: str = ""
 
-    heads: List[int] = []
-    head_sizes: List[int] = []
-    rope_n_elems: List[int] = []
+    heads: List[int] = field(default_factory=list)
+    head_sizes: List[int] = field(default_factory=list)
+    rope_n_elems: List[int] = field(default_factory=list)
 
 
-    def __post_init__(self):
+    def __post_init__(self):        
         assert self.n_embd % self.n_head == 0
         self.head_size = self.n_embd // self.n_head
 
