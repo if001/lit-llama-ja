@@ -58,9 +58,9 @@ class Llama2Config:
     nef: bool = False
     _description: str = ""
 
-    heads = List[int] = []
-    head_sizes = List[int] = []
-    rope_n_elems  = List[int] = []
+    heads: List[int] = []
+    head_sizes: List[int] = []
+    rope_n_elems: List[int] = []
 
 
     def __post_init__(self):
