@@ -1435,7 +1435,7 @@ phi = [
         block_size=2048,
         n_layer=10,        
         n_head=16,
-        n_heads=[16, 16, 16, 8, 8, 8, 8, 4, 4, 4]
+        n_heads=[16, 16, 16, 8, 8, 8, 8, 4, 4, 4],
         n_embd=1600,
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
