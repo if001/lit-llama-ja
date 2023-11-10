@@ -197,7 +197,7 @@ class Block(nn.Module):
 class CausalSelfAttention(nn.Module):
     def __init__(self, config: Config, idx = 0) -> None:
         super().__init__()
-        self._n_query_groups = self.config.n_query_groups_list[idx]
+        self._n_query_groups = config.n_query_groups_list[idx]
 
         # shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
         shape = (config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]
