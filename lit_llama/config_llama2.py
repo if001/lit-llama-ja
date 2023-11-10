@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal, Optional, Type, Union
+from typing import Any, Literal, Optional, Type, Union, List
 
 import torch
 from typing_extensions import Self
@@ -58,9 +58,9 @@ class Llama2Config:
     nef: bool = False
     _description: str = ""
 
-    heads = list[int] = []
-    head_sizes = list[int] = []
-    rope_n_elems  = list[int] = []
+    heads = List[int] = []
+    head_sizes = List[int] = []
+    rope_n_elems  = List[int] = []
 
 
     def __post_init__(self):
