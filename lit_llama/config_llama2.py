@@ -58,9 +58,17 @@ class Llama2Config:
     nef: bool = False
     _description: str = ""
 
+    heads = list[int] = []
+    head_sizes = list[int] = []
+    rope_n_elems  = list[int] = []
+
+
     def __post_init__(self):
         assert self.n_embd % self.n_head == 0
         self.head_size = self.n_embd // self.n_head
+
+        for n_head in self.heads:
+            self.head_sizes.append(n_head)
 
         # vocab size should be a power of 2 to be optimal on hardware. compute the closest value
         if self.padded_vocab_size is None:
@@ -82,6 +90,9 @@ class Llama2Config:
             self.intermediate_size = 4 * self.n_embd
 
         self.rope_n_elem = int(self.rotary_percentage * self.head_size)
+
+        for head_size in self.head_sizes:
+            self.rope_n_elems.append(int(self.rotary_percentage * head_size))
 
     @classmethod
     def from_name(cls, name: str, **kwargs: Any) -> Self:
@@ -1415,7 +1426,23 @@ phi = [
         lm_head_bias=True,
         gelu_approximate="tanh",
         _description="407.60M",
-    )
+    ),
+    dict(
+        org="microsoft",
+        name="phi-1_5-400M_another_heads",
+        vocab_size=35000,
+        padded_vocab_size=35000,
+        block_size=2048,
+        n_layer=10,        
+        n_head=16,
+        n_heads=[16, 16, 16, 8, 8, 8, 8, 4, 4, 4]
+        n_embd=1600,
+        rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
+        shared_attention_norm=True,
+        lm_head_bias=True,
+        gelu_approximate="tanh",
+        _description="",
+    ),
 ]
 configs.extend(phi)
 

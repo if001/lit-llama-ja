@@ -161,10 +161,10 @@ class EmbeddingNEFTune(nn.Module):
         return embed_init + torch.zeros_like(embed_init).uniform_(-mag_norm, mag_norm)
 
 class Block(nn.Module):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, idx=-1) -> None:
         super().__init__()
         self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
-        self.attn = CausalSelfAttention(config)
+        self.attn = CausalSelfAttention(config, idx)
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
         self.mlp = config.mlp_class(config)
 
@@ -195,9 +195,15 @@ class Block(nn.Module):
 
 
 class CausalSelfAttention(nn.Module):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, idx = 0) -> None:
         super().__init__()
-        shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
+        # shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
+        shape = (config.heads[idx] + 2 * config.n_query_groups) * config.head_sizes[idx]
+
+        self._head_size = config.head_sizes[idx]
+        self._n_head = config.heads[idx]
+        self._rope_n_elem = config.rope_n_elems[idx]
+
         # key, query, value projections for all heads, but in a batch
         self.attn = nn.Linear(config.n_embd, shape, bias=config.bias)
         # output projection
@@ -220,9 +226,10 @@ class CausalSelfAttention(nn.Module):
         qkv = self.attn(x)
 
         # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
-        q_per_kv = self.config.n_head // self.config.n_query_groups
+        q_per_kv = self._n_head // self.config.n_query_groups
+
         total_qkv = q_per_kv + 2  # each group has 1+ queries, 1 key, and 1 value
-        qkv = qkv.view(B, T, self.config.n_query_groups, total_qkv, self.config.head_size)
+        qkv = qkv.view(B, T, self.config.n_query_groups, total_qkv, self._head_size)
         qkv = qkv.permute(0, 2, 3, 1, 4)  # (B, n_query_groups, total_qkv, T, hs)
 
         # split batched computation into three
@@ -231,16 +238,16 @@ class CausalSelfAttention(nn.Module):
         # repeat k and v if necessary
         if self.config.n_query_groups != 1:  # doing this would require a full kv cache with MQA (inefficient!)
             # for MHA this is a no-op
-            k = k.expand(B, self.config.n_query_groups, q_per_kv, T, self.config.head_size)
-            v = v.expand(B, self.config.n_query_groups, q_per_kv, T, self.config.head_size)
+            k = k.expand(B, self.config.n_query_groups, q_per_kv, T, self._head_size)
+            v = v.expand(B, self.config.n_query_groups, q_per_kv, T, self._head_size)
 
-        q = q.reshape(B, -1, T, self.config.head_size)  # (B, nh_q, T, hs)
-        k = k.reshape(B, -1, T, self.config.head_size)  # (B, nh_k, T, hs)
-        v = v.reshape(B, -1, T, self.config.head_size)  # (B, nh_v, T, hs)
-        q_roped = apply_rope(q[..., : self.config.rope_n_elem], cos, sin)
-        k_roped = apply_rope(k[..., : self.config.rope_n_elem], cos, sin)
-        q = torch.cat((q_roped, q[..., self.config.rope_n_elem :]), dim=-1)
-        k = torch.cat((k_roped, k[..., self.config.rope_n_elem :]), dim=-1)
+        q = q.reshape(B, -1, T, self._head_size)  # (B, nh_q, T, hs)
+        k = k.reshape(B, -1, T, self._head_size)  # (B, nh_k, T, hs)
+        v = v.reshape(B, -1, T, self._head_size)  # (B, nh_v, T, hs)
+        q_roped = apply_rope(q[..., : self._rope_n_elem], cos, sin)
+        k_roped = apply_rope(k[..., : self._rope_n_elem], cos, sin)
+        q = torch.cat((q_roped, q[..., self._rope_n_elem :]), dim=-1)
+        k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)
 
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
@@ -287,8 +294,8 @@ class CausalSelfAttention(nn.Module):
         device: Optional[torch.device] = None,
         dtype: Optional[torch.dtype] = None,
     ) -> "KVCache":
-        heads = 1 if self.config.n_query_groups == 1 else self.config.n_head
-        v_shape = (batch_size, heads, max_seq_length, self.config.head_size)
+        heads = 1 if self.config.n_query_groups == 1 else self._n_head
+        v_shape = (batch_size, heads, max_seq_length, self._head_size)
         if rope_cache_length is None:
             if self.config.rotary_percentage != 1.0:
                 raise TypeError("Please pass the `rope_cache_length=gpt.cos.size(-1)` value")
@@ -298,7 +305,7 @@ class CausalSelfAttention(nn.Module):
                 batch_size,
                 heads,
                 max_seq_length,
-                rope_cache_length + self.config.head_size - self.config.rope_n_elem,
+                rope_cache_length + self._head_size - self._rope_n_elem,
             )
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
 
