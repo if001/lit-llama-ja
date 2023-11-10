@@ -69,7 +69,7 @@ class Llama2Config:
         self.head_size = self.n_embd // self.n_head
 
         for n_head in self.n_heads:
-            self.head_sizes.append(n_head)
+            self.head_sizes.append(self.n_embd // n_head)
 
         # vocab size should be a power of 2 to be optimal on hardware. compute the closest value
         if self.padded_vocab_size is None:
