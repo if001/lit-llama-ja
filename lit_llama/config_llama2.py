@@ -62,6 +62,7 @@ class Llama2Config:
     n_heads: List[int] = field(default_factory=list)
     head_sizes: List[int] = field(default_factory=list)
     rope_n_elems: List[int] = field(default_factory=list)
+    n_query_groups_list: List[int] = field(default_factory=list)
 
 
     def __post_init__(self):        
@@ -83,6 +84,9 @@ class Llama2Config:
             assert self.n_head % self.n_query_groups == 0
         else:
             self.n_query_groups = self.n_head
+
+        for n_head in self.n_heads:
+            self.n_query_groups_list.append(n_head)
 
         # compute the intermediate size for MLP if not set
         if self.intermediate_size is None:
