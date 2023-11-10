@@ -59,7 +59,7 @@ class Llama2Config:
     nef: bool = False
     _description: str = ""
 
-    heads: List[int] = field(default_factory=list)
+    n_heads: List[int] = field(default_factory=list)
     head_sizes: List[int] = field(default_factory=list)
     rope_n_elems: List[int] = field(default_factory=list)
 
@@ -68,7 +68,7 @@ class Llama2Config:
         assert self.n_embd % self.n_head == 0
         self.head_size = self.n_embd // self.n_head
 
-        for n_head in self.heads:
+        for n_head in self.n_heads:
             self.head_sizes.append(n_head)
 
         # vocab size should be a power of 2 to be optimal on hardware. compute the closest value

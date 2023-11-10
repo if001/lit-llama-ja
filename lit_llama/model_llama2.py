@@ -198,10 +198,10 @@ class CausalSelfAttention(nn.Module):
     def __init__(self, config: Config, idx = 0) -> None:
         super().__init__()
         # shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
-        shape = (config.heads[idx] + 2 * config.n_query_groups) * config.head_sizes[idx]
+        shape = (config.n_heads[idx] + 2 * config.n_query_groups) * config.head_sizes[idx]
 
         self._head_size = config.head_sizes[idx]
-        self._n_head = config.heads[idx]
+        self._n_head = config.n_heads[idx]
         self._rope_n_elem = config.rope_n_elems[idx]
 
         # key, query, value projections for all heads, but in a batch
