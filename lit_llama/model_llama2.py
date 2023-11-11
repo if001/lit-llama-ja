@@ -95,22 +95,19 @@ class GPT(nn.Module):
         if self.max_seq_length < T:
             raise ValueError(f"Cannot forward sequence of length {T}, max seq length is only {self.max_seq_length}.")
 
-        if input_pos is not None:  # use the kv cache
-            cos = self._cos_list[idx].index_select(0, input_pos)
-            sin = self._sin_list[idx].index_select(0, input_pos)
-            if self.mask_cache is None:
-                raise TypeError("You need to call `gpt.set_kv_cache()`")
-            mask = self.mask_cache.index_select(2, input_pos)
-        else:
-            print("self._cos_list", self._cos_list)
-            print("self._cos_list[idx]", self._cos_list[idx])
-
-            cos = self._cos_list[idx][:T]
-            sin = self._sin_list[idx][:T]
-            mask = None
 
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
-        for block in self.transformer.h:
+        for i, block in enumerate(self.transformer.h):
+            if input_pos is not None:  # use the kv cache
+                cos = self._cos_list[i].index_select(0, input_pos)
+                sin = self._sin_list[i].index_select(0, input_pos)
+                if self.mask_cache is None:
+                    raise TypeError("You need to call `gpt.set_kv_cache()`")
+                mask = self.mask_cache.index_select(2, input_pos)
+            else:            
+                cos = self._cos_list[i][:T]
+                sin = self._sin_list[i][:T]
+                mask = None
             x = block(x, cos, sin, mask, input_pos)
         x = self.transformer.ln_f(x)
         return self.lm_head(x)  # (b, t, vocab_size)
