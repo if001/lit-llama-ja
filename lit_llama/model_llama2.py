@@ -24,6 +24,9 @@ class GPT(nn.Module):
         print(f'FlashAttention2Available: {FlashAttention2Available}')
         self.config = config
 
+        self._cos_list = []
+        self._sin_list = []
+
         self.lm_head = nn.Linear(config.n_embd, config.padded_vocab_size, bias=config.lm_head_bias)
         if config.nef:
             embed = EmbeddingNEFTune(config)
@@ -54,14 +57,23 @@ class GPT(nn.Module):
         if value > self.config.block_size:
             raise ValueError(f"Cannot attend to {value}, block size is only {self.config.block_size}")
         self._max_seq_length = value
-        if not hasattr(self, "cos"):
-            # first call
-            cos, sin = self.rope_cache()
-            self.register_buffer("cos", cos, persistent=False)
-            self.register_buffer("sin", sin, persistent=False)
-        elif value != self.cos.size(0):
-            # override
-            self.cos, self.sin = self.rope_cache(device=self.cos.device)
+
+        if len(self._cos_list) == 0:
+            for i in range(self.config.n_layer):
+                cos, sin = self.rope_cache(i)
+                self._cos_list.append(cos)
+                self._sin_list.append(sin)
+                self.register_buffer(f"cos_{i}", cos, persistent=False)
+                self.register_buffer(f"sin_{i}", sin, persistent=False)
+        else:
+            
+            for i in range(self.config.n_layer):
+                if value != self._cos_list[i].size(0):                    
+                    # override
+                    cos, sin = self.rope_cache(device=self.cos.device)
+                    self._cos_list[i] = cos
+                    self._sin_list[i] = cos
+
         # the mask and kv cache size will get updated on `set_kv_cache`. we cannot update it here because we don't know
         # if the kv cache is expected
 
@@ -84,14 +96,14 @@ class GPT(nn.Module):
             raise ValueError(f"Cannot forward sequence of length {T}, max seq length is only {self.max_seq_length}.")
 
         if input_pos is not None:  # use the kv cache
-            cos = self.cos.index_select(0, input_pos)
-            sin = self.sin.index_select(0, input_pos)
+            cos = self._cos_list[idx].index_select(0, input_pos)
+            sin = self._sin_list[idx].index_select(0, input_pos)
             if self.mask_cache is None:
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
             mask = self.mask_cache.index_select(2, input_pos)
         else:
-            cos = self.cos[:T]
-            sin = self.sin[:T]
+            cos = self._cos_list[idx][:T]
+            sin = self._sin_list[idx][:T]
             mask = None
 
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
@@ -104,10 +116,10 @@ class GPT(nn.Module):
     def from_name(cls, name: str, **kwargs: Any) -> Self:
         return cls(Config.from_name(name, **kwargs))
 
-    def rope_cache(self, device: Optional[torch.device] = None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def rope_cache(self, i: int, device: Optional[torch.device] = None) -> Tuple[torch.Tensor, torch.Tensor]:
         return build_rope_cache(
             seq_len=self.max_seq_length,
-            n_elem=self.config.rope_n_elems[0],
+            n_elem=self.config.rope_n_elems[i],
             dtype=torch.get_default_dtype(),
             device=device,
             condense_ratio=self.config.rope_condense_ratio,
@@ -379,11 +391,6 @@ def apply_rope(x: torch.Tensor, cos: torch.Tensor, sin: torch.Tensor) -> torch.T
     x1 = x[..., : head_size // 2]  # (B, nh, T, hs/2)
     x2 = x[..., head_size // 2 :]  # (B, nh, T, hs/2)
     rotated = torch.cat((-x2, x1), dim=-1)  # (B, nh, T, hs)
-
-    print(x.shape)
-    print(cos.shape)
-    print(rotated.shape)
-    print(sin.shape)
     roped = (x * cos) + (rotated * sin)
     return roped.type_as(x)
 
