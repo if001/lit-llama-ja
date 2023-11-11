@@ -327,6 +327,8 @@ class CausalSelfAttention(nn.Module):
                 max_seq_length,
                 rope_cache_length + self._head_size - self._rope_n_elem,
             )
+        print('build k_shape', k_shape)
+        print('build v_shape', v_shape)
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
 
 
