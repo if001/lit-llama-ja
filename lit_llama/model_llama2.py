@@ -107,7 +107,7 @@ class GPT(nn.Module):
     def rope_cache(self, device: Optional[torch.device] = None) -> Tuple[torch.Tensor, torch.Tensor]:
         return build_rope_cache(
             seq_len=self.max_seq_length,
-            n_elem=self.config.rope_n_elem,
+            n_elem=self.config.rope_n_elems[0],
             dtype=torch.get_default_dtype(),
             device=device,
             condense_ratio=self.config.rope_condense_ratio,
