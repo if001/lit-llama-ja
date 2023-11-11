@@ -329,6 +329,7 @@ class CausalSelfAttention(nn.Module):
             )
         print('build k_shape', k_shape)
         print('build v_shape', v_shape)
+        print('====')
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
 
 
