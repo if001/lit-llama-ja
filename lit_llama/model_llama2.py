@@ -102,6 +102,9 @@ class GPT(nn.Module):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
             mask = self.mask_cache.index_select(2, input_pos)
         else:
+            print("self._cos_list", self._cos_list)
+            print("self._cos_list[idx]", self._cos_list[idx])
+
             cos = self._cos_list[idx][:T]
             sin = self._sin_list[idx][:T]
             mask = None
