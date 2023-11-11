@@ -1,7 +1,7 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal, Optional, Type, Union
+from typing import Any, Literal, Optional, Type, Union, List
 
 import torch
 from typing_extensions import Self
@@ -57,10 +57,20 @@ class Llama2Config:
     rope_base: int = 10000
     nef: bool = False
     _description: str = ""
+    
+    _n_embd: List[int] = field(default_factory=list)
+    _head_sizes: List[int] = field(default_factory=list)
+    _intermediate_sizes: List[int] = field(default_factory=list)
+    _rope_n_elems: List[int] = field(default_factory=list)
+    # n_heads: List[int] = field(default_factory=list)    
+    # n_query_groups_list: List[int] = field(default_factory=list)
 
     def __post_init__(self):
-        assert self.n_embd % self.n_head == 0
-        self.head_size = self.n_embd // self.n_head
+        # assert self.n_embd % self.n_head == 0
+        # self.head_size = self.n_embd // self.n_head
+        for v in self._n_embd:
+            self._head_sizes.append(v)
+        self.n_layer = len(self._n_embd)
 
         # vocab size should be a power of 2 to be optimal on hardware. compute the closest value
         if self.padded_vocab_size is None:
@@ -76,12 +86,16 @@ class Llama2Config:
             self.n_query_groups = self.n_head
 
         # compute the intermediate size for MLP if not set
-        if self.intermediate_size is None:
-            if self._mlp_class == "LLaMAMLP":
-                raise ValueError("The config needs to set the `intermediate_size`")
-            self.intermediate_size = 4 * self.n_embd
+        # if self.intermediate_size is None:
+        #     if self._mlp_class == "LLaMAMLP":
+        #         raise ValueError("The config needs to set the `intermediate_size`")
+        #     self.intermediate_size = 4 * self.n_embd
 
-        self.rope_n_elem = int(self.rotary_percentage * self.head_size)
+        for v in self.n_embd:
+            self._intermediate_sizes.append(4*v)
+
+        for v in self._head_sizes:
+            self._rope_n_elems.append(int(self.rotary_percentage * self.head_size))
 
     @classmethod
     def from_name(cls, name: str, **kwargs: Any) -> Self:
@@ -1410,6 +1424,21 @@ phi = [
         n_layer=1,
         n_head=36,
         n_embd=3600,
+        rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
+        shared_attention_norm=True,
+        lm_head_bias=True,
+        gelu_approximate="tanh",
+        _description="407.60M",
+    ),
+    dict(
+        org="microsoft",
+        name="phi-1_5-400M_auto_encoder",
+        vocab_size=35000,
+        padded_vocab_size=35000,
+        block_size=2048,
+        n_layer=-1,
+        n_head=1,
+        n_embd=[3600, 3600, 3600, 3600,  1800, 1800, 1800, 1800, 900, 900, 900, 1800, 1800, 1800, 1800, 3600, 3600, 3600, 3600],
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,

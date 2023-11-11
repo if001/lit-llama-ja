@@ -23,19 +23,21 @@ class GPT(nn.Module):
         assert config.padded_vocab_size is not None
         print(f'FlashAttention2Available: {FlashAttention2Available}')
         self.config = config
-
-        self.lm_head = nn.Linear(config.n_embd, config.padded_vocab_size, bias=config.lm_head_bias)
+        self._cos_list = []
+        self._sin_list = []
+    
+        self.lm_head = nn.Linear(config.n_embd[-1], config.padded_vocab_size, bias=config.lm_head_bias)
         if config.nef:
             embed = EmbeddingNEFTune(config)
         else:
             ## orignal
-            embed = nn.Embedding(config.padded_vocab_size, config.n_embd)
+            embed = nn.Embedding(config.padded_vocab_size, config.n_embd[0])
             
         self.transformer = nn.ModuleDict(
             dict(
                 wte=embed,
-                h=nn.ModuleList(Block(config) for _ in range(config.n_layer)),
-                ln_f=config.norm_class(config.n_embd, eps=config.norm_eps),
+                h=nn.ModuleList(Block(config, i) for i in range(config.n_layer)),
+                ln_f=config.norm_class(config.n_embd[-1], eps=config.norm_eps),
             )
         )
         self.max_seq_length = self.config.block_size
@@ -54,16 +56,21 @@ class GPT(nn.Module):
         if value > self.config.block_size:
             raise ValueError(f"Cannot attend to {value}, block size is only {self.config.block_size}")
         self._max_seq_length = value
-        if not hasattr(self, "cos"):
-            # first call
-            cos, sin = self.rope_cache()
-            self.register_buffer("cos", cos, persistent=False)
-            self.register_buffer("sin", sin, persistent=False)
-        elif value != self.cos.size(0):
-            # override
-            self.cos, self.sin = self.rope_cache(device=self.cos.device)
-        # the mask and kv cache size will get updated on `set_kv_cache`. we cannot update it here because we don't know
-        # if the kv cache is expected
+
+        if len(self._cos_list) == 0:
+            for i in range(self.config.n_layer):
+                cos, sin = self.rope_cache(i)
+                self._cos_list.append(cos)
+                self._sin_list.append(sin)
+                self.register_buffer(f"cos_{i}", cos, persistent=False)
+                self.register_buffer(f"sin_{i}", sin, persistent=False)
+        else:            
+            for i in range(self.config.n_layer):
+                if value != self._cos_list[i].size(0):                    
+                    # override
+                    cos, sin = self.rope_cache(i, device=self.cos.device)
+                    self._cos_list[i] = cos
+                    self._sin_list[i] = cos
 
     def reset_parameters(self) -> None:
         # Trigger resetting the rope-cache
@@ -83,19 +90,18 @@ class GPT(nn.Module):
         if self.max_seq_length < T:
             raise ValueError(f"Cannot forward sequence of length {T}, max seq length is only {self.max_seq_length}.")
 
-        if input_pos is not None:  # use the kv cache
-            cos = self.cos.index_select(0, input_pos)
-            sin = self.sin.index_select(0, input_pos)
-            if self.mask_cache is None:
-                raise TypeError("You need to call `gpt.set_kv_cache()`")
-            mask = self.mask_cache.index_select(2, input_pos)
-        else:
-            cos = self.cos[:T]
-            sin = self.sin[:T]
-            mask = None
-
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
-        for block in self.transformer.h:
+        for i, block in enumerate(self.transformer.h):
+            if input_pos is not None:  # use the kv cache
+                cos = self._cos_list[i].index_select(0, input_pos)
+                sin = self._sin_list[i].index_select(0, input_pos)
+                if self.mask_cache is None:
+                    raise TypeError("You need to call `gpt.set_kv_cache()`")
+                mask = self.mask_cache.index_select(2, input_pos)
+            else:
+                cos = self._cos_list[i][:T]
+                sin = self._sin_list[i][:T]
+                mask = None
             x = block(x, cos, sin, mask, input_pos)
         x = self.transformer.ln_f(x)
         return self.lm_head(x)  # (b, t, vocab_size)
@@ -104,10 +110,10 @@ class GPT(nn.Module):
     def from_name(cls, name: str, **kwargs: Any) -> Self:
         return cls(Config.from_name(name, **kwargs))
 
-    def rope_cache(self, device: Optional[torch.device] = None) -> Tuple[torch.Tensor, torch.Tensor]:
+    def rope_cache(self, i, device: Optional[torch.device] = None) -> Tuple[torch.Tensor, torch.Tensor]:
         return build_rope_cache(
             seq_len=self.max_seq_length,
-            n_elem=self.config.rope_n_elem,
+            n_elem=self.config._rope_n_elems[i],
             dtype=torch.get_default_dtype(),
             device=device,
             condense_ratio=self.config.rope_condense_ratio,
@@ -161,13 +167,17 @@ class EmbeddingNEFTune(nn.Module):
         return embed_init + torch.zeros_like(embed_init).uniform_(-mag_norm, mag_norm)
 
 class Block(nn.Module):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, i: int) -> None:
         super().__init__()
         self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
         self.attn = CausalSelfAttention(config)
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
         self.mlp = config.mlp_class(config)
 
+        self.is_last_layer = i+1 != len(self.config._n_embd)
+        if not self.is_last_layer:
+            self.linear = torch.nn.Linear(self.config._n_embd[i], self.config._n_embd[i+1])
+            self.activation = torch.nn.functional.silu
         self.config = config
 
     def forward(
@@ -191,6 +201,10 @@ class Block(nn.Module):
                 )
             x = x + h
             x = x + self.mlp(self.norm_2(x))
+
+        if not self.is_last_layer:            
+            x = self.linear(x)
+            x = self.activation(x)
         return x
 
 
