@@ -269,6 +269,9 @@ class CausalSelfAttention(nn.Module):
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
+            print('input_pos', input_pos.shape)
+            print('k', k.shape)
+            print('v', v.shape)
             k, v = self.kv_cache(input_pos, k, v)
 
         y = self.scaled_dot_product_attention(q, k, v, mask)
