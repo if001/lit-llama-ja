@@ -137,7 +137,7 @@ def main(
      
     with fabric.init_tensor():
         # enable the kv cache
-        model.set_kv_cache(batch_size=1)
+        model.set_kv_cache(batch_size=1, index=0)
 
     # tokenizer = Tokenizer(tokenizer_path)
     tokenizer = HFTokenizer(tokenizer_path)
