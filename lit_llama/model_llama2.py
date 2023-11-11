@@ -316,19 +316,18 @@ class CausalSelfAttention(nn.Module):
     ) -> "KVCache":
         heads = 1 if self._n_query_groups == 1 else self._n_head
         v_shape = (batch_size, heads, max_seq_length, self._head_size)
-        if rope_cache_length is None:
-            print('none1')
+        if rope_cache_length is None:            
             if self.config.rotary_percentage != 1.0:
                 raise TypeError("Please pass the `rope_cache_length=gpt.cos.size(-1)` value")
             k_shape = v_shape
-        else:
-            print('k_shape!!!!!!!!')
+        else:            
             k_shape = (
                 batch_size,
                 heads,
                 max_seq_length,
                 rope_cache_length + self._head_size - self._rope_n_elem,
             )
+            k_shape = v_shape
         print('build k_shape', k_shape)
         print('build v_shape', v_shape)
         print('====')
