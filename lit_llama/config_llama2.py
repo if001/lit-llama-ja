@@ -21,7 +21,7 @@ class Llama2Config:
     padded_vocab_size: Optional[int] = None
     n_layer: int = 16
     n_head: int = 32
-    n_embd: int = 4096
+    # n_embd: int = 4096
     rotary_percentage: float = 0.25
     parallel_residual: bool = True
     bias: bool = True
@@ -1440,7 +1440,7 @@ phi = [
         block_size=2048,
         n_layer=-1,
         n_head=1,
-        _n_embd=[6000, 6000, 6000, 6000,  4000, 4000, 4000, 4000, 2000, 2000, 2000, 4000, 4000, 4000, 4000, 6000, 6000, 6000, 6000],
+        _n_embd=[4000, 4000, 4000, 4000,  2000, 2000, 2000, 2000, 1000, 1000, 1000, 2000, 2000, 2000, 2000, 4000, 4000, 4000, 4000],
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
