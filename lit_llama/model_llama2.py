@@ -177,7 +177,7 @@ class Block(nn.Module):
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config._n_embd[i], eps=config.norm_eps)
         self.mlp = config.mlp_class(config, i)
 
-        self.is_last_layer = i+1 != len(self.config._n_embd)
+        self.is_last_layer = i+1 != len(config._n_embd)
         if not self.is_last_layer:
             self.linear = torch.nn.Linear(self.config._n_embd[i], self.config._n_embd[i+1])
             self.activation = torch.nn.functional.silu
