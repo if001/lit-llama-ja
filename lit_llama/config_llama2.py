@@ -1440,12 +1440,12 @@ phi = [
         block_size=2048,
         n_layer=-1,
         n_head=1,
-        _n_embd=[3000, 2000, 1000, 1000, 500, 1000, 1000, 2000, 3000],
+        _n_embd=[2000, 1000, 1000, 500, 300, 500, 1000, 1000, 2000],
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
         gelu_approximate="tanh",
-        _description="420.05M",
+        _description="592.21M",
     )
 ]
 configs.extend(phi)
