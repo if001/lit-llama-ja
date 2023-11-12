@@ -175,7 +175,7 @@ class Block(nn.Module):
         self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
         self.attn = CausalSelfAttention(config, i)
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
-        self.mlp = config.mlp_class(config)
+        self.mlp = config.mlp_class(config, i)
 
         self.is_last_layer = i+1 != len(self.config._n_embd)
         if not self.is_last_layer:
@@ -328,10 +328,12 @@ class CausalSelfAttention(nn.Module):
 
 
 class GptNeoxMLP(nn.Module):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, index: int) -> None:
         super().__init__()
-        self.fc = nn.Linear(config.n_embd, config.intermediate_size, bias=config.bias)
-        self.proj = nn.Linear(config.intermediate_size, config.n_embd, bias=config.bias)
+        n_embd = config._n_embd[index]
+        intermediate_size = config._intermediate_sizes[index]        
+        self.fc = nn.Linear(n_embd, intermediate_size, bias=config.bias)
+        self.proj = nn.Linear(intermediate_size, n_embd, bias=config.bias)
 
         self.config = config
 
