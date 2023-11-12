@@ -216,12 +216,13 @@ class CausalSelfAttention(nn.Module):
         super().__init__()
         self._head_size = config._head_sizes[index]
         self._rope_n_elem = config._rope_n_elems[index]
+        _n_embed = config._n_embd[index]
 
         shape = (config.n_head + 2 * config.n_query_groups) * self._head_size
         # key, query, value projections for all heads, but in a batch
-        self.attn = nn.Linear(config.n_embd, shape, bias=config.bias)
+        self.attn = nn.Linear(_n_embed, shape, bias=config.bias)
         # output projection
-        self.proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
+        self.proj = nn.Linear(_n_embed, _n_embed, bias=config.bias)
         # disabled by default
         self.kv_cache: Optional[KVCache] = None
 
