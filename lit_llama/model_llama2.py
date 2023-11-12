@@ -278,7 +278,7 @@ class CausalSelfAttention(nn.Module):
     def scaled_dot_product_attention(
         self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask: Optional[torch.Tensor] = None
     ):
-        scale = 1.0 / math.sqrt(self.config.head_size)
+        scale = 1.0 / math.sqrt(self._head_size)
         if (
             FlashAttention2Available
             and mask is None
