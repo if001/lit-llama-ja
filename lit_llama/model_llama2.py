@@ -172,9 +172,9 @@ class EmbeddingNEFTune(nn.Module):
 class Block(nn.Module):
     def __init__(self, config: Config, i: int) -> None:
         super().__init__()
-        self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
+        self.norm_1 = config.norm_class(config._n_embd[i], eps=config.norm_eps)
         self.attn = CausalSelfAttention(config, i)
-        self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
+        self.norm_2 = None if config.shared_attention_norm else config.norm_class(config._n_embd[i], eps=config.norm_eps)
         self.mlp = config.mlp_class(config, i)
 
         self.is_last_layer = i+1 != len(self.config._n_embd)
