@@ -64,7 +64,7 @@ class GPT(nn.Module):
                 self._sin_list.append(sin)
                 self.register_buffer(f"cos_{i}", cos, persistent=False)
                 self.register_buffer(f"sin_{i}", sin, persistent=False)
-        else:            
+        else:
             for i in range(self.config.n_layer):
                 if value != self._cos_list[i].size(0):                    
                     # override
@@ -315,6 +315,7 @@ class CausalSelfAttention(nn.Module):
                 max_seq_length,
                 rope_cache_length + self.config.head_size - self.config.rope_n_elem,
             )
+            k_shape = v_shape
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
 
 
