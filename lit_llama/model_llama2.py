@@ -58,6 +58,7 @@ class GPT(nn.Module):
         self._max_seq_length = value
 
         if len(self._cos_list) == 0:
+            print('n_layer', self.config.n_layer)
             for i in range(self.config.n_layer):
                 cos, sin = self.rope_cache(i)
                 self._cos_list.append(cos)
