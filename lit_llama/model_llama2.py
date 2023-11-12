@@ -128,6 +128,7 @@ class GPT(nn.Module):
         device: Optional[torch.device] = None,
         dtype: Optional[torch.dtype] = None,
     ) -> None:
+        print('set kv-cache', index, self._cos_list)
         if rope_cache_length is None:
             rope_cache_length = self._cos_list[index].size(-1)
         max_seq_length = self.max_seq_length
@@ -316,6 +317,9 @@ class CausalSelfAttention(nn.Module):
                 rope_cache_length + self.config.head_size - self.config.rope_n_elem,
             )
             k_shape = v_shape
+        print('build k', k_shape)
+        print('build v', v_shape)
+        print('----------')
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
 
 
