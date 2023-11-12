@@ -179,7 +179,7 @@ class Block(nn.Module):
 
         self.is_last_layer = i+1 != len(config._n_embd)
         if not self.is_last_layer:
-            self.linear = torch.nn.Linear(self.config._n_embd[i], self.config._n_embd[i+1])
+            self.linear = torch.nn.Linear(config._n_embd[i], config._n_embd[i+1])
             self.activation = torch.nn.functional.silu
         self.config = config
 
