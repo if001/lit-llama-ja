@@ -26,18 +26,18 @@ class GPT(nn.Module):
         self._cos_list = []
         self._sin_list = []
     
-        self.lm_head = nn.Linear(config.n_embd[-1], config.padded_vocab_size, bias=config.lm_head_bias)
+        self.lm_head = nn.Linear(config._n_embd[-1], config.padded_vocab_size, bias=config.lm_head_bias)
         if config.nef:
             embed = EmbeddingNEFTune(config)
         else:
             ## orignal
-            embed = nn.Embedding(config.padded_vocab_size, config.n_embd[0])
+            embed = nn.Embedding(config.padded_vocab_size, config._n_embd[0])
             
         self.transformer = nn.ModuleDict(
             dict(
                 wte=embed,
                 h=nn.ModuleList(Block(config, i) for i in range(config.n_layer)),
-                ln_f=config.norm_class(config.n_embd[-1], eps=config.norm_eps),
+                ln_f=config.norm_class(config._n_embd[-1], eps=config.norm_eps),
             )
         )
         self.max_seq_length = self.config.block_size
@@ -173,7 +173,7 @@ class Block(nn.Module):
     def __init__(self, config: Config, i: int) -> None:
         super().__init__()
         self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
-        self.attn = CausalSelfAttention(config)
+        self.attn = CausalSelfAttention(config, i)
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
         self.mlp = config.mlp_class(config)
 
@@ -212,9 +212,9 @@ class Block(nn.Module):
 
 
 class CausalSelfAttention(nn.Module):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, index: int) -> None:
         super().__init__()
-        shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
+        shape = (config.n_head + 2 * config.n_query_groups) * config.head_size[index]
         # key, query, value projections for all heads, but in a batch
         self.attn = nn.Linear(config.n_embd, shape, bias=config.bias)
         # output projection

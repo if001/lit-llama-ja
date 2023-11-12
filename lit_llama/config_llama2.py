@@ -93,11 +93,11 @@ class Llama2Config:
         #         raise ValueError("The config needs to set the `intermediate_size`")
         #     self.intermediate_size = 4 * self.n_embd
 
-        for v in self.n_embd:
+        for v in self._embd:
             self._intermediate_sizes.append(4*v)
 
         for v in self._head_sizes:
-            self._rope_n_elems.append(int(self.rotary_percentage * self.head_size))
+            self._rope_n_elems.append(int(self.rotary_percentage * v))
 
     @classmethod
     def from_name(cls, name: str, **kwargs: Any) -> Self:
