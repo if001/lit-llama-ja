@@ -67,13 +67,12 @@ class Llama2Config:
 
     def __post_init__(self):
         # assert self.n_embd % self.n_head == 0
-        # self.head_size = self.n_embd // self.n_head
+        # self.head_size = self.n_embd // self.n_head        
+
         for v in self._n_embd:
             self._head_sizes.append(v)
 
-        print('self._n_embd', self._n_embd)
         self.n_layer = len(self._n_embd)
-        print(self.n_layer, self.n_layer)
 
         # vocab size should be a power of 2 to be optimal on hardware. compute the closest value
         if self.padded_vocab_size is None:
@@ -1441,7 +1440,7 @@ phi = [
         block_size=2048,
         n_layer=-1,
         n_head=1,
-        n_embd=[6000, 6000, 6000, 6000,  4000, 4000, 4000, 4000, 2000, 2000, 2000, 4000, 4000, 4000, 4000, 6000, 6000, 6000, 6000],
+        _n_embd=[6000, 6000, 6000, 6000,  4000, 4000, 4000, 4000, 2000, 2000, 2000, 4000, 4000, 4000, 4000, 6000, 6000, 6000, 6000],
         rotary_percentage=0.5,  # 32 / (n_embd / n_head) = 32 / 64
         shared_attention_norm=True,
         lm_head_bias=True,
