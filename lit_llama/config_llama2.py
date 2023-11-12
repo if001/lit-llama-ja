@@ -93,7 +93,7 @@ class Llama2Config:
         #         raise ValueError("The config needs to set the `intermediate_size`")
         #     self.intermediate_size = 4 * self.n_embd
 
-        for v in self._embd:
+        for v in self._n_embd:
             self._intermediate_sizes.append(4*v)
 
         for v in self._head_sizes:
