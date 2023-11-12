@@ -214,7 +214,10 @@ class Block(nn.Module):
 class CausalSelfAttention(nn.Module):
     def __init__(self, config: Config, index: int) -> None:
         super().__init__()
-        shape = (config.n_head + 2 * config.n_query_groups) * config.head_size[index]
+        self._head_size = config._head_sizes[index]
+        self._rope_n_elem = config._rope_n_elems[index]
+
+        shape = (config.n_head + 2 * config.n_query_groups) * self._head_size
         # key, query, value projections for all heads, but in a batch
         self.attn = nn.Linear(config.n_embd, shape, bias=config.bias)
         # output projection
@@ -239,7 +242,7 @@ class CausalSelfAttention(nn.Module):
         # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
         q_per_kv = self.config.n_head // self.config.n_query_groups
         total_qkv = q_per_kv + 2  # each group has 1+ queries, 1 key, and 1 value
-        qkv = qkv.view(B, T, self.config.n_query_groups, total_qkv, self.config.head_size)
+        qkv = qkv.view(B, T, self.config.n_query_groups, total_qkv, self._head_size)
         qkv = qkv.permute(0, 2, 3, 1, 4)  # (B, n_query_groups, total_qkv, T, hs)
 
         # split batched computation into three
@@ -248,16 +251,16 @@ class CausalSelfAttention(nn.Module):
         # repeat k and v if necessary
         if self.config.n_query_groups != 1:  # doing this would require a full kv cache with MQA (inefficient!)
             # for MHA this is a no-op
-            k = k.expand(B, self.config.n_query_groups, q_per_kv, T, self.config.head_size)
-            v = v.expand(B, self.config.n_query_groups, q_per_kv, T, self.config.head_size)
+            k = k.expand(B, self.config.n_query_groups, q_per_kv, T, self._head_size)
+            v = v.expand(B, self.config.n_query_groups, q_per_kv, T, self._head_size)
 
-        q = q.reshape(B, -1, T, self.config.head_size)  # (B, nh_q, T, hs)
-        k = k.reshape(B, -1, T, self.config.head_size)  # (B, nh_k, T, hs)
-        v = v.reshape(B, -1, T, self.config.head_size)  # (B, nh_v, T, hs)
-        q_roped = apply_rope(q[..., : self.config.rope_n_elem], cos, sin)
-        k_roped = apply_rope(k[..., : self.config.rope_n_elem], cos, sin)
-        q = torch.cat((q_roped, q[..., self.config.rope_n_elem :]), dim=-1)
-        k = torch.cat((k_roped, k[..., self.config.rope_n_elem :]), dim=-1)
+        q = q.reshape(B, -1, T, self._head_size)  # (B, nh_q, T, hs)
+        k = k.reshape(B, -1, T, self._head_size)  # (B, nh_k, T, hs)
+        v = v.reshape(B, -1, T, self._head_size)  # (B, nh_v, T, hs)
+        q_roped = apply_rope(q[..., : self._rope_n_elem], cos, sin)
+        k_roped = apply_rope(k[..., : self._rope_n_elem], cos, sin)
+        q = torch.cat((q_roped, q[..., self._rope_n_elem :]), dim=-1)
+        k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)
 
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
