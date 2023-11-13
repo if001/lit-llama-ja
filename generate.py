@@ -101,6 +101,7 @@ def main(
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
     quantize: Optional[str] = None,
     model_name: str = "7B",
+    eos_id: Optional[int] = None,
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -148,7 +149,7 @@ def main(
     L.seed_everything(1234)
     for i in range(num_samples):
         t0 = time.perf_counter()
-        y = generate(model, encoded, max_new_tokens, temperature=temperature, top_k=top_k)
+        y = generate(model, encoded, max_new_tokens, temperature=temperature, top_k=top_k, eos_id=eos_id)
         t = time.perf_counter() - t0
 
         ## model.reset_cache()
