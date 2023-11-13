@@ -309,7 +309,7 @@ class CausalSelfAttention(nn.Module):
         dtype: Optional[torch.dtype] = None,
     ) -> "KVCache":
         heads = 1 if self.config.n_query_groups == 1 else self.config.n_head
-        v_shape = (batch_size, heads, max_seq_length, self.config.head_size)
+        v_shape = (batch_size, heads, max_seq_length, self._head_size)
         if rope_cache_length is None:
             if self.config.rotary_percentage != 1.0:
                 raise TypeError("Please pass the `rope_cache_length=gpt.cos.size(-1)` value")
@@ -322,9 +322,6 @@ class CausalSelfAttention(nn.Module):
                 rope_cache_length + self.config.head_size - self.config.rope_n_elem,
             )
             k_shape = v_shape
-        print('build k', k_shape)
-        print('build v', v_shape)
-        print('----------')
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
 
 

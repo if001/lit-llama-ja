@@ -1445,7 +1445,7 @@ phi = [
         shared_attention_norm=True,
         lm_head_bias=True,
         gelu_approximate="tanh",
-        _description="592.21M",
+        _description="428.92M",
     )
 ]
 configs.extend(phi)
