@@ -199,6 +199,7 @@ def main(
         # torch.set_default_dtype(torch.float16)
         print('dtype: ', torch.get_default_dtype())
         model = GPT(config)
+        print(model)
         ## model = LLaMA(config)
         model.apply(model._init_weights)
         # torch.set_default_dtype(torch.float32)
