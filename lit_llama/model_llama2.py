@@ -57,8 +57,7 @@ class GPT(nn.Module):
             raise ValueError(f"Cannot attend to {value}, block size is only {self.config.block_size}")
         self._max_seq_length = value
 
-        if len(self._cos_list) == 0:
-            print('n_layer', self.config.n_layer)
+        if len(self._cos_list) == 0:            
             for i in range(self.config.n_layer):
                 cos, sin = self.rope_cache(i)
                 self._cos_list.append(cos)
@@ -128,8 +127,7 @@ class GPT(nn.Module):
         rope_cache_length: Optional[int] = None,
         device: Optional[torch.device] = None,
         dtype: Optional[torch.dtype] = None,
-    ) -> None:
-        print('set kv-cache', index, self._cos_list)
+    ) -> None:        
         if rope_cache_length is None:
             rope_cache_length = self._cos_list[index].size(-1)
         max_seq_length = self.max_seq_length
