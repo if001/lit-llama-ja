@@ -66,8 +66,8 @@ class Llama2Config:
 
 
     def __post_init__(self):        
-        assert self.n_embd % self.n_head == 0
-        self.head_size = self.n_embd // self.n_head
+        # assert self.n_embd % self.n_head == 0
+        # self.head_size = self.n_embd // self.n_head
 
         for n_head in self.n_heads:
             self.head_sizes.append(self.n_embd // n_head)
@@ -94,7 +94,7 @@ class Llama2Config:
                 raise ValueError("The config needs to set the `intermediate_size`")
             self.intermediate_size = 4 * self.n_embd
 
-        self.rope_n_elem = int(self.rotary_percentage * self.head_size)
+        # self.rope_n_elem = int(self.rotary_percentage * self.head_size)
 
         for head_size in self.head_sizes:
             self.rope_n_elems.append(int(self.rotary_percentage * head_size))

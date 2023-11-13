@@ -158,7 +158,7 @@ def main(
 
     # logger = TensorBoardLogger(log_dir, name="model")
     
-    logger = TensorBoardLogger(log_dir, name=f"model_{model_size}_b{batch_size}_lr{lr}_wd{weight_decay}")
+    logger = TensorBoardLogger(log_dir, name=f"model_{model_size}_b{trainingConfig.batch_size}_lr{trainingConfig.learning_rate}_wd{trainingConfig.weight_decay}")
     
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
@@ -274,6 +274,7 @@ def train(
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
+    total_time = 0
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
@@ -341,6 +342,7 @@ def train(
                 )
 
         dt = t1 - t0
+        total_time += dt
 
         tokens += trainingConfig.micro_batch_size * model.config.block_size
         step_time += t1 - prev_t1
@@ -349,9 +351,13 @@ def train(
         if iter_num % log_interval == 0:
             # tokens_sec_str = f"{tokens / step_time:.0f}" if not is_accumulating else "-"
 
+            _h = int(total_time // 3600)
+            _s = total_time % 3600
+            _total_tokens = format_number(iter_num*2048)
             fabric.print(
-                    f"iter {iter_num}: loss {loss.item():.4f}, time: {dt*1000:.2f}ms, lr: {lr}, step_count: {step_count}, tokens: {tokens}"
+                    f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, total tokens: {_total_tokens}, total time: {_h} h {_s:.2f} s"
             )
+
             try:
                 fabric.log_dict(
                     {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
@@ -366,6 +372,7 @@ def train(
         if not is_accumulating:
             tokens = 0
             step_time = 0.0
+
 
         if iter_num > trainingConfig.max_iters:
             break
@@ -411,7 +418,7 @@ def create_dataloader(
         dataset = PackedDataset(            
             filenames, n_chunks=n_chunks, block_size=block_size, shuffle=shuffle, seed=seed,
             num_processes=fabric.world_size, process_rank=fabric.global_rank, wrap=True
-        )
+        )        
         datasets.append(dataset)
 
     if not datasets:

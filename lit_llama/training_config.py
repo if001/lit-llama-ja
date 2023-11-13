@@ -172,7 +172,7 @@ class TrainingConfig():
                 or model_size == "Llama-2-400M_another_heads_single-to-multi"
                 or model_size == "Llama-2-400M_another_heads_multi-to-single"
                 ):
-            max_iters = 453000
+            max_iters = 4000000
             conf = dict(
                 model_size=model_size,
                 learning_rate=1e-4,
