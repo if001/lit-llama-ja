@@ -172,6 +172,10 @@ class TrainingConfig():
                 or model_size == "Llama-2-400M_another_heads_single-to-multi"
                 or model_size == "Llama-2-400M_another_heads_multi-to-single"
                 ):
+            ## dataset 8B
+            ## if block_size=4096, then max_iters 1953125
+            ## if block_size=2048, then max_iters 3906250
+
             max_iters = 4000000
             conf = dict(
                 model_size=model_size,
