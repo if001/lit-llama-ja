@@ -317,7 +317,7 @@ class CausalSelfAttention(nn.Module):
                 batch_size,
                 heads,
                 max_seq_length,
-                rope_cache_length + self.config.head_size - self.config.rope_n_elem,
+                rope_cache_length + self._head_size - self._rope_n_elem,
             )
             k_shape = v_shape
         return KVCache(k_shape, v_shape, device=device, dtype=dtype)
