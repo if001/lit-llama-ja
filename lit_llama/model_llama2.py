@@ -33,7 +33,7 @@ class GPT(nn.Module):
         else:
             ## orignal
             embed = nn.Embedding(config.padded_vocab_size, config.n_embd)
-            
+        print('debug', config.n_layer)   
         self.transformer = nn.ModuleDict(
             dict(
                 wte=embed,
