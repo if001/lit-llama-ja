@@ -165,7 +165,8 @@ class TrainingConfig():
                 or model_size == "phi-1_5-400M"
                 or model_size == "phi-1_5-400M_multi_head"
                 or model_size == "phi-1_5-400M_deep_layer"
-                or model_size == "phi-1_5-400M_another_heads"
+                or model_size == "phi-1_5-400M_another_heads_up"
+                or model_size == "phi-1_5-400M_another_heads_bottom"
                 ):
             max_iters = 453000
             conf = dict(
