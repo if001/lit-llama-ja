@@ -175,8 +175,8 @@ class TrainingConfig():
             ## dataset 8B
             ## if block_size=4096, then max_iters 1953125
             ## if block_size=2048, then max_iters 3906250
-
             max_iters = 4000000
+            max_iters = 8000000
             conf = dict(
                 model_size=model_size,
                 learning_rate=1e-4,
