@@ -266,16 +266,17 @@ def train(
 
     step_time = 0.0
     tokens = 0
+    total_tokens = restart_iter * trainingConfig.micro_batch_size * model.config.block_size
     tokens_sec = 0.0
     prev_t1 = time.time()
 
     log_interval = 500
     log_interval = 1000
     eval_iters = 100
-    save_interval = 8192 / trainingConfig.batch_size
-    eval_interval = 8192 / trainingConfig.batch_size
-    # eval_interval = 12000 / trainingConfig.batch_size
-    # save_interval = 12000 / trainingConfig.batch_size
+    # save_interval = 8192 / trainingConfig.batch_size
+    # eval_interval = 8192 / trainingConfig.batch_size
+    eval_interval = 12800 / trainingConfig.batch_size
+    save_interval = 12800 / trainingConfig.batch_size
     # save_interval = 4096 / trainingConfig.batch_size
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
@@ -350,8 +351,8 @@ def train(
         dt = t1 - t0
         total_time += dt
 
-        tokens += trainingConfig.micro_batch_size * model.config.block_size        
-        _total_tokens = tokens
+        tokens += trainingConfig.micro_batch_size * model.config.block_size
+        total_tokens += trainingConfig.micro_batch_size * model.config.block_size
         step_time += t1 - prev_t1
         prev_t1 = t1
 
@@ -361,11 +362,11 @@ def train(
             _h = int(total_time // 3600)
             _m = int((total_time % 3600) // 60)
             _tokens_str = format_number(tokens)
-            _total_tokens_str = format_number(_total_tokens)
+            _total_tokens_str = format_number(total_tokens)
             ds_size = 8e+9
-            _per = int(_total_tokens*100/ds_size)
+            _per = float(total_tokens*100/ds_size)
             fabric.print(
-                    f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, tokens: {_tokens_str}, total tokens: {_total_tokens_str}({_per}%), total time: {_h}h{_m:.2f}m"
+                    f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, tokens: {_tokens_str}, total tokens: {_total_tokens_str}({_per:.2f}%), total time: {_h}h{_m:.2f}m"
             )
 
             try:
