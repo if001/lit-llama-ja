@@ -234,10 +234,10 @@ def main(
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
     train(trainingConfig, fabric, model, optimizer, train_dataloader, 
-          val_dataloader, gradient_accumulation_iters, devices, str(out_dir_path), 
+          val_dataloader, gradient_accumulation_iters, devices, str(out_model_dir), 
           restart_iter, interrupt, model_size)
-    fabric.print(f"Saving checkpoint to {str(out_dir_path)}")
-    save_model_checkpoint_with_fabric(fabric, model, str(out_dir_path), f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
+    fabric.print(f"Saving checkpoint to {str(out_model_dir)}")
+    save_model_checkpoint_with_fabric(fabric, model, str(out_model_dir), f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     try:
         logger.save()
     except Exception as e:
