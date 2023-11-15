@@ -125,15 +125,18 @@ def main(
         trainingConfig.learning_rate = lr
         trainingConfig.min_lr = lr * 10
         trainingConfig.weight_decay = weight_decay
-    trainingConfig.debug()
-    trainingConfig.save(out_dir)
      
-    out_dir_path = Path(out_dir) / f"model_{model_size}_b{trainingConfig.batch_size}_lr{trainingConfig.learning_rate}_wd{trainingConfig.weight_decay}"
+    out_dir_path = Path(out_dir) / f"model_{model_size}_b{trainingConfig.batch_size}_lr{trainingConfig.learning_rate}_wd{trainingConfig.weight_decay}"    
     out_model_dir = Path(out_dir_path / "models")    
     out_model_dir.mkdir(parents=True, exist_ok=True)
-    
+    print('out_model_dir: ', out_model_dir)    
+
     out_log_dir = Path(out_dir_path / "logs")    
     out_log_dir.mkdir(parents=True, exist_ok=True)
+    print('out_log_dir: ', out_log_dir)
+
+    trainingConfig.debug()
+    trainingConfig.save(str(out_dir_path))
 
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -170,14 +173,14 @@ def main(
     fabric.seed_everything(1337)
 
     if fabric.global_rank == 0:
-        os.makedirs(out_dir, exist_ok=True)
+        os.makedirs(str(out_dir_path), exist_ok=True)
 
     # config = LLaMAConfig.from_name("7B")
     config = Llama2Config.from_name(model_size)
     config.nef = False
     config.debug()
-    config.save(out_dir)
-    print('out_dir: ', out_dir)
+    config.save(str(out_dir_path))
+    print('out_dir: ', str(out_dir_path))
     print('val data dir:', val_data_dir)
 
     train_dataloader, val_dataloader = create_dataloaders(
@@ -231,10 +234,10 @@ def main(
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
     train(trainingConfig, fabric, model, optimizer, train_dataloader, 
-          val_dataloader, gradient_accumulation_iters, devices, out_dir, 
+          val_dataloader, gradient_accumulation_iters, devices, str(out_dir_path), 
           restart_iter, interrupt, model_size)
-    fabric.print(f"Saving checkpoint to {out_dir}")
-    save_model_checkpoint_with_fabric(fabric, model, out_dir, f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
+    fabric.print(f"Saving checkpoint to {str(out_dir_path)}")
+    save_model_checkpoint_with_fabric(fabric, model, str(out_dir_path), f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     try:
         logger.save()
     except Exception as e:
