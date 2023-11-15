@@ -354,7 +354,7 @@ def train(
 
             _h = int(total_time // 3600)            
             _m = int((total_time % 3600) // 60)
-            _total_tokens = format_number(iter_num*2048)
+            _total_tokens = format_number(tokens)
             fabric.print(
                     f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, total tokens: {_total_tokens}, total time: {_h}h{_m:.2f}m"
             )

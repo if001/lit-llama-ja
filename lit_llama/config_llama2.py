@@ -872,7 +872,7 @@ llama_2 = [
         name="Llama-2-400M_another_heads_multi-to-single",
         vocab_size=35000,
         padding_multiple=64,
-        block_size=4096,        
+        block_size=4096,
         n_layer=None,
         n_head=None,
         n_heads=[4, 4, 4, 4, 2, 2, 2, 2, 1, 1, 1],
@@ -885,7 +885,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=4800,
         norm_eps=1.0e-6,
-        _description="",
+        _description="406.61M",
     ),
     dict(
         org="meta-llama",
