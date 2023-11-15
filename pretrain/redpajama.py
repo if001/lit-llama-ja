@@ -112,14 +112,11 @@ def main(
     out_dir: str = "out/training",
     load_dir: Optional[str] = None,
     restart_iter: int = 0,
-    log_dir: str = "./logs",
     batch_size: int = 128,
     lr: float = 1e-4,
     weight_decay: float = 0.001,
     interrupt: bool = False
-) -> None:
-    Path(out_dir).mkdir(parents=True, exist_ok=True)
-    Path(log_dir).mkdir(parents=True, exist_ok=True)
+) -> None:    
 
     trainingConfig = TrainingConfig.from_name(model_size)
     if interrupt:
@@ -130,6 +127,13 @@ def main(
         trainingConfig.weight_decay = weight_decay
     trainingConfig.debug()
     trainingConfig.save(out_dir)
+     
+    out_dir_path = Path(out_dir) / f"model_{model_size}_b{trainingConfig.batch_size}_lr{trainingConfig.learning_rate}_wd{trainingConfig.weight_decay}"
+    out_model_dir = Path(out_dir_path / "models")    
+    out_model_dir.mkdir(parents=True, exist_ok=True)
+    
+    out_log_dir = Path(out_dir_path / "logs")    
+    out_log_dir.mkdir(parents=True, exist_ok=True)
 
     auto_wrap_policy = partial(
         transformer_auto_wrap_policy, transformer_layer_cls={Block}
@@ -156,9 +160,7 @@ def main(
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
     # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
 
-    # logger = TensorBoardLogger(log_dir, name="model")
-    
-    logger = TensorBoardLogger(log_dir, name=f"model_{model_size}_b{trainingConfig.batch_size}_lr{trainingConfig.learning_rate}_wd{trainingConfig.weight_decay}")
+    logger = TensorBoardLogger(out_log_dir, name="model")
     
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
@@ -269,10 +271,10 @@ def train(
     eval_iters = 100
     # save_interval = 8192 / trainingConfig.batch_size
     # eval_interval = 8192 / trainingConfig.batch_size
-    eval_interval = 12000 / trainingConfig.batch_size
-    save_interval = 12000 / trainingConfig.batch_size
-    # save_interval = 4096 / trainingConfig.batch_size
-    # eval_interval = 4096 / trainingConfig.batch_size
+    # eval_interval = 12000 / trainingConfig.batch_size
+    # save_interval = 12000 / trainingConfig.batch_size
+    save_interval = 4096 / trainingConfig.batch_size
+    eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
     total_time = 0
@@ -345,18 +347,22 @@ def train(
         dt = t1 - t0
         total_time += dt
 
-        tokens += trainingConfig.micro_batch_size * model.config.block_size
+        tokens += trainingConfig.micro_batch_size * model.config.block_size        
+        _total_tokens = tokens
         step_time += t1 - prev_t1
         prev_t1 = t1
 
         if iter_num % log_interval == 0:
             # tokens_sec_str = f"{tokens / step_time:.0f}" if not is_accumulating else "-"
 
-            _h = int(total_time // 3600)            
+            _h = int(total_time // 3600)
             _m = int((total_time % 3600) // 60)
-            _total_tokens = format_number(tokens)
+            _tokens_str = format_number(tokens)
+            _total_tokens_str = format_number(_total_tokens)
+            ds_size = 8e+9
+            _per = int(_total_tokens*100/ds_size)
             fabric.print(
-                    f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, total tokens: {_total_tokens}, total time: {_h}h{_m:.2f}m"
+                    f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, tokens: {_tokens_str}, total tokens: {_total_tokens_str}({_per}%), total time: {_h}h{_m:.2f}m"
             )
 
             try:
