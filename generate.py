@@ -69,7 +69,7 @@ def generate(
     max_seq_length: Optional[int] = None,
     temperature: float = 1.0,
     top_k: int = 0,
-    top_p: int = 1.0,
+    top_p: float = 1.0,
     eos_id: Optional[int] = None,
 ) -> torch.Tensor:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
@@ -142,6 +142,7 @@ def main(
     num_samples: int = 1,
     max_new_tokens: int = 50,
     top_k: int = 200,
+    top_p: float = 0.9,
     temperature: float = 0.8,
     checkpoint_path: Path = Path("checkpoints/lit-llama/7B/lit-llama.pth"),
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
