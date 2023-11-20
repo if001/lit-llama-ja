@@ -115,7 +115,8 @@ def main(
     batch_size: int = 128,
     lr: float = 1e-4,
     weight_decay: float = 0.001,
-    interrupt: bool = False
+    interrupt: bool = False,
+    train_data_rate: float = 1.0,
 ) -> None:    
 
     trainingConfig = TrainingConfig.from_name(model_size)
@@ -190,6 +191,7 @@ def main(
         train_data_dir=train_data_dir,
         val_data_dir=val_data_dir,
         seed=1338,
+        train_data_rate=train_data_rate
     )
     if val_dataloader is None:
         print('val data is None...')
@@ -453,6 +455,7 @@ def create_dataloaders(
     train_data_dir: str = "data/lit-redpajama",
     val_data_dir: Optional[str] = None,
     seed: int = 12345,
+    rate: float = 1.0,
 ) -> Tuple[DataLoader, DataLoader]:
     train_data_config = [ 
         ('wikipedia-ja-20230720', 1.0),
