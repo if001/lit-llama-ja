@@ -235,9 +235,11 @@ def main(
     process_batch_size = trainingConfig.batch_size // devices
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
+    ds_size = int(1e+9 * train_data_rate)
+    print("ds size:", format_number(ds_size))
     train(trainingConfig, fabric, model, optimizer, train_dataloader, 
           val_dataloader, gradient_accumulation_iters, devices, str(out_model_dir), 
-          restart_iter, interrupt, model_size)
+          restart_iter, interrupt, model_size, ds_size)
     fabric.print(f"Saving checkpoint to {str(out_model_dir)}")
     save_model_checkpoint_with_fabric(fabric, model, str(out_model_dir), f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     try:
@@ -257,7 +259,8 @@ def train(
     out_dir: str,
     restart_iter: int = 0,    
     interrupt: bool = False,
-    model_size: str = ""
+    model_size: str = "",
+    ds_size: int = 1e+9
 ) -> None:
     """The training loop.
 
@@ -365,7 +368,6 @@ def train(
             _m = int((total_time % 3600) // 60)
             _tokens_str = format_number(tokens)
             _total_tokens_str = format_number(total_tokens)
-            ds_size = 8e+9
             _per = float(total_tokens*100/ds_size)
             fabric.print(
                     f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, tokens: {_tokens_str}, total tokens: {_total_tokens_str}({_per:.2f}%), total time: {_h}h{_m:.2f}m"
