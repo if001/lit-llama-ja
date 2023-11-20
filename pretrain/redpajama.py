@@ -455,19 +455,19 @@ def create_dataloaders(
     train_data_dir: str = "data/lit-redpajama",
     val_data_dir: Optional[str] = None,
     seed: int = 12345,
-    rate: float = 1.0,
+    train_data_rate: float = 1.0,
 ) -> Tuple[DataLoader, DataLoader]:
     train_data_config = [ 
-        ('wikipedia-ja-20230720', 1.0),
-        ('wikipedia-en-20230720', 1.0),
-        ('open-text-books', 1.0),
-        ('oscar_2023_filtered', 1.0),
-        ('aozorabunko-clean-sin',1.0)
+        ('wikipedia-ja-20230720', train_data_rate),
+        ('wikipedia-en-20230720', train_data_rate),
+        ('open-text-books', train_data_rate),
+        ('oscar_2023_filtered', train_data_rate),
+        ('aozorabunko-clean-sin',train_data_rate)
     ]
     val_data_config = [
         # ("aozorabunko-clean-sin", 1.0),
-        ("wikinews-ja-20230728", 1.0),
-        ("wikinews-en-20230728", 1.0),
+        ("wikinews-ja-20230728", train_data_rate),
+        ("wikinews-en-20230728", train_data_rate),
     ]
     # Increase by one because we need the next word as well
     effective_block_size = block_size + 1
