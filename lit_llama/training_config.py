@@ -229,7 +229,7 @@ class TrainingConfig():
             block_size = 4096
             ds_size = 1e+9
             batch_size = 128
-            micro_batch_size = 4
+            micro_batch_size = 2
             one_iters = int(ds_size/(block_size*micro_batch_size))
             max_iters = one_iters * 2
             conf = dict(
