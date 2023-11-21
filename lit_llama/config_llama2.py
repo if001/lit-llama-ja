@@ -734,7 +734,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=2400,
         norm_eps=1.0e-6,
-        _description="103.44MM",
+        _description="103.44M",
     ),
     dict(        
         org="meta-llama",
@@ -744,7 +744,7 @@ llama_2 = [
         block_size=4096,
         n_layer=None,
         n_head=None,
-        n_heads=[1, 1, 1, 4, 4, 4, 8, 8, 8],
+        n_heads=[1, 1, 1, 4, 4, 4, 8, 8, 8, 8],
         n_embd=624,
         # n_query_groups=[1, 1, 1, 4, 8, 10, 10, 16, 16, 16],
         rotary_percentage=1.0,
@@ -754,7 +754,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=2400,
         norm_eps=1.0e-6,
-        _description="406.61M",
+        _description="98.15M",
     ),
     dict(
         org="meta-llama",
