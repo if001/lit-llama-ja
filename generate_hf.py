@@ -72,8 +72,11 @@ def generate(
     device, dtype = idx.device, idx.dtype
     # create an empty tensor of the expected final shape and fill in the current tokens
     empty = torch.empty(T_new, dtype=dtype, device=device)
+    print('empty', empty)
     empty[:T] = idx
+    print('empty2', empty)
     idx = empty
+
     input_pos = torch.arange(0, T, device=device)
 
     if idx.device.type == "xla":
