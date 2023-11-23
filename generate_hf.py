@@ -59,7 +59,7 @@ def generate(
 
     logits_wraper = LogitsProcessorList([
             TopKLogitsWarper(top_k),
-            TopPLogitsWarper(top_p),
+            # TopPLogitsWarper(top_p),
             # TemperatureLogitsWarper(temperature),
     ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
@@ -90,7 +90,7 @@ def generate(
         logits = logits[0, -1]        
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
-        
+
         print('next_token_scores', next_token_scores.shape, next_token_scores)
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         print('probs', probs.shape, probs)
