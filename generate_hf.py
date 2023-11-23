@@ -84,15 +84,12 @@ def generate(
 
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
-        x = idx.index_select(0, input_pos).view(1, -1)        
-        print('x', x.shape, x.dtype, x)
-        x = x.to(dtype=torch.int64)
-        print('x2', x.shape, x.dtype, x)
+        x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
         # forward
         logits = model(x, input_pos)
-        # logits = logits[0, -1]
-        logits = logits[:, -1, :]
+        logits = logits[0, -1]
+        # logits = logits[:, -1, :]
         print('logits', logits.shape, logits.dtype, logits)
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
