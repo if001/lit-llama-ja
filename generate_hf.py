@@ -69,9 +69,9 @@ def generate(
         max_seq_length = min(T_new, model.config.block_size)    
 
     device, dtype = idx.device, idx.dtype
-    print('device, dtype', device, dtype)
     # create an empty tensor of the expected final shape and fill in the current tokens
-    empty = torch.empty(T_new, dtype=dtype, device=device)    
+    # empty = torch.empty(T_new, dtype=dtype, device=device)
+    empty = torch.zeros(T_new, dtype=dtype, device=device)
     empty[:T] = idx    
     idx = empty
 
