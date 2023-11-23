@@ -117,7 +117,9 @@ def generate(
         #     v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
         #     logits = torch.where(logits < v[[-1]], -float("Inf"), logits)
 
-        probs = torch.nn.functional.softmax(logits, dim=-1)
+        print('logits', logits.shape, logits)
+        probs = torch.nn.functional.softmax(logits, dim=-1)        
+        print('probs', probs.shape, probs)
         idx_next = torch.multinomial(probs, num_samples=1).to(dtype=dtype)
         print('idx_next', idx_next.shape, idx_next)
         # advance

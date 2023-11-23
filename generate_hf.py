@@ -87,20 +87,23 @@ def generate(
 
         # forward
         logits = model(x, input_pos)
-        logits = logits.squeeze(0)        
-        next_token_scores = logits_processor(x, logits)        
-        probs = torch.nn.functional.softmax(next_token_scores, dim=-1)        
-        idx_next = torch.multinomial(probs, num_samples=1)        
-        idx_next = idx_next.squeeze(1).to(dtype=dtype)        
+        logits = logits.squeeze(0)
+        print('logits', logits.shape, logits)
+        next_token_scores = logits_processor(x, logits)
+        print('next_token_scores', next_token_scores.shape, next_token_scores)
+        probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
+        
+        idx_next = torch.multinomial(probs, num_samples=1)
+        print('probs', probs.shape, probs)
+        idx_next = idx_next.squeeze(1).to(dtype=dtype)
+        print('idx_next', idx_next.shape, idx_next)
 
         # advance
         input_pos = input_pos[-1:] + 1        
 
         if idx.device.type == "xla":
             xm.mark_step()
-        print('idx ', idx, idx.shape)
-        print('input_pos ', input_pos, input_pos.shape)
-        print('idx_next ', idx_next, idx_next.shape)
+
         # concatenate the new generation
         idx = idx.index_copy(0, input_pos, idx_next)
 
