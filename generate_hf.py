@@ -54,7 +54,7 @@ def generate(
     """
 
     logits_processor = LogitsProcessorList([
-        # RepetitionPenaltyLogitsProcessor(repetition_penalty),
+        RepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
 
     logits_wraper = LogitsProcessorList([
