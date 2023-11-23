@@ -81,6 +81,7 @@ def generate(
         xm.mark_step()
 
     print('idx', idx.shape, idx)
+    print('input_pos', input_pos.shape, input_pos)
     scores = ()
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
