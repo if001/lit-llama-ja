@@ -53,15 +53,15 @@ def generate(
         eos_id: If specified, stop generating any more token once the <eos> token is triggered
     """
 
-    logits_processor = LogitsProcessorList(
-             [
-                 # RepetitionPenaltyLogitsProcessor(repetition_penalty),
-                 # TopKLogitsWarper(top_k),
-                 TopPLogitsWarper(top_p),
-                 # TemperatureLogitsWarper(temperature),
-             ]
-         )
-    
+    logits_processor = LogitsProcessorList([
+        # RepetitionPenaltyLogitsProcessor(repetition_penalty),
+    ])
+
+    logits_wraper = LogitsProcessorList([
+            TopKLogitsWarper(top_k),
+            TopPLogitsWarper(top_p),
+            # TemperatureLogitsWarper(temperature),
+    ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
     T_new = T + max_new_tokens
@@ -89,6 +89,8 @@ def generate(
         logits = model(x, input_pos)        
         logits = logits[0, -1]        
         next_token_scores = logits_processor(x, logits)
+        next_token_scores = logits_wraper(x, next_token_scores)
+        
         print('next_token_scores', next_token_scores.shape, next_token_scores)
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         print('probs', probs.shape, probs)
