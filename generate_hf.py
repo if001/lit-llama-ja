@@ -63,6 +63,7 @@ def generate(
          )
     
     # create an empty tensor of the expected final shape and fill in the current tokens
+    print('idx', idx.shape, idx)
     T = idx.size(0)
     T_new = T + max_new_tokens
     if max_seq_length is None:
@@ -80,7 +81,7 @@ def generate(
 
         xm.mark_step()
 
-    print('idx', idx.shape, idx)
+    print('idx2', idx.shape, idx)
     print('input_pos', input_pos.shape, input_pos)
     scores = ()
     # generate max_new_tokens tokens
