@@ -85,7 +85,7 @@ def generate(
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1)        
         print('x', x.shape, x.dtype, x)
-        x = x.to(detype="int64")
+        x = x.to(detype=torch.int64)
         print('x2', x.shape, x.dtype, x)
 
         # forward
