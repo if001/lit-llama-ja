@@ -119,7 +119,7 @@ def generate(
 
         probs = torch.nn.functional.softmax(logits, dim=-1)
         idx_next = torch.multinomial(probs, num_samples=1).to(dtype=dtype)
-
+        print('idx_next', idx_next.shape, idx_next)
         # advance
         input_pos = input_pos[-1:] + 1
 
