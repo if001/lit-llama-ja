@@ -62,8 +62,7 @@ def generate(
              ]
          )
     
-    # create an empty tensor of the expected final shape and fill in the current tokens
-    print('idx', idx.shape, idx)
+    # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
     T_new = T + max_new_tokens
     if max_seq_length is None:
@@ -71,10 +70,8 @@ def generate(
 
     device, dtype = idx.device, idx.dtype
     # create an empty tensor of the expected final shape and fill in the current tokens
-    empty = torch.empty(T_new, dtype=dtype, device=device)
-    print('empty', empty)
-    empty[:T] = idx
-    print('empty2', empty)
+    empty = torch.empty(T_new, dtype=dtype, device=device)    
+    empty[:T] = idx    
     idx = empty
 
     input_pos = torch.arange(0, T, device=device)
@@ -84,34 +81,26 @@ def generate(
 
         xm.mark_step()
 
-    print('idx2', idx.shape, idx)
-    print('input_pos', input_pos.shape, input_pos)
-    scores = ()
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1)
-        print("x", x.shape, x)
+
         # forward
         logits = model(x, input_pos)
-        logits = logits.squeeze(0)
-        print("logits", logits.shape)
-        next_token_scores = logits_processor(x, logits)
-        print("next_token_scores", next_token_scores.shape, next_token_scores)
-        probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
-        print("probs", probs.shape, probs)
-        idx_next = torch.multinomial(probs, num_samples=1)
-        print("idx_next", idx_next.shape, idx_next)
-        idx_next = idx_next.squeeze(1).to(dtype=dtype)
-        print("idx_next2", idx_next.shape, idx_next)
+        logits = logits.squeeze(0)        
+        next_token_scores = logits_processor(x, logits)        
+        probs = torch.nn.functional.softmax(next_token_scores, dim=-1)        
+        idx_next = torch.multinomial(probs, num_samples=1)        
+        idx_next = idx_next.squeeze(1).to(dtype=dtype)        
 
         # advance
-        print("input_pos", input_pos.shape, input_pos)
-        input_pos = input_pos[-1:] + 1
-        print("input_pos2", input_pos.shape, input_pos)
+        input_pos = input_pos[-1:] + 1        
 
         if idx.device.type == "xla":
             xm.mark_step()
-
+        print('idx ', idx, idx.shape)
+        print('input_pos ', input_pos, input_pos.shape)
+        print('idx_next ', idx_next, idx_next.shape)
         # concatenate the new generation
         idx = idx.index_copy(0, input_pos, idx_next)
 
