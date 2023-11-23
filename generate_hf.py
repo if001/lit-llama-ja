@@ -115,6 +115,7 @@ def main(
     top_k: int = 200,
     top_p: float = 0.9,
     temperature: float = 0.8,
+    repetition_penalty: float = 1.0,
     checkpoint_path: Path = Path("checkpoints/lit-llama/7B/lit-llama.pth"),
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
     quantize: Optional[str] = None,
@@ -167,7 +168,12 @@ def main(
     L.seed_everything(1234)
     for i in range(num_samples):
         t0 = time.perf_counter()
-        y = generate(model, encoded, max_new_tokens, temperature=temperature, top_k=top_k, eos_id=eos_id)
+        y = generate(model, encoded, max_new_tokens, 
+                     temperature=temperature, 
+                     top_k=top_k, 
+                     top_p=top_p, 
+                     repetition_penalty=repetition_penalty,
+                     eos_id=eos_id)
         t = time.perf_counter() - t0
 
         ## model.reset_cache()
