@@ -94,10 +94,13 @@ def generate(
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         print("probs", probs.shape, probs)
         idx_next = torch.multinomial(probs, num_samples=1)
+        print("idx_next", idx_next.shape, idx_next)
         idx_next = idx_next.squeeze(1).to(dtype=dtype)
 
         # advance
+        print("input_pos", input_pos.shape, input_pos)
         input_pos = input_pos[-1:] + 1
+        print("input_pos2", input_pos.shape, input_pos)
 
         if idx.device.type == "xla":
             xm.mark_step()
