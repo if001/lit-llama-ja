@@ -88,7 +88,9 @@ def generate(
         # forward
         logits = model(x, input_pos)
         next_token_scores = logits_processor(x, logits)
+        print("next_token_scores", next_token_scores)
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
+        print("probs", probs)
         idx_next = torch.multinomial(probs, num_samples=1).to(dtype=dtype)
 
         # advance
