@@ -96,6 +96,7 @@ def generate(
         idx_next = torch.multinomial(probs, num_samples=1)
         print("idx_next", idx_next.shape, idx_next)
         idx_next = idx_next.squeeze(1).to(dtype=dtype)
+        print("idx_next2", idx_next.shape, idx_next)
 
         # advance
         print("input_pos", input_pos.shape, input_pos)
