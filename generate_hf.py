@@ -56,8 +56,8 @@ def generate(
     logits_processor = LogitsProcessorList(
              [
                  # RepetitionPenaltyLogitsProcessor(repetition_penalty),
-                 TopKLogitsWarper(top_k),
-                 # TopPLogitsWarper(top_p),
+                 # TopKLogitsWarper(top_k),
+                 TopPLogitsWarper(top_p),
                  # TemperatureLogitsWarper(temperature),
              ]
          )
