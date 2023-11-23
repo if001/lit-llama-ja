@@ -60,7 +60,7 @@ def generate(
     logits_wraper = LogitsProcessorList([
             TopKLogitsWarper(top_k),
             # TopPLogitsWarper(top_p),
-            # TemperatureLogitsWarper(temperature),
+            TemperatureLogitsWarper(temperature),
     ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
