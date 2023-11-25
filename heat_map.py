@@ -91,6 +91,7 @@ def main(
 
     # ヒートマップの作成    
     labels = tokenizer.tokenize(prompt)
+    labels = ['bos'] + labels
     print('labels', labels)
     sns.heatmap(attention, cmap="YlGnBu", 
                 xticklabels=labels, 
