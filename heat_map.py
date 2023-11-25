@@ -44,7 +44,7 @@ def gen(
     hook.remove()
     q, k, v = attention
     
-    attention_weights = []    
+    attention_weights = []
     for _, k_part in enumerate(k[0]):
         print('k.part ', k_part.shape)
         _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
