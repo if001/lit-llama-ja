@@ -22,7 +22,7 @@ def gen(
 ):
     attention = None
     def hook_function(module, input, output):
-        print("attention 0, ", output)
+        print("attention 0, ", output.shape, output)
         attention = output
 
     device, dtype = idx.device, idx.dtype
@@ -34,7 +34,7 @@ def gen(
     model(x, input_pos)
     hook.remove()
 
-    print("attention, ", attention)
+    print("attention, ", attention.shape, attention)
     return attention
 
 def main(
