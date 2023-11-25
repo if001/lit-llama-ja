@@ -39,12 +39,8 @@ def gen(
     hook.remove()
     q, k, v = attention
     
-    _k = k[:, :, :T, :]
-    print('k', _k.shape)
-    _k = torch.transpose(_k, 1, 2)
-    print('k2', _k.shape)    
-    print('q', q.shape)
-        
+    _k = torch.transpose(k.squeeze()[:T, :], 0, 1) ## 1, 1, seq_len, hidden_dim => hidden_dim, seq_len
+    
     attention_weight = torch.matmul(q, _k) / np.sqrt(q.size(-1))
     print('attention_weight', attention_weight.shape, attention_weight)
 
