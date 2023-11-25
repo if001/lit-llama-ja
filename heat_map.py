@@ -46,6 +46,7 @@ def gen(
     
     attention_weights = []
     for _, k_part in enumerate(k[0]):
+        k_part=k_part[:T,]
         print('k.part ', k_part.shape)
         print('q ', q.shape)        
         _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
