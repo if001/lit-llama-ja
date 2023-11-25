@@ -23,7 +23,7 @@ def gen(
     print('idx, ', idx.shape)
     attention = None
     def hook_function(module, input, output):
-        global attention
+        nonlocal attention
         print("attention 0, ", output.shape, output)
         attention = output
 
@@ -32,7 +32,9 @@ def gen(
     input_pos = torch.arange(0, T, device=device)
 
     x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)
-    hook = model.transformer.ln_f.register_forward_hook(hook_function)
+    
+    last_layer = model.config.n_layer
+    hook = model.transformer.h[last_layer][0].atten.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
 
