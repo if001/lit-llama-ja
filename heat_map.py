@@ -54,7 +54,7 @@ def gen(
         attention_weights.append(attention_weight)
         print('attention_weight', attention_weight.shape)
 
-    return attention_weight
+    return attention_weights
 
 def main(
         prompt: str = "",
