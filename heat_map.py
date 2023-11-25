@@ -24,7 +24,8 @@ def gen(
     attention = None
     def hook_function(module, input, output):
         nonlocal attention
-        print("attention 0, ", output.shape, output)
+        _, q, k, v = output
+        print('q', q.shape)
         attention = output
 
     device, dtype = idx.device, idx.dtype
@@ -34,9 +35,6 @@ def gen(
     x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)
     
     last_layer = model.config.n_layer - 1
-    print('1: ', model.transformer.h)
-    print('2: ', model.transformer.h[last_layer])        
-
     hook = model.transformer.h[last_layer].attn.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
