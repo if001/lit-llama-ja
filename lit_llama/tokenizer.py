@@ -87,3 +87,6 @@ class HFTokenizer():
 
     def decode(self, tokens: torch.Tensor) -> str:
         return self.processor.decode(tokens.tolist())
+    
+    def tokenize(self, string: str):
+        return self.processor.encode(string).tokens

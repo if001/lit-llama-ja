@@ -40,10 +40,9 @@ def gen(
     q, k, v = attention
     
     _k = torch.transpose(k.squeeze()[:T, :], 0, 1) ## 1, 1, seq_len, hidden_dim => hidden_dim, seq_len
-    
-    attention_weight = torch.matmul(q, _k) / np.sqrt(q.size(-1))
-    print('attention_weight', attention_weight.shape, attention_weight)
 
+    attention_weight = torch.matmul(q, _k) / np.sqrt(q.size(-1))
+    print('attention_weight', attention_weight.shape)
     return attention
 
 def main(
@@ -76,12 +75,20 @@ def main(
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
     prompt_length = encoded.size(0)
 
-
+    print('encode: ', tokenizer.tokenize(prompt))
+    exit(0)
     # テキストのトークン化    
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
 
     # Attentionの取得
-    gen(model, encoded)
+    attention = gen(model, encoded)
+    attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
+
+    # ヒートマップの作成
+    sns.heatmap(attention, cmap="YlGnBu", 
+                xticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]), 
+                yticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]))
+    plt.show()
 
 
     # outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'])
