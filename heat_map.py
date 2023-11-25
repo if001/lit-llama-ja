@@ -24,9 +24,7 @@ def gen(
     attention = None
     def hook_function(module, input, output):
         nonlocal attention
-        _, q, k, v = output
-        print('q', q.shape)
-        attention = output
+        _, attention = output
 
     device, dtype = idx.device, idx.dtype
     T = idx.size(0)
@@ -38,8 +36,10 @@ def gen(
     hook = model.transformer.h[last_layer].attn.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
-
-    print("attention, ", attention.shape, attention)
+    q, k, v = attention
+    print("q, ", q.shape, q)
+    print("k, ", k.shape, k)
+    print("v, ", v.shape, v)
     return attention
 
 def main(
