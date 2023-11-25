@@ -9,6 +9,11 @@ import lightning as L
 import torch
 import numpy as np
 
+## matplotlibのlegendに日本語を使う
+import japanize_matplotlib
+japanize_matplotlib.japanize()
+
+
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
