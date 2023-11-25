@@ -89,18 +89,22 @@ def main(
     # テキストのトークン化    
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
 
+    plt.figure()
     # Attentionの取得
-    attention = gen(model, encoded)
-    attention = attention.to('cpu').detach().numpy().copy()    
-    # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
+    attention_weights = gen(model, encoded)
+    graph_num = len(attention_weights)
+    for i, attention in enumerate(attention_weights):
+        plt.subplot(1, graph_num, i)
+        attention = attention.to('cpu').detach().numpy().copy()
+        # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
-    # ヒートマップの作成    
-    labels = tokenizer.tokenize(prompt)
-    labels = ['bos'] + labels
-    print('labels', labels)
-    sns.heatmap(attention, cmap="YlGnBu", 
-                xticklabels=labels, 
-                yticklabels=labels)
+        # ヒートマップの作成    
+        labels = tokenizer.tokenize(prompt)
+        labels = ['bos'] + labels
+        print('labels', labels)
+        sns.heatmap(attention, cmap="YlGnBu", 
+                    xticklabels=labels, 
+                    yticklabels=labels)
     plt.show()
 
 
