@@ -41,13 +41,9 @@ def gen(
     
     _k = k[:, :, :T, :]
     _v = v[:, :, :T, :]
-    print('q', q.shape)
-    print('_k', _k.shape)
-    _k2 = torch.transpose(k, 1, 2)
-    print('_k2', _k2.shape)
-    scalar = np.sqrt(q.size(-1))
-    
-    attention_weight = torch.matmul(q, torch.transpose(k, 1, 2)) / scalar
+
+    scalar = np.sqrt(q.size(-1))    
+    attention_weight = torch.matmul(q, torch.transpose(_k, 1, 2)) / scalar
     print('attention_weight', attention_weight.shape, attention_weight)
 
     return attention
