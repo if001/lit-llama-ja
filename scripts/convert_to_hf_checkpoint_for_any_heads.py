@@ -68,7 +68,7 @@ def copy_weights_llama_v2(
             q = "model.layers.{}.self_attn.q_proj.weight".format(number)
             k = "model.layers.{}.self_attn.k_proj.weight".format(number)
             v = "model.layers.{}.self_attn.v_proj.weight".format(number)
-            print(q)
+            print("q", q)
             qkv = load_param(param, name, None)
             qp, kp, vp = qkv_split(qkv, config, number)
             for to_name, param in zip((q, k, v), (qp, kp, vp)):
@@ -94,7 +94,7 @@ def qkv_split(
     config: Llama2Config,
     layer_idx: int,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    q_per_kv = config.n_heads[layer_idx] // config.n_query_groups
+    q_per_kv = config.n_heads[layer_idx] // config.n_query_groups_list[layer_idx]
     head_size = config.head_sizes[layer_idx]
     qs = []
     ks = []
