@@ -37,10 +37,9 @@ def gen(
     model(x, input_pos)
     hook.remove()
     q, k, v = attention
-    print("q, ", q.shape, q)
-
+    # print("q, ", q.shape, q)
     print("k, ", k.shape, k)
-    _k = k[:,:,:T,:]
+    _k = k[:, :, :T, :]
     print("_k, ", _k.shape, _k)
 
     return attention
