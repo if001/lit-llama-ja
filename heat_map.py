@@ -47,14 +47,9 @@ def gen(
     attention_weights = []
     for k_part, q_part in zip(k[0],q[0]):
         k_part=k_part[:T,]
-        print('k.part ', k_part.shape)
-        print('q ', q.shape)        
         _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
         attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))
-        print('attention_weight', attention_weight.shape)
         attention_weight = attention_weight.squeeze()
-        print('attention_weight2', attention_weight.shape)
-        print('')
         attention_weights.append(attention_weight)
 
     return attention_weights
@@ -96,7 +91,7 @@ def main(
     # Attentionの取得
     attention_weights = gen(model, encoded)
     graph_num = len(attention_weights)
-    for i, attention in enumerate(attention_weights):
+    for i, attention in enumerate(attention_weights):        
         plt.subplot(1, graph_num, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
@@ -108,6 +103,7 @@ def main(
         sns.heatmap(attention, cmap="YlGnBu", 
                     xticklabels=labels, 
                     yticklabels=labels)
+    plt.savefig("/content/drive/MyDrive/pre_trained/llama2/save.png")
     plt.show()
 
 
