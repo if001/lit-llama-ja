@@ -25,6 +25,7 @@ from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 def gen(
         model: GPT,
         idx: torch.Tensor,
+        target_layer_idx: Optional[int],
 ):
     print('idx, ', idx.shape)
     attention = None
@@ -38,8 +39,11 @@ def gen(
 
     x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)
     
-    last_layer = model.config.n_layer - 1
-    hook = model.transformer.h[last_layer].attn.register_forward_hook(hook_function)
+    if target_layer_idx is None:
+        target_idx = model.config.n_layer - 1
+    target_idx = target_layer_idx
+
+    hook = model.transformer.h[target_idx].attn.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
     q, k, v = attention
@@ -59,6 +63,7 @@ def main(
         model_name: str = "",
         checkpoint_path: str = "",
         tokenizer_path: str = "",
+        target_layer_idx: Optional[int] = None,
         quantize: Optional[str] = None,
 ):
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
@@ -89,7 +94,7 @@ def main(
 
     
     # Attentionの取得
-    attention_weights = gen(model, encoded)
+    attention_weights = gen(model, encoded, target_layer_idx)
     graph_num = len(attention_weights)
     plt.figure(figsize=(6, 6*graph_num))
     for i, attention in enumerate(attention_weights):        
