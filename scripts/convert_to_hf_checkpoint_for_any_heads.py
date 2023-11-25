@@ -68,8 +68,9 @@ def copy_weights_llama_v2(
             q = "model.layers.{}.self_attn.q_proj.weight".format(number)
             k = "model.layers.{}.self_attn.k_proj.weight".format(number)
             v = "model.layers.{}.self_attn.v_proj.weight".format(number)
+            print(q)
             qkv = load_param(param, name, None)
-            qp, kp, vp = qkv_split(qkv, config)
+            qp, kp, vp = qkv_split(qkv, config, number)
             for to_name, param in zip((q, k, v), (qp, kp, vp)):
                 ## print('debug: ', to_name, param.size())
                 if saver is not None:
