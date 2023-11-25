@@ -68,8 +68,7 @@ def main(
     prompt_length = encoded.size(0)
 
 
-    # テキストのトークン化
-    text = "I love natural language processing!"    
+    # テキストのトークン化    
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
 
     # Attentionの取得
