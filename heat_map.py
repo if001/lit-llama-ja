@@ -93,7 +93,7 @@ def main(
     graph_num = len(attention_weights)
     for i, attention in enumerate(attention_weights):
         print(graph_num, i+1)
-        plt.subplot(1, graph_num, i+1)
+        plt.subplot(graph_num, 1, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
@@ -104,7 +104,7 @@ def main(
         sns.heatmap(attention, cmap="YlGnBu", 
                     xticklabels=labels, 
                     yticklabels=labels)
-    plt.savefig("/content/drive/MyDrive/pre_trained/llama2/save.png")
+    # plt.savefig("/content/drive/MyDrive/pre_trained/llama2/save.png")
     plt.show()
 
 
