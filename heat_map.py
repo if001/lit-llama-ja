@@ -34,6 +34,10 @@ def gen(
     x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)
     
     last_layer = model.config.n_layer
+    print('1: ', model.transformer.h)
+    print('2: ', model.transformer.h[last_layer])
+    print('3: ',model.transformer.h[last_layer][0])
+
     hook = model.transformer.h[last_layer][0].atten.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
