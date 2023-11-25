@@ -261,6 +261,7 @@ class CausalSelfAttention(nn.Module):
         k = k.reshape(B, -1, T, self._head_size)  # (B, nh_k, T, hs)
         
         v = v.reshape(B, -1, T, self._head_size)  # (B, nh_v, T, hs)
+        print('head: ', self._head_size)
         q_roped = apply_rope(q[..., : self._rope_n_elem], cos, sin)
         k_roped = apply_rope(k[..., : self._rope_n_elem], cos, sin)
         q = torch.cat((q_roped, q[..., self._rope_n_elem :]), dim=-1)
