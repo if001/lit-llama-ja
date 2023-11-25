@@ -261,17 +261,17 @@ class CausalSelfAttention(nn.Module):
         k = k.reshape(B, -1, T, self._head_size)  # (B, nh_k, T, hs)
         
         v = v.reshape(B, -1, T, self._head_size)  # (B, nh_v, T, hs)
-        print('head: ', self._head_size)
+        print('k1 ', k.shape)
         q_roped = apply_rope(q[..., : self._rope_n_elem], cos, sin)
         k_roped = apply_rope(k[..., : self._rope_n_elem], cos, sin)
         q = torch.cat((q_roped, q[..., self._rope_n_elem :]), dim=-1)
         k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)
-
+        print('k2 ', k.shape)
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
             k, v = self.kv_cache(input_pos, k, v)
-
+        print('k3 ', k.shape)
         y = self.scaled_dot_product_attention(q, k, v, mask)
 
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
