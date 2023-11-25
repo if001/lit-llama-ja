@@ -84,8 +84,9 @@ def main(
     attention = attention.to('cpu').detach().numpy().copy()    
     # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
-    # ヒートマップの作成
+    # ヒートマップの作成    
     labels = tokenizer.tokenize(prompt)
+    print('labels', labels)
     sns.heatmap(attention, cmap="YlGnBu", 
                 xticklabels=labels, 
                 yticklabels=labels)
