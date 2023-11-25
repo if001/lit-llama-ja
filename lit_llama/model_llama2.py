@@ -270,11 +270,8 @@ class CausalSelfAttention(nn.Module):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
             k, v = self.kv_cache(input_pos, k, v)        
         y = self.scaled_dot_product_attention(q, k, v, mask)
-        print('y1', y.shape)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
-        print('y2', y.shape)
-        y3=self.proj(y)
-        print('y3', y3.shape)
+
         # output projection
         return self.proj(y), (q, k, v)
 

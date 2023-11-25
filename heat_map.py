@@ -7,6 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import lightning as L
 import torch
+import numpy as np
 
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
@@ -40,7 +41,10 @@ def gen(
     
     _k = k[:, :, :T, :]
     _v = v[:, :, :T, :]
-    
+
+    scalar = np.sqrt(q.size(-1))
+    attention_weight = torch.matmul(q, torch.transpose(k, 1, 2)) / scalar
+    print('attention_weight', attention_weight.shape, attention_weight)
 
     return attention
 
