@@ -94,12 +94,13 @@ def qkv_split(
     config: Llama2Config,
     layer_idx: int,
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-    q_per_kv = config.n_heads[layer_idx] // config.n_query_groups_list[layer_idx]
+    n_query_groups = config.n_query_groups_list[layer_idx]
+    q_per_kv = config.n_heads[layer_idx] // n_query_groups
     head_size = config.head_sizes[layer_idx]
     qs = []
     ks = []
     vs = []
-    for chunk in torch.chunk(param, config.n_query_groups):
+    for chunk in torch.chunk(param, n_query_groups):
         split = torch.split(chunk, [head_size * q_per_kv, head_size, head_size])
         qs.append(split[0])
         ks.append(split[1])
