@@ -20,8 +20,10 @@ def gen(
         model: GPT,
         idx: torch.Tensor,
 ):
+    print('idx, ', idx.shape)
     attention = None
     def hook_function(module, input, output):
+        global attention
         print("attention 0, ", output.shape, output)
         attention = output
 
