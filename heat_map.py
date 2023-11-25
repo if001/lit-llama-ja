@@ -45,12 +45,12 @@ def gen(
     q, k, v = attention
     
     attention_weights = []
-    for _, k_part in enumerate(k[0]):
+    for k_part, q_part in zip(k[0],q[0]):
         k_part=k_part[:T,]
         print('k.part ', k_part.shape)
         print('q ', q.shape)        
         _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
-        attention_weight = torch.matmul(q, _k) / np.sqrt(q.size(-1))
+        attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))
         print('attention_weight', attention_weight.shape)
         attention_weight = attention_weight.squeeze()
         print('attention_weight2', attention_weight.shape)
