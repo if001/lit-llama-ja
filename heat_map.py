@@ -37,7 +37,7 @@ def gen(
     print('1: ', model.transformer.h)
     print('2: ', model.transformer.h[last_layer])        
 
-    hook = model.transformer.h[last_layer].atten.register_forward_hook(hook_function)
+    hook = model.transformer.h[last_layer].attn.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
 
