@@ -24,9 +24,8 @@ def gen(
     attention = None
     def hook_function(module, input, output):
         nonlocal attention
-        _, q, k, v = output
-        attention = (q, k, v)
-
+        _, attention = output        
+    
     device, dtype = idx.device, idx.dtype
     T = idx.size(0)
     input_pos = torch.arange(0, T, device=device)
@@ -39,8 +38,11 @@ def gen(
     hook.remove()
     q, k, v = attention
     print("q, ", q.shape, q)
+
     print("k, ", k.shape, k)
-    print("v, ", v.shape, v)
+    _k = k[:,:,T,:]
+    print("_k, ", _k.shape, _k)
+
     return attention
 
 def main(
