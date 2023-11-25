@@ -87,10 +87,11 @@ def main(
     # テキストのトークン化    
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
 
-    plt.figure()
+    
     # Attentionの取得
     attention_weights = gen(model, encoded)
     graph_num = len(attention_weights)
+    plt.figure(figsize=(10, 10*graph_num))
     for i, attention in enumerate(attention_weights):
         print(graph_num, i+1)
         plt.subplot(graph_num, 1, i+1)
