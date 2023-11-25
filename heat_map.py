@@ -24,8 +24,7 @@ def gen(
     attention = None
     def hook_function(module, input, output):
         nonlocal attention
-        o, attention = output
-        print('o: ', o.shape)
+        _, attention = output
     
     device, dtype = idx.device, idx.dtype
     T = idx.size(0)
