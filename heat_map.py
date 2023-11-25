@@ -24,7 +24,8 @@ def gen(
     attention = None
     def hook_function(module, input, output):
         nonlocal attention
-        _, attention = output        
+        o, attention = output
+        print('o: ', o.shape)
     
     device, dtype = idx.device, idx.dtype
     T = idx.size(0)
@@ -37,10 +38,10 @@ def gen(
     model(x, input_pos)
     hook.remove()
     q, k, v = attention
-    # print("q, ", q.shape, q)
-    print("k, ", k.shape, k)
+    
     _k = k[:, :, :T, :]
-    print("_k, ", _k.shape, _k)
+    _v = v[:, :, :T, :]
+    
 
     return attention
 
