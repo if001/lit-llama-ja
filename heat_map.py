@@ -43,8 +43,8 @@ def gen(
     model(x, input_pos)
     hook.remove()
     q, k, v = attention
-    
-    _k = torch.transpose(k.squeeze()[:T, :], 0, 1) ## 1, 1, seq_len, hidden_dim => hidden_dim, seq_len
+    print('k.squeeze()', k.squeeze().shape)
+    _k = torch.transpose(k.squeeze()[:T, :], 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
 
     attention_weight = torch.matmul(q, _k) / np.sqrt(q.size(-1))
     attention_weight = attention_weight.squeeze()
