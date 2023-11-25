@@ -35,10 +35,9 @@ def gen(
     
     last_layer = model.config.n_layer - 1
     print('1: ', model.transformer.h)
-    print('2: ', model.transformer.h[last_layer])
-    print('3: ',model.transformer.h[last_layer][0])
+    print('2: ', model.transformer.h[last_layer])        
 
-    hook = model.transformer.h[last_layer][0].atten.register_forward_hook(hook_function)
+    hook = model.transformer.h[last_layer].atten.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
 
