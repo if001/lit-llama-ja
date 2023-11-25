@@ -91,7 +91,8 @@ def main(
     # Attentionの取得
     attention_weights = gen(model, encoded)
     graph_num = len(attention_weights)
-    for i, attention in enumerate(attention_weights):        
+    for i, attention in enumerate(attention_weights):
+        print(graph_num, i+1)
         plt.subplot(1, graph_num, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
@@ -99,7 +100,7 @@ def main(
         # ヒートマップの作成    
         labels = tokenizer.tokenize(prompt)
         labels = ['bos'] + labels
-        print('labels', labels)
+        # print('labels', labels)
         sns.heatmap(attention, cmap="YlGnBu", 
                     xticklabels=labels, 
                     yticklabels=labels)
