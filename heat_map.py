@@ -44,7 +44,7 @@ def gen(
     attention_weight = torch.matmul(q, _k) / np.sqrt(q.size(-1))
     attention_weight = attention_weight.squeeze()
     print('attention_weight', attention_weight.shape)
-    return attention
+    return attention_weight
 
 def main(
         prompt: str = "",
