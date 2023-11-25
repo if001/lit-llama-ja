@@ -81,3 +81,7 @@ def main(
     # ヒートマップの作成
     # sns.heatmap(attention, cmap="YlGnBu", xticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]), yticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]))
     # plt.show()
+
+if __name__ == '__main__':
+    from jsonargparse import CLI
+    CLI(main)
