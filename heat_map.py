@@ -102,10 +102,12 @@ def main(
         figsize=(6*3, 6*2)
     plt.figure(figsize=figsize)    
 
-    for i, attention in enumerate(attention_weights):
-        _r = i + 1 ## row 行
+    for i, attention in enumerate(attention_weights):        
         _c = 1 if i <= 4 else 2 ## col 列
-        plt.subplot(_r, _c, i+1)
+        if graph_num == 1:
+            plt.subplot(1, 1, 1)
+        else:
+            plt.subplot(3, 2, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
