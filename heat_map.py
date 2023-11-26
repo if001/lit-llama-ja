@@ -99,7 +99,7 @@ def main(
     if graph_num == 1:
         figsize=(6, 6*graph_num)
     else:
-        figsize=(6*2, 6*4)
+        figsize=(6*4, 6*2)
     plt.figure(figsize=figsize)    
 
     for i, attention in enumerate(attention_weights):        
