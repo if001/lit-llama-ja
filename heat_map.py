@@ -96,7 +96,12 @@ def main(
     # Attentionの取得
     attention_weights = gen(model, encoded, target_layer_idx)
     graph_num = len(attention_weights)
-    plt.figure(figsize=(6, 6*graph_num))
+    if graph_num == 1:
+        figsize=(6, 6*graph_num)
+    else:
+        figsize=(6*3, 6*2)
+    plt.figure(figsize=figsize)    
+
     for i, attention in enumerate(attention_weights):
         _r = i + 1 ## row 行
         _c = 1 if i <= 4 else 2 ## col 列
@@ -111,6 +116,7 @@ def main(
         sns.heatmap(attention, cmap="YlGnBu", 
                     xticklabels=labels, 
                     yticklabels=labels)
+        plt.title(f"head_{i+1}")
     # plt.savefig("/content/drive/MyDrive/pre_trained/llama2/save.png")
     plt.show()
 
