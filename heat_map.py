@@ -97,8 +97,10 @@ def main(
     attention_weights = gen(model, encoded, target_layer_idx)
     graph_num = len(attention_weights)
     plt.figure(figsize=(6, 6*graph_num))
-    for i, attention in enumerate(attention_weights):        
-        plt.subplot(graph_num, 1, i+1)
+    for i, attention in enumerate(attention_weights):
+        _r = i + 1 ## row 行
+        _c = 1 if i <= 4 else 2 ## col 列
+        plt.subplot(graph_num, _c, _r)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
