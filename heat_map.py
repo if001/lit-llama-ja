@@ -107,7 +107,7 @@ def main(
         if graph_num == 1:
             plt.subplot(1, 1, 1)
         else:
-            plt.subplot(3, 2, i+1)
+            plt.subplot(4, 2, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
