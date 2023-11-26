@@ -105,7 +105,7 @@ def main(
     for i, attention in enumerate(attention_weights):
         _r = i + 1 ## row 行
         _c = 1 if i <= 4 else 2 ## col 列
-        plt.subplot(graph_num, _c, _r)
+        plt.subplot(_r, _c, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
