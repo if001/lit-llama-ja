@@ -99,7 +99,7 @@ def main(
     if graph_num == 1:
         figsize=(6, 6*graph_num)
     else:
-        figsize=(6*3, 6*2)
+        figsize=(6*2, 6*4)
     plt.figure(figsize=figsize)    
 
     for i, attention in enumerate(attention_weights):        
@@ -107,7 +107,7 @@ def main(
         if graph_num == 1:
             plt.subplot(1, 1, 1)
         else:
-            plt.subplot(4, 2, i+1)
+            plt.subplot(2, 4, i+1)
         attention = attention.to('cpu').detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
