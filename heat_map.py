@@ -65,7 +65,7 @@ def main(
         tokenizer_path: str = "",
         target_layer_idx: Optional[int] = None,
         quantize: Optional[str] = None,
-        to_cpu: bool = True,
+        save_fig: Optional[str] = None
 ):
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
     fabric = L.Fabric(devices=1, precision=precision)
@@ -120,8 +120,11 @@ def main(
                     xticklabels=labels, 
                     yticklabels=labels)
         plt.title(f"head_{i+1}")
-    # plt.savefig("/content/drive/MyDrive/pre_trained/llama2/save.png")
-    plt.show()
+
+    if save_fig:
+        plt.savefig(save_fig)
+    else:
+        plt.show()
 
 
     # outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'])
