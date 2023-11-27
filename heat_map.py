@@ -123,6 +123,7 @@ def main(
 
     if save_fig:
         plt.savefig(save_fig)
+        print(f'save fig...{save_fig}')
     else:
         plt.show()
 
