@@ -65,6 +65,7 @@ def main(
         tokenizer_path: str = "",
         target_layer_idx: Optional[int] = None,
         quantize: Optional[str] = None,
+        to_cpu: bool = True,
 ):
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
     fabric = L.Fabric(devices=1, precision=precision)
@@ -100,15 +101,16 @@ def main(
         figsize=(6, 6*graph_num)
     else:
         figsize=(6*4, 6*2)
-    plt.figure(figsize=figsize)    
+    plt.figure(figsize=figsize)
 
     for i, attention in enumerate(attention_weights):        
-        _c = 1 if i <= 4 else 2 ## col 列
         if graph_num == 1:
             plt.subplot(1, 1, 1)
         else:
             plt.subplot(2, 4, i+1)
-        attention = attention.to('cpu').detach().numpy().copy()
+        if to_cpu:
+            attention = attention.to('cpu')
+        attention = attention.detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
 
         # ヒートマップの作成    
