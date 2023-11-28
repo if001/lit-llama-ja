@@ -220,9 +220,6 @@ class CausalSelfAttention(nn.Module):
         self._n_head = config.n_heads[idx]
         self._rope_n_elem = config.rope_n_elems[idx]
 
-        self.first = nn.Linear(config.n_embd, shape, bias=config.bias)
-        self.last = nn.Linear(config.n_embd, shape, bias=config.bias)
-
         # key, query, value projections for all heads, but in a batch
         start_dim = config.n_embd
         if config.compress:
@@ -233,6 +230,9 @@ class CausalSelfAttention(nn.Module):
         self.proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
         # disabled by default
         self.kv_cache: Optional[KVCache] = None
+
+        # self.active = nn.ReLU()
+        self.active = lambda x: torch.nn.functional.gelu(x, approximate="tanh")
 
         self.config = config
 
@@ -248,7 +248,7 @@ class CausalSelfAttention(nn.Module):
 
         qkv = self.attn(x)
         if self.config.non_liner or self.config.compress:
-            qkv = nn.ReLU(qkv)
+            qkv = self.active(qkv)
 
         # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
         q_per_kv = self._n_head // self._n_query_groups
@@ -283,8 +283,8 @@ class CausalSelfAttention(nn.Module):
 
         # output projection
         y = self.proj(y)
-        if self.config.non_liner or self.config.compress:
-            y = nn.ReLU(y)
+        if self.config.non_liner or self.config.compress:            
+            y = self.active(y)
         return y, (q, k, v)
 
     def scaled_dot_product_attention(
