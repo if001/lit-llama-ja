@@ -175,8 +175,7 @@ class EmbeddingNEFTune(nn.Module):
 class Block(nn.Module):
     def __init__(self, config: Config, idx=-1) -> None:
         super().__init__()
-        self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
-        print('block!!!!!!!!!!!')
+        self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)        
         self.attn = CausalSelfAttention(config, idx)
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
         self.mlp = config.mlp_class(config)
@@ -215,8 +214,7 @@ class CausalSelfAttention(nn.Module):
         self._n_query_groups = config.n_query_groups_list[idx]
 
         # shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
-        shape = (config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]
-        print('(config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]', config.n_heads[idx],self._n_query_groups,config.head_sizes[idx])
+        shape = (config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]        
 
         self._head_size = config.head_sizes[idx]
         self._n_head = config.n_heads[idx]
@@ -247,7 +245,7 @@ class CausalSelfAttention(nn.Module):
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
-
+        print(self.attn)
         print('x', x.shape)
         qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
         print('qkv', qkv.shape)
@@ -291,7 +289,7 @@ class CausalSelfAttention(nn.Module):
         print('q2', q.shape)
         print('k2', k.shape)
         print('v2', v.shape)
-
+        print('-'*20)
         y = self.scaled_dot_product_attention(q, k, v, mask)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
