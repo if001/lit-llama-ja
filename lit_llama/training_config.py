@@ -197,9 +197,7 @@ class TrainingConfig():
             return cls(**conf)
         elif(
                 model_size == "Llama-2-400M_another_heads_single-to-multi"
-                or model_size == "Llama-2-400M_another_heads_multi-to-single"
-                or model_size == "Llama-2-100M_another_heads_basic_non_liner"
-                or model_size == "Llama-2-100M_another_heads_basic_non_liner_compress"                
+                or model_size == "Llama-2-400M_another_heads_multi-to-single"                    
         ):
             block_size = 4096
             ds_size = 8e+9
@@ -227,6 +225,8 @@ class TrainingConfig():
                 model_size == "Llama-2-100M_another_heads_basic"
                 or model_size == "Llama-2-100M_another_heads_single-to-multi"
                 or model_size == "Llama-2-100M_another_heads_multi-to-single"
+                or model_size == "Llama-2-100M_another_heads_basic_non_liner"
+                or model_size == "Llama-2-100M_another_heads_basic_non_liner_compress"
         ):
             block_size = 4096
             ds_size = 1e+9
