@@ -89,8 +89,9 @@ class Llama2Config:
         else:
             self.n_query_groups = self.n_head
 
-        for n_head in self.n_heads:
-            self.n_query_groups_list.append(n_head)
+        if self.n_query_groups_list is None:
+            for n_head in self.n_heads:
+                self.n_query_groups_list.append(n_head)
 
         # compute the intermediate size for MLP if not set
         if self.intermediate_size is None:
@@ -729,7 +730,7 @@ llama_2 = [
         # n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         n_heads=[4, 4],
         n_embd=620,
-        n_query_groups=[2, 1],
+        n_query_groups_list=[2, 1],
         # n_query_groups=[1, 1, 1, 4, 8, 10, 10, 16, 16, 16],
         rotary_percentage=1.0,
         parallel_residual=False,
