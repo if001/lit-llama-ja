@@ -214,7 +214,6 @@ class CausalSelfAttention(nn.Module):
 
         # shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
         shape = (config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]        
-        print('shape: ',config.n_heads[idx], self._n_query_groups, config.head_sizes[idx])
 
         self._head_size = config.head_sizes[idx]
         self._n_head = config.n_heads[idx]
