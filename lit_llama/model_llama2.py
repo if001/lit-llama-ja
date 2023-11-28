@@ -235,6 +235,10 @@ class CausalSelfAttention(nn.Module):
         self.active = lambda x: torch.nn.functional.gelu(x, approximate="tanh")
 
         self.config = config
+        
+        self.q_l = nn.Linear(config.n_embd, config.head_sizes[idx])
+        self.k_l = nn.Linear(config.n_embd, config.head_sizes[idx])
+        self.v_l = nn.Linear(config.n_embd, config.head_sizes[idx])
 
     def forward(
         self,
@@ -245,11 +249,8 @@ class CausalSelfAttention(nn.Module):
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
-        print(self.attn)
-        print('x', x.shape)
-        qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
-        print('qkv', qkv.shape)
 
+        qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
         if self.config.non_liner or self.config.compress:
             qkv = self.active(qkv)
 
@@ -262,6 +263,14 @@ class CausalSelfAttention(nn.Module):
 
         # split batched computation into three
         q, k, v = qkv.split((q_per_kv, 1, 1), dim=2)
+        # q (B, _n_query_groups, total_qkv, T, hs)
+        # k (B, _n_query_groups, total_qkv, T, hs)
+        # v (B, _n_query_groups, total_qkv, T, hs)
+
+
+        # _q = self.q_l(x)
+        # q = _q.view(B, self._n_query_groups, total_qkv, T, self._head_size)
+
         print('q', q.shape)
         print('k', k.shape)
         print('v', v.shape)
@@ -286,6 +295,10 @@ class CausalSelfAttention(nn.Module):
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
             k, v = self.kv_cache(input_pos, k, v)
+
+        # q (B, nh_q, T, hs)
+        # k (B, nh_k, block_size, hs)
+        # v (B, nh_v, block_size, hs)
         print('q2', q.shape)
         print('k2', k.shape)
         print('v2', v.shape)
