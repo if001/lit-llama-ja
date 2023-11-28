@@ -215,6 +215,7 @@ class CausalSelfAttention(nn.Module):
 
         # shape = (config.n_head + 2 * config.n_query_groups) * config.head_size
         shape = (config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]
+        print('(config.n_heads[idx] + 2 * self._n_query_groups) * config.head_sizes[idx]', config.n_heads[idx],self._n_query_groups,config.head_sizes[idx])
 
         self._head_size = config.head_sizes[idx]
         self._n_head = config.n_heads[idx]
@@ -247,7 +248,7 @@ class CausalSelfAttention(nn.Module):
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
         print('x', x.shape)
-        qkv = self.attn(x)
+        qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
         print('qkv', qkv.shape)
 
         if self.config.non_liner or self.config.compress:
