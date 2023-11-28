@@ -117,6 +117,7 @@ def main(
     weight_decay: float = 0.001,
     interrupt: bool = False,
     train_data_rate: float = 1.0,
+    epoch: int = 1
 ) -> None:    
 
     trainingConfig = TrainingConfig.from_name(model_size)
@@ -126,16 +127,18 @@ def main(
         trainingConfig.learning_rate = lr
         trainingConfig.min_lr = lr * 10
         trainingConfig.weight_decay = weight_decay
-     
+        
     out_dir_path = Path(out_dir) / f"model_{model_size}_b{trainingConfig.batch_size}_lr{trainingConfig.learning_rate}_wd{trainingConfig.weight_decay}"    
     out_model_dir = Path(out_dir_path / "models")    
     out_model_dir.mkdir(parents=True, exist_ok=True)
-    print('out_model_dir: ', out_model_dir)    
+    print('out_model_dir: ', out_model_dir)
 
     out_log_dir = Path(out_dir_path / "logs")    
     out_log_dir.mkdir(parents=True, exist_ok=True)
     print('out_log_dir: ', out_log_dir)
 
+    trainingConfig.max_iters = trainingConfig.max_iters * epoch
+    print('epoch ', epoch)
     trainingConfig.debug()
     trainingConfig.save(str(out_dir_path))
 
@@ -168,7 +171,7 @@ def main(
     
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100
-    fabric = L.Fabric(accelerator="cuda", devices=devices, precision=precision, loggers=logger)
+    fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger)
 
     fabric.launch()
     fabric.seed_everything(1337)
