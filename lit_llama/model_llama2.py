@@ -246,7 +246,10 @@ class CausalSelfAttention(nn.Module):
     ) -> torch.Tensor:
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
+        print('x', x.shape)
         qkv = self.attn(x)
+        print('qkv', qkv.shape)
+
         if self.config.non_liner or self.config.compress:
             qkv = self.active(qkv)
 
@@ -259,6 +262,11 @@ class CausalSelfAttention(nn.Module):
 
         # split batched computation into three
         q, k, v = qkv.split((q_per_kv, 1, 1), dim=2)
+        print('q', q.shape)
+        print('k', k.shape)
+        print('v', v.shape)
+
+
 
         # repeat k and v if necessary
         if self._n_query_groups != 1:  # doing this would require a full kv cache with MQA (inefficient!)
@@ -278,6 +286,10 @@ class CausalSelfAttention(nn.Module):
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
             k, v = self.kv_cache(input_pos, k, v)
+        print('q2', q.shape)
+        print('k2', k.shape)
+        print('v2', v.shape)
+
         y = self.scaled_dot_product_attention(q, k, v, mask)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
