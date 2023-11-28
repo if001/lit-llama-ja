@@ -64,8 +64,9 @@ class Llama2Config:
     rope_n_elems: List[int] = field(default_factory=list)
     n_query_groups_list: List[int] = field(default_factory=list)
 
-    compress: bool = False
-    non_liner: bool = False
+    compress: bool = False ## qkvの計算前に次元を圧縮する
+    non_liner: bool = False ## qkvの計算とattentionの出力に非線形activationを追加する
+    separate_qkv: bool = False ## qkvのそれぞれにlinearを使う
 
     def __post_init__(self):        
         # assert self.n_embd % self.n_head == 0
@@ -89,7 +90,7 @@ class Llama2Config:
         else:
             self.n_query_groups = self.n_head
 
-        if self.n_query_groups_list is None:
+        if self.n_query_groups_list is None or len(self.n_query_groups_list) == 0:
             for n_head in self.n_heads:
                 self.n_query_groups_list.append(n_head)
 
@@ -727,12 +728,9 @@ llama_2 = [
         block_size=4096,
         n_layer=None,
         n_head=None,
-        # n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        n_heads=[4, 4],
-        # n_embd=620,
-        n_embd=400,
-        n_query_groups_list=[2, 1],
-        # n_query_groups=[1, 1, 1, 4, 8, 10, 10, 16, 16, 16],
+        n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],        
+        n_embd=620,        
+        # n_query_groups_list=[1, 1, 1],
         rotary_percentage=1.0,
         parallel_residual=False,
         bias=False,
@@ -785,6 +783,27 @@ llama_2 = [
         compress=True,
         non_liner=True,
         _description="",
+    ),
+    dict(
+        org="meta-llama",
+        name="Llama-2-100M_another_heads_separate_qkv",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=4096,
+        n_layer=None,
+        n_head=None,
+        n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],        
+        n_embd=620,        
+        # n_query_groups_list=[1, 1, 1],
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=False,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=2400,
+        norm_eps=1.0e-6,
+        separate_qkv=True,
+        _description="103.44M",
     ),
     dict(        
         org="meta-llama",
