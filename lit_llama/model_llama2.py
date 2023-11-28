@@ -256,6 +256,7 @@ class CausalSelfAttention(nn.Module):
 
         # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
         q_per_kv = self._n_head // self._n_query_groups
+        print('q_per_kv', q_per_kv, self._n_head, self._n_query_groups, self._n_head // self._n_query_groups)
 
         total_qkv = q_per_kv + 2  # each group has 1+ queries, 1 key, and 1 value
         qkv = qkv.view(B, T, self._n_query_groups, total_qkv, self._head_size)
@@ -267,6 +268,9 @@ class CausalSelfAttention(nn.Module):
         # k (B, _n_query_groups, total_qkv, T, hs)
         # v (B, _n_query_groups, total_qkv, T, hs)
 
+        # q torch.Size([1, 2, 2, 23, 155])
+        # k torch.Size([1, 2, 1, 23, 155])
+        # v torch.Size([1, 2, 1, 23, 155])
 
         # _q = self.q_l(x)
         # q = _q.view(B, self._n_query_groups, total_qkv, T, self._head_size)
