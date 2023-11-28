@@ -209,6 +209,7 @@ class Block(nn.Module):
 
 class CausalSelfAttention(nn.Module):
     def __init__(self, config: Config, idx = 0) -> None:
+        print("debug!!!!!!!!!!!!!!!!!!!!")
         super().__init__()
         self._idx = idx
         self._n_query_groups = config.n_query_groups_list[idx]
