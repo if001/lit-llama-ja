@@ -71,15 +71,13 @@ def main(
     fabric = L.Fabric(devices=1, precision=precision)
 
     print(f"Loading model ...{model_name}", file=sys.stderr)
-    with fabric.init_module(empty_init=True), quantization(mode=quantize):
-        model = GPT.from_name(model_name)
-    # t0 = time.time()
-    # with lazy_load(checkpoint_path) as checkpoint:
-    #     # name = llama_model_lookup(checkpoint)
-    #     with fabric.init_module(empty_init=True), quantization(mode=quantize):
-    #         model = GPT.from_name(model_name)
-    #     model.load_state_dict(checkpoint)
-    # print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
+    t0 = time.time()
+    with lazy_load(checkpoint_path) as checkpoint:
+        # name = llama_model_lookup(checkpoint)
+        with fabric.init_module(empty_init=True), quantization(mode=quantize):
+            model = GPT.from_name(model_name)
+        model.load_state_dict(checkpoint)
+    print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
 
     model.eval()
     model = fabric.setup(model)
