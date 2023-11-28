@@ -225,8 +225,9 @@ class CausalSelfAttention(nn.Module):
         if config.compress:
             start_dim = config.n_embd/2
 
-        self.attn = nn.Linear(start_dim, shape, bias=config.bias)
-        # output projection
+        if not config.separate_qkv:
+            self.attn = nn.Linear(start_dim, shape, bias=config.bias)
+            # output projection
         self.proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
         # disabled by default
         self.kv_cache: Optional[KVCache] = None
@@ -236,9 +237,14 @@ class CausalSelfAttention(nn.Module):
 
         self.config = config
         
-        self.q_l = nn.Linear(config.n_embd, config.head_sizes[idx])
-        self.k_l = nn.Linear(config.n_embd, config.head_sizes[idx])
-        self.v_l = nn.Linear(config.n_embd, config.head_sizes[idx])
+        if config.separate_qkv:
+            q_per_kv = self._n_head // self._n_query_groups
+            _q_shape = self._n_query_groups * q_per_kv * self._head_size
+            self.q_l = nn.Linear(config.n_embd, _q_shape)
+
+            _kv_shape = self._n_query_groups * self._head_size
+            self.k_l = nn.Linear(config.n_embd, _kv_shape)
+            self.v_l = nn.Linear(config.n_embd, _kv_shape)
 
     def forward(
         self,
@@ -250,36 +256,37 @@ class CausalSelfAttention(nn.Module):
     ) -> torch.Tensor:
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
-        qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
-        if self.config.non_liner or self.config.compress:
-            qkv = self.active(qkv)
+        if not self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てない            
+            qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
+            if self.config.non_liner or self.config.compress:
+                qkv = self.active(qkv)
 
-        # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
-        q_per_kv = self._n_head // self._n_query_groups
-        print('q_per_kv', q_per_kv, self._n_head, self._n_query_groups, self._n_head // self._n_query_groups)
+            # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
+            q_per_kv = self._n_head // self._n_query_groups        
 
-        total_qkv = q_per_kv + 2  # each group has 1+ queries, 1 key, and 1 value
-        qkv = qkv.view(B, T, self._n_query_groups, total_qkv, self._head_size)
-        qkv = qkv.permute(0, 2, 3, 1, 4)  # (B, n_query_groups, total_qkv, T, hs)
+            total_qkv = q_per_kv + 2  # each group has 1+ queries, 1 key, and 1 value
+            qkv = qkv.view(B, T, self._n_query_groups, total_qkv, self._head_size)
+            qkv = qkv.permute(0, 2, 3, 1, 4)  # (B, n_query_groups, total_qkv, T, hs)
 
-        # split batched computation into three
-        q, k, v = qkv.split((q_per_kv, 1, 1), dim=2)
-        # q (B, _n_query_groups, total_qkv, T, hs)
-        # k (B, _n_query_groups, total_qkv, T, hs)
-        # v (B, _n_query_groups, total_qkv, T, hs)
+            # split batched computation into three
+            q, k, v = qkv.split((q_per_kv, 1, 1), dim=2)
+            # q (B, _n_query_groups, q_per_kv, T, hs)
+            # k (B, _n_query_groups, 1, T, hs)
+            # v (B, _n_query_groups, 1, T, hs)
 
-        # q torch.Size([1, 2, 2, 23, 155])
-        # k torch.Size([1, 2, 1, 23, 155])
-        # v torch.Size([1, 2, 1, 23, 155])
+        
+        if self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てる
+            _q = self.q_l(x)
+            _q = self.active(_q)
+            q = _q.view(B, self._n_query_groups, q_per_kv, T, self._head_size)
 
-        # _q = self.q_l(x)
-        # q = _q.view(B, self._n_query_groups, total_qkv, T, self._head_size)
+            _k = self.k_l(x)
+            _k = self.active(_k)
+            k = _k.view(B, self._n_query_groups, 1, T, self._head_size)
 
-        print('q', q.shape)
-        print('k', k.shape)
-        print('v', v.shape)
-
-
+            _v = self.k_l(x)
+            _v = self.active(_v)
+            v = _v.view(B, self._n_query_groups, 1, T, self._head_size)
 
         # repeat k and v if necessary
         if self._n_query_groups != 1:  # doing this would require a full kv cache with MQA (inefficient!)
@@ -302,11 +309,7 @@ class CausalSelfAttention(nn.Module):
 
         # q (B, nh_q, T, hs)
         # k (B, nh_k, block_size, hs)
-        # v (B, nh_v, block_size, hs)
-        print('q2', q.shape)
-        print('k2', k.shape)
-        print('v2', v.shape)
-        print('-'*20)
+        # v (B, nh_v, block_size, hs)      
         y = self.scaled_dot_product_attention(q, k, v, mask)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
