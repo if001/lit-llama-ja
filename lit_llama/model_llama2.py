@@ -33,7 +33,6 @@ class GPT(nn.Module):
         else:
             ## orignal
             embed = nn.Embedding(config.padded_vocab_size, config.n_embd)
-        print('debug', config.n_layer)   
         self.transformer = nn.ModuleDict(
             dict(
                 wte=embed,
@@ -177,6 +176,7 @@ class Block(nn.Module):
     def __init__(self, config: Config, idx=-1) -> None:
         super().__init__()
         self.norm_1 = config.norm_class(config.n_embd, eps=config.norm_eps)
+        print('block!!!!!!!!!!!')
         self.attn = CausalSelfAttention(config, idx)
         self.norm_2 = None if config.shared_attention_norm else config.norm_class(config.n_embd, eps=config.norm_eps)
         self.mlp = config.mlp_class(config)
