@@ -225,7 +225,7 @@ class CausalSelfAttention(nn.Module):
 
         # key, query, value projections for all heads, but in a batch
         start_dim = config.n_embd
-        if self.config.compress:
+        if config.compress:
             start_dim = config.n_embd/2
 
         self.attn = nn.Linear(start_dim, shape, bias=config.bias)
