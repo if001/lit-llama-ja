@@ -64,6 +64,8 @@ class Llama2Config:
     rope_n_elems: List[int] = field(default_factory=list)
     n_query_groups_list: List[int] = field(default_factory=list)
 
+    compress: bool = False
+    non_liner: bool = False
 
     def __post_init__(self):        
         # assert self.n_embd % self.n_head == 0
@@ -736,6 +738,50 @@ llama_2 = [
         norm_eps=1.0e-6,
         _description="103.44M",
     ),
+    dict(
+        org="meta-llama",
+        name="Llama-2-100M_another_heads_basic_non_liner",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=4096,
+        n_layer=None,
+        n_head=None,
+        n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        n_embd=620,
+        # n_query_groups=[1, 1, 1, 4, 8, 10, 10, 16, 16, 16],
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=True,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=2400,
+        norm_eps=1.0e-6,        
+        non_liner=True,
+        compress=False,
+        _description="",
+    ),
+    dict(
+        org="meta-llama",
+        name="Llama-2-100M_another_heads_basic_non_liner_compress",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=4096,
+        n_layer=None,
+        n_head=None,
+        n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        n_embd=620,
+        # n_query_groups=[1, 1, 1, 4, 8, 10, 10, 16, 16, 16],
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=True,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=2400,
+        norm_eps=1.0e-6,        
+        compress=True,
+        non_liner=True,
+        _description="",
+    ),
     dict(        
         org="meta-llama",
         name="Llama-2-100M_another_heads_single-to-multi",
@@ -774,7 +820,7 @@ llama_2 = [
         _mlp_class="LLaMAMLP",
         intermediate_size=2400,
         norm_eps=1.0e-6,
-        _description="",
+        _description="104.21M",
     ),
     dict(
         org="meta-llama",

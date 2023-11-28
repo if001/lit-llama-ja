@@ -220,8 +220,15 @@ class CausalSelfAttention(nn.Module):
         self._n_head = config.n_heads[idx]
         self._rope_n_elem = config.rope_n_elems[idx]
 
+        self.first = nn.Linear(config.n_embd, shape, bias=config.bias)
+        self.last = nn.Linear(config.n_embd, shape, bias=config.bias)
+
         # key, query, value projections for all heads, but in a batch
-        self.attn = nn.Linear(config.n_embd, shape, bias=config.bias)
+        start_dim = config.n_embd
+        if self.config.compress:
+            start_dim = config.n_embd/2
+
+        self.attn = nn.Linear(start_dim, shape, bias=config.bias)
         # output projection
         self.proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
         # disabled by default
@@ -240,6 +247,8 @@ class CausalSelfAttention(nn.Module):
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
         qkv = self.attn(x)
+        if self.config.non_liner or self.config.compress:
+            qkv = nn.ReLU(qkv)
 
         # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
         q_per_kv = self._n_head // self._n_query_groups
@@ -268,12 +277,15 @@ class CausalSelfAttention(nn.Module):
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
-            k, v = self.kv_cache(input_pos, k, v)        
+            k, v = self.kv_cache(input_pos, k, v)
         y = self.scaled_dot_product_attention(q, k, v, mask)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
         # output projection
-        return self.proj(y), (q, k, v)
+        y = self.proj(y)
+        if self.config.non_liner or self.config.compress:
+            y = nn.ReLU(y)
+        return y, (q, k, v)
 
     def scaled_dot_product_attention(
         self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask: Optional[torch.Tensor] = None
