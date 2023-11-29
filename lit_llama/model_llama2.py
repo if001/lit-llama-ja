@@ -308,10 +308,13 @@ class CausalSelfAttention(nn.Module):
 
         # q (B, nh_q, T, hs)
         # k (B, nh_k, block_size, hs)
-        # v (B, nh_v, block_size, hs)
+        # v (B, nh_v, block_size or T, hs)
         print('q', q.shape)
         print('k', k.shape)
         print('v', q.shape)
+        w = q @ k.transpose(-2, -1)
+        print('weight', w.shape)
+        print('-')
         y = self.scaled_dot_product_attention(q, k, v, mask)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
