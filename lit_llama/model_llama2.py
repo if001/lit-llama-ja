@@ -311,7 +311,9 @@ class CausalSelfAttention(nn.Module):
         # v (B, nh_v, block_size or T, hs)
         print('q', q.shape)
         print('k', k.shape)
-        print('v', q.shape)
+        print('k2', k.transpose(-2, -1).shape)
+        
+        print('v', q.shape)        
         w = q @ k.transpose(-2, -1)
         print('weight', w.shape)
         print('-')
