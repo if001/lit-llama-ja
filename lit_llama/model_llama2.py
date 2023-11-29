@@ -258,6 +258,7 @@ class CausalSelfAttention(nn.Module):
         mask: Optional[torch.Tensor] = None,
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        print('x,size', x.size())
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
         if not self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てない            
