@@ -261,7 +261,7 @@ class CausalSelfAttention(nn.Module):
                 qkv = self.active(qkv)
 
             # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
-            q_per_kv = self._n_head // self._n_query_groups        
+            q_per_kv = self._n_head // self._n_query_groups
 
             total_qkv = q_per_kv + 2  # each group has 1+ queries, 1 key, and 1 value
             qkv = qkv.view(B, T, self._n_query_groups, total_qkv, self._head_size)
@@ -273,7 +273,7 @@ class CausalSelfAttention(nn.Module):
             # k (B, _n_query_groups, 1, T, hs)
             # v (B, _n_query_groups, 1, T, hs)
 
-        
+        q_per_kv = self._n_head // self._n_query_groups
         if self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てる
             _q = self.q_l(x)
             _q = self.active(_q)
