@@ -327,12 +327,12 @@ class CausalSelfAttention(nn.Module):
 
         # if self.config.use_scale_tensor:
         #     scaling = self.scaling(x)
-        #     scaling = self.active(scaling)          
+        #     scaling = self.active(scaling)
         #     y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         # else:
         #     y = self.scaled_dot_product_attention(q, k, v, mask)
-        #     y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
+        y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
         # output projection
         y = self.proj(y)
         if self.config.non_liner or self.config.compress:            
