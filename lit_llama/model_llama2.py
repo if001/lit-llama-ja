@@ -365,6 +365,8 @@ class CausalSelfAttention(nn.Module):
 
     ## torch実装
     def _scaled_dot_product_attention_v2(self, query, key, value, scale_tensor, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:        
+        print('query', query)
+        print('key', key)
         # Efficient implementation equivalent to the following:
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
@@ -380,9 +382,11 @@ class CausalSelfAttention(nn.Module):
                 attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
             else:
                 attn_bias += attn_mask
-        attn_weight = query @ key.transpose(-2, -1) * scale_factor
-        attn_weight += attn_bias        
-        attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする
+        attn_weight = query @ key.transpose(-2, -1) * scale_factor        
+        print('attn_weight', attn_weight)
+        print('attn_bias', attn_bias)
+        attn_weight += attn_bias
+        attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする        
         attn_weight = torch.softmax(attn_weight, dim=-1)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)
         return attn_weight @ value
