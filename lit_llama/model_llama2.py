@@ -248,7 +248,7 @@ class CausalSelfAttention(nn.Module):
         # if config.use_scale_tensor:
         #    self.scaling = nn.Linear(config.n_embd, config.n_embd)
         self.scaling = nn.Linear(config.n_embd, config.n_embd)
-        self.scale_active = lambda x: nn.ReLU()
+        self.scale_active = nn.ReLU()
 
     def forward(
         self,
@@ -320,7 +320,7 @@ class CausalSelfAttention(nn.Module):
         print('k2', k.transpose(-2, -1).shape)
         
         scaling = self.scale_active(self.scaling(x))
-        print('q.size', q.size(-2))
+        print('scaling', scaling)
         y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         print('y', y.shape)
 
@@ -382,9 +382,7 @@ class CausalSelfAttention(nn.Module):
                 attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
             else:
                 attn_bias += attn_mask
-        attn_weight = query @ key.transpose(-2, -1) * scale_factor        
-        print('attn_weight', attn_weight)
-        print('attn_bias', attn_bias)
+        attn_weight = query @ key.transpose(-2, -1) * scale_factor
         attn_weight += attn_bias
         attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする        
         attn_weight = torch.softmax(attn_weight, dim=-1)
