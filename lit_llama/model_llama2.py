@@ -245,10 +245,9 @@ class CausalSelfAttention(nn.Module):
             self.k_l = nn.Linear(config.n_embd, _kv_shape)
             self.v_l = nn.Linear(config.n_embd, _kv_shape)
 
-        # if config.use_scale_tensor:
-        #    self.scaling = nn.Linear(config.n_embd, config.n_embd)
-        self.scaling = nn.Linear(config.n_embd, config.block_size)
-        self.scale_active = nn.ReLU()
+        if config.use_scale_tensor:
+            self.scaling = nn.Linear(config.n_embd, config.block_size)
+            self.scale_active = nn.ReLU()
 
     def forward(
         self,
