@@ -67,6 +67,7 @@ class Llama2Config:
     compress: bool = False ## qkvの計算前に次元を圧縮する
     non_liner: bool = False ## qkvの計算とattentionの出力に非線形activationを追加する
     separate_qkv: bool = False ## qkvのそれぞれにlinearを使う
+    use_scale_tensor:bool = False ## qkの積に対して、更にscalingを行う
 
     def __post_init__(self):        
         # assert self.n_embd % self.n_head == 0
