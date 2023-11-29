@@ -315,8 +315,10 @@ class CausalSelfAttention(nn.Module):
         print('k2', k.transpose(-2, -1).shape)
 
         print('v', q.shape)        
-        w = q @ k.transpose(-2, -1)
+        w = q @ k.transpose(-2, -1)        
         print('weight', w.shape)
+        result = w @ v
+        print('result', result.shape)
         print('-')
         y = self.scaled_dot_product_attention(q, k, v, mask)
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
@@ -362,7 +364,7 @@ class CausalSelfAttention(nn.Module):
     ) -> "KVCache":
         heads = 1 if self._n_query_groups == 1 else self._n_head
         v_shape = (batch_size, heads, max_seq_length, self._head_size)
-        if rope_cache_length is None:            
+        if rope_cache_length is None:
             if self.config.rotary_percentage != 1.0:
                 raise TypeError("Please pass the `rope_cache_length=gpt.cos.size(-1)` value")
             k_shape = v_shape
