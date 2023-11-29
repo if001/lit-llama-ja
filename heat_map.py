@@ -54,9 +54,7 @@ def gen(
         _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
         attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))        
         attention_weight = attention_weight.squeeze()
-        print('1:', attention_weight)
-        attention_weight = torch.softmax(attention_weight, dim=-1)
-        print('2:', attention_weight)
+        attention_weight = torch.softmax(attention_weight, dim=-1)        
         attention_weights.append(attention_weight)
 
     return attention_weights
@@ -112,7 +110,7 @@ def main(
 
         attention = attention.to(device='cpu', dtype=torch.float32).detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
-        print('attention4', attention)
+        
         # ヒートマップの作成
         labels = tokenizer.tokenize(prompt)
         labels = ['bos'] + labels
