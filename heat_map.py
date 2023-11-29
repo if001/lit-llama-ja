@@ -90,8 +90,6 @@ def main(
         model.set_kv_cache(batch_size=1, index=0)
 
     tokenizer = HFTokenizer(tokenizer_path)
-    encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
-    prompt_length = encoded.size(0)
 
     # テキストのトークン化    
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
