@@ -324,13 +324,13 @@ class CausalSelfAttention(nn.Module):
         y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         print('y', y.shape)
 
-        if self.config.use_scale_tensor:
-            scaling = self.scaling(x)
-            scaling = self.active(scaling)          
-            y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
-        else:
-            y = self.scaled_dot_product_attention(q, k, v, mask)
-            y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
+        # if self.config.use_scale_tensor:
+        #     scaling = self.scaling(x)
+        #     scaling = self.active(scaling)          
+        #     y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
+        # else:
+        #     y = self.scaled_dot_product_attention(q, k, v, mask)
+        #     y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
 
         # output projection
         y = self.proj(y)
@@ -364,8 +364,7 @@ class CausalSelfAttention(nn.Module):
         return y.transpose(1, 2)
 
     ## torch実装
-    def _scaled_dot_product_attention_v2(query, key, value, scale_tensor, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:
-        print('q check', query)
+    def _scaled_dot_product_attention_v2(self, query, key, value, scale_tensor, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:        
         # Efficient implementation equivalent to the following:
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
@@ -382,9 +381,8 @@ class CausalSelfAttention(nn.Module):
             else:
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
-        attn_weight += attn_bias
-        ## アダマール積を取ることでscaleする
-        attn_weight = attn_weight * scale_tensor
+        attn_weight += attn_bias        
+        attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする
         attn_weight = torch.softmax(attn_weight, dim=-1)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)
         return attn_weight @ value
