@@ -112,7 +112,7 @@ def main(
 
         attention = attention.to(device='cpu', dtype=torch.int32).detach().numpy().copy()        
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
-
+        print('attention', attention.shape)
         # ヒートマップの作成    
         labels = tokenizer.tokenize(prompt)
         labels = ['bos'] + labels
