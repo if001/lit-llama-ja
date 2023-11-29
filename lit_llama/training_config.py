@@ -204,7 +204,7 @@ class TrainingConfig():
             batch_size = 128
             micro_batch_size = 4
             one_iters = int(ds_size/(block_size*micro_batch_size))
-            max_iters = one_iters * 2
+            max_iters = one_iters
             conf = dict(
                 model_size=model_size,
                 learning_rate=1e-4,
@@ -227,13 +227,14 @@ class TrainingConfig():
                 or model_size == "Llama-2-100M_another_heads_multi-to-single"
                 or model_size == "Llama-2-100M_another_heads_basic_non_liner"
                 or model_size == "Llama-2-100M_another_heads_basic_non_liner_compress"
+                or model_size == "Llama-2-100M_another_heads_separate_qkv"
         ):
             block_size = 4096
             ds_size = 1e+9
             batch_size = 128
-            micro_batch_size = 2
+            micro_batch_size = 4
             one_iters = int(ds_size/(block_size*micro_batch_size))
-            max_iters = one_iters * 2
+            max_iters = one_iters
             conf = dict(
                 model_size=model_size,
                 learning_rate=1e-4,
