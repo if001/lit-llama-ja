@@ -52,11 +52,11 @@ def gen(
     for k_part, q_part in zip(k[0],q[0]):
         k_part=k_part[:T,]
         _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
-        attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))
-        print('attention_weight', attention_weight.shape)
+        attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))        
         attention_weight = attention_weight.squeeze()
-        print('attention_weight2', attention_weight.shape)
+        print('1:', attention_weight)
         attention_weight = torch.softmax(attention_weight, dim=-1)
+        print('2:', attention_weight)
         attention_weights.append(attention_weight)
 
     return attention_weights
