@@ -300,7 +300,8 @@ class CausalSelfAttention(nn.Module):
         q_roped = apply_rope(q[..., : self._rope_n_elem], cos, sin)
         k_roped = apply_rope(k[..., : self._rope_n_elem], cos, sin)
         q = torch.cat((q_roped, q[..., self._rope_n_elem :]), dim=-1)
-        k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)        
+        k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)
+        print('k0', k.shape)
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
@@ -312,7 +313,7 @@ class CausalSelfAttention(nn.Module):
         print('q', q.shape)
         print('k', k.shape)
         print('k2', k.transpose(-2, -1).shape)
-        
+
         print('v', q.shape)        
         w = q @ k.transpose(-2, -1)
         print('weight', w.shape)
