@@ -320,12 +320,13 @@ class CausalSelfAttention(nn.Module):
 
         scaling = self.scaling(x)
         scaling = self.active(scaling)
+        print('q.size', q.size(-2))
         y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         print('y', y.shape)
 
         if self.config.use_scale_tensor:
             scaling = self.scaling(x)
-            scaling = self.active(scaling)
+            scaling = self.active(scaling)          
             y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         else:
             y = self.scaled_dot_product_attention(q, k, v, mask)
@@ -364,6 +365,7 @@ class CausalSelfAttention(nn.Module):
 
     ## torch実装
     def _scaled_dot_product_attention_v2(query, key, value, scale_tensor, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:
+        print('q check', query)
         # Efficient implementation equivalent to the following:
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
