@@ -110,7 +110,7 @@ def main(
         else:
             plt.subplot(2, 4, i+1)
 
-        attention = attention.to(device='cpu', dtype=torch.int32).detach().numpy().copy()        
+        attention = attention.to(device='cpu', dtype=torch.float32).detach().numpy().copy()
         # attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
         print('attention4', attention)
         # ヒートマップの作成
