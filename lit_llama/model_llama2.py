@@ -248,6 +248,7 @@ class CausalSelfAttention(nn.Module):
         # if config.use_scale_tensor:
         #    self.scaling = nn.Linear(config.n_embd, config.n_embd)
         self.scaling = nn.Linear(config.n_embd, config.n_embd)
+        self.scale_active = lambda x: nn.ReLU()
 
     def forward(
         self,
@@ -317,9 +318,8 @@ class CausalSelfAttention(nn.Module):
         print('q', q.shape)
         print('k', k.shape)
         print('k2', k.transpose(-2, -1).shape)
-
-        scaling = self.scaling(x)
-        scaling = self.active(scaling)
+        
+        scaling = self.scale_active(self.scaling(x))
         print('q.size', q.size(-2))
         y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         print('y', y.shape)
