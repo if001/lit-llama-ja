@@ -306,8 +306,7 @@ class CausalSelfAttention(nn.Module):
         q_roped = apply_rope(q[..., : self._rope_n_elem], cos, sin)
         k_roped = apply_rope(k[..., : self._rope_n_elem], cos, sin)
         q = torch.cat((q_roped, q[..., self._rope_n_elem :]), dim=-1)
-        k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)
-        print('k0', k.shape)
+        k = torch.cat((k_roped, k[..., self._rope_n_elem :]), dim=-1)        
         if input_pos is not None:
             if not isinstance(self.kv_cache, KVCache):
                 raise TypeError("You need to call `gpt.set_kv_cache()`")
@@ -316,21 +315,12 @@ class CausalSelfAttention(nn.Module):
         # q (B, nh_q, T, hs)
         # k (B, nh_k, block_size, hs)
         # v (B, nh_v, block_size or T, hs)
-        print('q', q.shape)
-        print('k', k.shape)
-        print('k2', k.transpose(-2, -1).shape)
         
-        scaling = self.scale_active(self.scaling(x))
-        print('scaling', scaling)
-        y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
-        print('y', y.shape)
-
-        # if self.config.use_scale_tensor:
-        #     scaling = self.scaling(x)
-        #     scaling = self.active(scaling)
-        #     y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
-        # else:
-        #     y = self.scaled_dot_product_attention(q, k, v, mask)
+        if self.config.use_scale_tensor:
+            scaling = self.scale_active(self.scaling(x))
+            y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
+        else:
+            y = self.scaled_dot_product_attention(q, k, v, mask)
 
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
         # output projection
@@ -364,10 +354,14 @@ class CausalSelfAttention(nn.Module):
         )
         return y.transpose(1, 2)
 
-    ## torch実装
     def _scaled_dot_product_attention_v2(self, query, key, value, scale_tensor, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:        
-        print('query', query)
-        print('key', key)
+        """
+        softmaxを取る前の行列に対し、scale用の行列で要素ごとの積(アダマール積)を取り、scaleさせる
+
+        torchのオリジナル実装を拡張
+        https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html        
+        """
+
         # Efficient implementation equivalent to the following:
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
@@ -385,7 +379,7 @@ class CausalSelfAttention(nn.Module):
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         attn_weight += attn_bias
-        attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする        
+        attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする
         attn_weight = torch.softmax(attn_weight, dim=-1)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)
         return attn_weight @ value
