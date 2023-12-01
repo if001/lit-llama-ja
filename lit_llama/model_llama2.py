@@ -246,10 +246,10 @@ class CausalSelfAttention(nn.Module):
             self.v_l = nn.Linear(config.n_embd, _kv_shape)
 
         if config.use_scale_tensor:
-            scale_layer = nn.Linear(config.n_embd, config.block_size)
-            active = nn.Sigmoid()
+            self._scale_layer = nn.Linear(config.n_embd, config.block_size)
+            self._active = nn.Sigmoid()
             scale_factor = 0.01
-            self.scale_layer = lambda x: scale_layer(active(x)) * scale_factor
+            self.scale_layer = lambda x: self._scale_layer(self._active(x)) * scale_factor
 
     def forward(
         self,
