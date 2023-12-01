@@ -246,8 +246,10 @@ class CausalSelfAttention(nn.Module):
             self.v_l = nn.Linear(config.n_embd, _kv_shape)
 
         if config.use_scale_tensor:
-            self.scaling = nn.Linear(config.n_embd, config.block_size)
-            self.scale_active = nn.ReLU()
+            scale_layer = nn.Linear(config.n_embd, config.block_size)
+            active = nn.Sigmoid()
+            scale_factor = 0.01
+            self.scale_layer = lambda x: scale_layer(active(x)) * scale_factor
 
     def forward(
         self,
@@ -315,9 +317,9 @@ class CausalSelfAttention(nn.Module):
         # v (B, nh_v, T, hs)
         
         if self.config.use_scale_tensor:
-            scaling = self.scale_active(self.scaling(x))
-            scaling = scaling.reshape(B, self._n_head, T, T)
-            y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
+            scale_tensor = self.scale_layer(x)
+            scale_tensor = scale_tensor.reshape(B, self._n_head, T, T)
+            y = self._scaled_dot_product_attention_v2(q, k, v, scale_tensor, mask)
         else:
             y = self.scaled_dot_product_attention(q, k, v, mask)        
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
