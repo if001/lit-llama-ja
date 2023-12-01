@@ -31,7 +31,7 @@ class GPT(nn.Module):
         if config.nef:
             embed = EmbeddingNEFTune(config)
         else:
-            ## orignal
+            ## orignal1
             embed = nn.Embedding(config.padded_vocab_size, config.n_embd)
         self.transformer = nn.ModuleDict(
             dict(
@@ -96,6 +96,7 @@ class GPT(nn.Module):
 
 
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
+        print('x: ', x.shape)
         for i, block in enumerate(self.transformer.h):
             if input_pos is not None:  # use the kv cache
                 cos = self._cos_list[i].index_select(0, input_pos)
@@ -316,6 +317,7 @@ class CausalSelfAttention(nn.Module):
         
         if self.config.use_scale_tensor:
             scaling = self.scale_active(self.scaling(x))
+            scaling = scaling.reshape(B, 1, T, T)
             y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
             print('y', y.shape)
         else:
