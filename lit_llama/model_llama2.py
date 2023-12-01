@@ -95,8 +95,7 @@ class GPT(nn.Module):
             raise ValueError(f"Cannot forward sequence of length {T}, max seq length is only {self.max_seq_length}.")
 
 
-        x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)
-        print('x: ', x.shape)
+        x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)        
         for i, block in enumerate(self.transformer.h):
             if input_pos is not None:  # use the kv cache
                 cos = self._cos_list[i].index_select(0, input_pos)
@@ -312,17 +311,15 @@ class CausalSelfAttention(nn.Module):
             k, v = self.kv_cache(input_pos, k, v)
 
         # q (B, nh_q, T, hs)
-        # k (B, nh_k, block_size, hs)
-        # v (B, nh_v, block_size or T, hs)
+        # k (B, nh_k, T, hs)
+        # v (B, nh_v, T, hs)
         
         if self.config.use_scale_tensor:
             scaling = self.scale_active(self.scaling(x))
-            scaling = scaling.reshape(B, 1, T, T)
+            scaling = scaling.reshape(B, self._head_size, T, T)
             y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
-            print('y', y.shape)
         else:
-            y = self.scaled_dot_product_attention(q, k, v, mask)
-        print("B, T, C", B, T, C)
+            y = self.scaled_dot_product_attention(q, k, v, mask)        
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
         # output projection
         y = self.proj(y)
@@ -380,12 +377,8 @@ class CausalSelfAttention(nn.Module):
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         attn_weight += attn_bias
-        print('attn_weight', attn_weight.shape)
-        print('scale_tensor', scale_tensor.shape)
         attn_weight = attn_weight * scale_tensor ## アダマール積を取ることでscaleする
-        print('attn_weight2', attn_weight.shape)
         attn_weight = torch.softmax(attn_weight, dim=-1)
-        print('attn_weight3', attn_weight.shape)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
         return attn_weight @ value
 
