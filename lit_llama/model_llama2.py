@@ -316,7 +316,7 @@ class CausalSelfAttention(nn.Module):
         
         if self.config.use_scale_tensor:
             scaling = self.scale_active(self.scaling(x))
-            scaling = scaling.reshape(B, self._head_size, T, T)
+            scaling = scaling.reshape(B, self._n_head, T, T)
             y = self._scaled_dot_product_attention_v2(q, k, v, scaling, mask)
         else:
             y = self.scaled_dot_product_attention(q, k, v, mask)        
