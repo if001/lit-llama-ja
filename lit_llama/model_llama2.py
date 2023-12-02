@@ -247,8 +247,9 @@ class CausalSelfAttention(nn.Module):
 
         if config.use_scale_tensor:
             self._scale_layer = nn.Linear(config.n_embd, config.block_size, bias=True)
-            self._scale_active = nn.Sigmoid()
-            self._scale_factor = 0.001            
+            # self._scale_active = nn.Sigmoid()
+            self._scale_active = nn.ReLU()
+            self._scale_factor = 0.0001
 
     def _attention_scale_layer(self, x):
         x = self._scale_layer(x)
