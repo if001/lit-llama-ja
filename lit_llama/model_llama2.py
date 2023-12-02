@@ -319,8 +319,11 @@ class CausalSelfAttention(nn.Module):
         if self.config.use_scale_tensor:
             scale_tensor = self.scale_layer(x)
             print("scale_tensor.shape", scale_tensor.shape)
-            # scale_tensor = scale_tensor.reshape(B, self._n_head, T, T)
-            y = self._scaled_dot_product_attention_v2(q, k, v, scale_tensor, mask)
+            ## (B, nh, T, block_size) => (B, nh, block_size, block_size)に拡張
+            # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
+            # expanded_tensor[:, :scale_tensor.size(1), :] = scale_tensor
+            scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)
+            y = self._scaled_dot_product_attention_v2(q, k, v, expanded_tensor, mask)
         else:
             y = self.scaled_dot_product_attention(q, k, v, mask)        
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
@@ -381,7 +384,7 @@ class CausalSelfAttention(nn.Module):
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         print('attn_weight', attn_weight.shape)
         attn_weight += attn_bias
-        attn_weight = attn_weight + scale_tensor ## scaleする
+        attn_weight += scale_tensor ## scaleする
         attn_weight = torch.softmax(attn_weight, dim=-1)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
         return attn_weight @ value
