@@ -246,10 +246,14 @@ class CausalSelfAttention(nn.Module):
             self.v_l = nn.Linear(config.n_embd, _kv_shape)
 
         if config.use_scale_tensor:
-            self._scale_layer = nn.Linear(config.n_embd, config.block_size)
-            self._active = nn.Sigmoid()
-            scale_factor = 0.001
-            self.scale_layer = lambda x: self._scale_layer(self._active(x)) * scale_factor
+            self._scale_layer = nn.Linear(config.n_embd, config.block_size, bias=True)
+            self._scale_active = nn.Sigmoid()
+            self._scale_factor = 0.001            
+
+    def _attention_scale_layer(self, x):
+        x = self._scale_layer(x)
+        x = self._scale_active(x)
+        return x * self._scale_factor
 
     def forward(
         self,
@@ -317,7 +321,7 @@ class CausalSelfAttention(nn.Module):
         # v (B, nh_v, T, hs)
         
         if self.config.use_scale_tensor:
-            scale_tensor = self.scale_layer(x)
+            scale_tensor = self._attention_scale_layer(x)
             # print("scale_tensor.shape", scale_tensor.shape)
             ## (B, nh, T, block_size) => (B, nh, block_size, block_size)に拡張
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
