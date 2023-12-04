@@ -246,7 +246,9 @@ class CausalSelfAttention(nn.Module):
             self.v_l = nn.Linear(config.n_embd, _kv_shape)
 
         if config.use_scale_tensor:
-            self._scale_layer = nn.Linear(config.n_embd, config.block_size, bias=True)
+            self._scale_layer1 = nn.Linear(config.n_embd, config.block_size, bias=True)
+            self._scale_layer2 = nn.Linear(config.n_embd, config.block_size, bias=True)
+
             # self._scale_active = nn.Sigmoid()
             # self._scale_active = nn.ReLU()
             self._scale_active = nn.Tanh()
@@ -323,7 +325,10 @@ class CausalSelfAttention(nn.Module):
         # v (B, nh_v, T, hs)
         
         if self.config.use_scale_tensor:
-            scale_tensor = self._attention_scale_layer(x)
+            x = self._scale_layer1(x)
+            x = self._scale_active(x)
+            x = self._scale_layer2(x)
+            scale_tensor = self._scale_active(x)
             # print("scale_tensor.shape", scale_tensor.shape)
             ## (B, nh, T, block_size) => (B, nh, block_size, block_size)に拡張
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
@@ -390,7 +395,10 @@ class CausalSelfAttention(nn.Module):
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
         attn_weight += attn_bias
+        print('attn_weight', attn_weight)
+        print('scale_tensor', scale_tensor)
         attn_weight += scale_tensor ## scaleする
+        print('attn_weight2', attn_weight)
         attn_weight = torch.softmax(attn_weight, dim=-1)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
         return attn_weight @ value
