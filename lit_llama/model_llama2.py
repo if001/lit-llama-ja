@@ -252,7 +252,7 @@ class CausalSelfAttention(nn.Module):
             # self._scale_active = nn.Sigmoid()
             # self._scale_active = nn.ReLU()
             self._scale_active = nn.Tanh()
-            self._scale_factor = 0.00001
+            self._scale_factor = 0.01
 
     def forward(
         self,
