@@ -391,10 +391,7 @@ class CausalSelfAttention(nn.Module):
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
         attn_weight += attn_bias
-        print('attn_weight', attn_weight)
-        print('scale_tensor', scale_tensor)
-        attn_weight += scale_tensor ## scaleする
-        print('attn_weight2', attn_weight)
+        attn_weight += scale_tensor ## scaleする        
         attn_weight = torch.softmax(attn_weight, dim=-1)
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
         return attn_weight @ value
