@@ -399,6 +399,7 @@ class CausalSelfAttention(nn.Module):
         attn_weight += scale_tensor ## scaleする
         if self._debug_cnt % 1000:
             print('attn_weight2', attn_weight[0, 0, 0, :10])
+            print('--'*100)
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
         return attn_weight @ value
