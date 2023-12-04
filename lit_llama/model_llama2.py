@@ -248,8 +248,7 @@ class CausalSelfAttention(nn.Module):
 
         if config.use_scale_tensor:
             self._scale_layer1 = nn.Linear(config.n_embd, config.block_size, bias=True)
-            self._scale_layer2 = nn.Linear(config.block_size, config.block_size, bias=True)
-
+            # self._scale_layer2 = nn.Linear(config.block_size, config.block_size, bias=True)
             # self._scale_active = nn.Sigmoid()
             # self._scale_active = nn.ReLU()
             self._scale_active = nn.Tanh()
@@ -323,8 +322,8 @@ class CausalSelfAttention(nn.Module):
         
         if self.config.use_scale_tensor:
             x = self._scale_layer1(x)
-            x = self._scale_active(x)
-            x = self._scale_layer2(x)
+            # x = self._scale_active(x)
+            # x = self._scale_layer2(x)
             scale_tensor = self._scale_active(x)
             scale_tensor = scale_tensor * self._scale_factor
             # print("scale_tensor.shape", scale_tensor.shape)
@@ -383,9 +382,9 @@ class CausalSelfAttention(nn.Module):
         attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)
         if is_causal:
             assert attn_mask is None
-            temp_mask = torch.ones(L, S, dtype=torch.bool).tril(diagonal=0)
+            temp_mask = torch.ones(L, S, dtype=torch.bool, device=query.device).tril(diagonal=0)
             attn_bias.masked_fill_(temp_mask.logical_not(), float("-inf"))
-            attn_bias.to(query.dtype)
+            # attn_bias.to(query.dtype)
 
         if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
