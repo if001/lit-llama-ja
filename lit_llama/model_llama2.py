@@ -247,7 +247,7 @@ class CausalSelfAttention(nn.Module):
 
         if config.use_scale_tensor:
             self._scale_layer1 = nn.Linear(config.n_embd, config.block_size, bias=True)
-            self._scale_layer2 = nn.Linear(config.n_embd, config.block_size, bias=True)
+            self._scale_layer2 = nn.Linear(config.block_size, config.block_size, bias=True)
 
             # self._scale_active = nn.Sigmoid()
             # self._scale_active = nn.ReLU()
