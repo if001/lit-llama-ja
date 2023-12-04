@@ -393,6 +393,7 @@ class CausalSelfAttention(nn.Module):
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
         attn_weight += attn_bias
+        print('self._debug_cnt', self._debug_cnt)
         if self._debug_cnt % 1000:
             print('attn_weight', attn_weight[0, 0, 0, :10])
             print('scale_tensor', scale_tensor[0, 0, 0, :10])
