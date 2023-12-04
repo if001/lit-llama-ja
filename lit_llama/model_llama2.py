@@ -254,11 +254,6 @@ class CausalSelfAttention(nn.Module):
             self._scale_active = nn.Tanh()
             self._scale_factor = 0.00001
 
-    def _attention_scale_layer(self, x):
-        x = self._scale_layer(x)
-        x = self._scale_active(x)
-        return x * self._scale_factor
-
     def forward(
         self,
         x: torch.Tensor,
@@ -329,6 +324,7 @@ class CausalSelfAttention(nn.Module):
             x = self._scale_active(x)
             x = self._scale_layer2(x)
             scale_tensor = self._scale_active(x)
+            scale_tensor = scale_tensor * self._scale_factor
             # print("scale_tensor.shape", scale_tensor.shape)
             ## (B, nh, T, block_size) => (B, nh, block_size, block_size)に拡張
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
