@@ -209,6 +209,7 @@ class Block(nn.Module):
 class CausalSelfAttention(nn.Module):
     def __init__(self, config: Config, idx = 0) -> None:        
         super().__init__()
+        self._debug_cnt = 0
         self._idx = idx
         self._n_query_groups = config.n_query_groups_list[idx]
 
@@ -262,6 +263,7 @@ class CausalSelfAttention(nn.Module):
         mask: Optional[torch.Tensor] = None,
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        self._debug_cnt += 1
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
         if not self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てない            
@@ -391,11 +393,13 @@ class CausalSelfAttention(nn.Module):
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
         attn_weight += attn_bias
-        print('attn_weight', attn_weight[0, 0, 0, :10])
+        if self._debug_cnt % 1000:
+            print('attn_weight', attn_weight[0, 0, 0, :10])
+            print('scale_tensor', scale_tensor[0, 0, 0, :10])
         attn_weight += scale_tensor ## scaleする
-        print('scale_tensor', attn_weight[0, 0, 0, :10])
-        attn_weight = torch.softmax(attn_weight, dim=-1)
-        print('attn_weight2', attn_weight[0, 0, 0, :10])
+        if self._debug_cnt % 1000:
+            print('attn_weight2', attn_weight[0, 0, 0, :10])
+        attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
         return attn_weight @ value
 
