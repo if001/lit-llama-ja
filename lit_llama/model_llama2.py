@@ -332,7 +332,9 @@ class CausalSelfAttention(nn.Module):
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
             # expanded_tensor[:, :scale_tensor.size(1), :] = scale_tensor
             scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)
-            y = self._scaled_dot_product_attention_v2(q, k, v, scale_tensor, mask)
+            y = self._scaled_dot_product_attention_v2(
+                q, k, v, scale_tensor, 
+                attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
         else:
             y = self.scaled_dot_product_attention(q, k, v, mask)        
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
