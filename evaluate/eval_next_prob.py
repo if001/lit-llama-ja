@@ -192,7 +192,7 @@ def main(
         input = tokenizer.decode([id])
         print('input', input)
         for p in probs:            
-            text = tokenizer.decode(p['index'])
+            text = tokenizer.decode([p['index']])
             p['p']
             print('text: ', p['p'], text)
         print('-'*100)
