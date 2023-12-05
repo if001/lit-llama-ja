@@ -3,8 +3,7 @@ import time
 import warnings
 from pathlib import Path
 from typing import Optional
-import re
-from tqdm import tqdm
+import numpy as np
 
 import lightning as L
 import torch
@@ -28,40 +27,6 @@ from lit_llama import LLaMA, Tokenizer, HFTokenizer
 from lit_llama import GPT
 from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 
-
-texts = """昨夜見た夢について書きたいと思います。夢の中で私は
-今日、私は新しいレシピに挑戦しました。材料は以下の通りです
-子供の頃の思い出には特別なものがあります。特に覚えているのは
-私が最初に海外旅行に行った時のことを思い出します。目的地は
-最近読んだ本の中で、特に心に残った一節があります。それは
-科学の進歩は驚異的です。特に注目している分野は
-自然は驚くべき美しさを秘めています。私のお気に入りの自然現象は
-アートは人の心に深く訴えかけます。私が最も影響を受けた作品は
-スポーツは私の人生に大きな影響を与えています。特に好きなスポーツは
-映画は素晴らしい娯楽です。私のお気に入りの映画は
-音楽は私の毎日を彩ります。最近ハマっている曲は
-テクノロジーの進歩には目を見張るものがあります。特に興味深い発明は
-歴史には学ぶべき教訓がたくさんあります。特に興味深い時代は
-私が初めて料理に挑戦した時のことを覚えています。作ったのは
-幼い頃、私は特定のテレビ番組に夢中でした。それは
-旅行は人生を豊かにします。私が最も印象に残っている旅行先は
-私の家族について書きたいと思います。家族構成は
-人生で学んだ大切な教訓について共有したいと思います。それは
-私の趣味について話したいと思います。最も情熱を注いでいる趣味は
-学生時代の思い出は色褪せないものです。特に忘れられない出来事は
-今日の仕事で面白いことがありました。それは
-私の故郷について話したいと思います。故郷は
-健康について意識していることがあります。それは
-小さい頃の夢について書きたいと思います。夢は
-エコロジーについて考えることが多いです。特に重要だと思うのは
-時代の変化を感じる瞬間があります。それは
-私が尊敬する人物について話したいと思います。その人は
-子供の頃に学んだ大切なことは何ですか？それは
-私の一日のルーティンについて書きたいと思います。朝は
-ある特別な出来事が私の人生を変えました。それは"""
-
-def get_texts():
-    return texts.split('\n')
 
 @torch.no_grad()
 def generate(
@@ -133,8 +98,11 @@ def generate(
         next_token_scores = next_token_scores.squeeze(0)
         
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
+        
+        x = probs.to('cpu').detach().numpy().copy()
+        x = np.sort(x)[::-1][:top_k+1]
+        print('probs', x)
 
-        print('probs', probs.shape, probs)
 
         idx_next = torch.multinomial(probs, num_samples=1)
         idx_next = idx_next.to(dtype=dtype)
@@ -154,13 +122,6 @@ def generate(
 
     return idx
 
-def load_ppl_model(model_path, sp_model_path):
-    import kenlm
-    import sentencepiece    
-    model = kenlm.LanguageModel(model_path)
-    sp = sentencepiece.SentencePieceProcessor()
-    sp.load(sp_model_path)
-    return sp, model
 
 def main(
     prompt: str = "",
