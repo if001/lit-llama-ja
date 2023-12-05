@@ -203,7 +203,7 @@ def main(
         correct_label = row['label']
         correct = row[f'choice{correct_label}']        
 
-        if correct in result:
+        if result is not None and correct in result:
             include_cnt += 1
         if correct == result:
             correct_cnt += 1        
