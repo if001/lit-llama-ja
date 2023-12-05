@@ -94,8 +94,15 @@ def generate(
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
+        _a = next_token_scores.detach()
+        _a = _a.squeeze(0)
+        print('_a:',torch.topk(_a, 3))        
+
         next_token_scores = logits_wraper(x, next_token_scores)
         next_token_scores = next_token_scores.squeeze(0)
+        _b = next_token_scores.detach()
+        _b = _b.squeeze(0)
+        print('_b:', torch.topk(_b, 3))
         
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         idx_next = torch.multinomial(probs, num_samples=1)        
