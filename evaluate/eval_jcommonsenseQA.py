@@ -110,6 +110,7 @@ def generate(
         # forward
         logits = model(x, input_pos)
         # logits = logits[0, -1]
+        print('x', x.shape, x)
         logits = logits[:, -1, :]
         print('x', x.shape, x)
         next_token_scores = logits_processor(x, logits)
