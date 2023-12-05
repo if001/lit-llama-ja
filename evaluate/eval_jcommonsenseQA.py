@@ -109,12 +109,12 @@ def generate(
         # x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
         # forward
-        logits = model(x, input_pos)
+        logits = model(idx, input_pos)
         # logits = logits[0, -1]
         print('id', idx.shape, idx)
-        print('x1', x.shape, x)
+        # print('x1', x.shape, x)
         logits = logits[:, -1, :]
-        print('x2', x.shape, x)
+        # print('x2', x.shape, x)
         print('-'*100)
         next_token_scores = logits_processor(idx, logits)
         next_token_scores = logits_wraper(idx, next_token_scores)
