@@ -185,7 +185,7 @@ def main(
     include_cnt = 0
     ds = datasets.load_dataset("shunk031/JGLUE", name="JCommonsenseQA", split="train")
     ds_size = len(ds)
-    for row in tqdm(ds.select(range(0, 1000))):
+    for row in tqdm(ds.select(range(0, 10))):
         choices = [row['choice0'],row['choice1'],row['choice2'],row['choice3'],row['choice4']]
         prompt = format_text(row['question'], choices)        
         encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
@@ -196,7 +196,9 @@ def main(
                     repetition_penalty=repetition_penalty,
                     eos_id=eos_id)
         text = tokenizer.decode(y)
-        result = get_result(text)        
+        print('result:', text)
+        print('-'*100)
+        result = get_result(text)
         correct_label = row['label']
         correct = row[f'choice{correct_label}']        
 
