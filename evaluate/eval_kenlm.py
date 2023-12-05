@@ -217,7 +217,7 @@ def main(
     ppl_score = 0
     text_list = get_texts()
     text_len = len(text_list)
-    for text in tqdm(text_list):
+    for i, text in enumerate(text_list):
         encoded = tokenizer.encode(text, bos=True, eos=False, device=fabric.device)
         y = generate(model, encoded, max_new_tokens, 
                     temperature=temperature, 
@@ -230,7 +230,7 @@ def main(
         toks_str = " ".join(toks)
         ppl = kenlm_model.perplexity(toks_str)
         print()
-        print(f'ppl {ppl}, result_text: {result_text}')
+        print(f'i:{i}, ppl {ppl}, result_text: {result_text}')
         print('-'*100)
         ppl_score += float(ppl/text_len)
 
