@@ -106,13 +106,14 @@ def generate(
     idx = idx.reshape(1, idx.size(-1))
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
-        # x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
+        x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
+        print('id', idx.shape, idx)
+        print('x1', x.shape, x)
 
         # forward
         logits = model(idx, input_pos)
         # logits = logits[0, -1]
-        print('id', idx.shape, idx)
-        # print('x1', x.shape, x)
+        print('id', idx.shape, idx)        
         logits = logits[:, -1, :]
         # print('x2', x.shape, x)
         print('-'*100)
