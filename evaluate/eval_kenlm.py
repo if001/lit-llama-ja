@@ -231,8 +231,8 @@ def main(
         print(f'result_text {result_text}')
         print('-'*100)
         toks = sp.encode(result_text, out_type=str)
-        print('toks', toks)
-        ppl = kenlm_model.perplexity(toks)
+        toks_str = " ".join(toks)
+        ppl = kenlm_model.perplexity(toks_str)
         ppl_score += float(ppl/text_len)
 
     print(f"score... {ppl_score}")
