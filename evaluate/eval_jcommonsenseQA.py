@@ -115,8 +115,8 @@ def generate(
         logits = logits[:, -1, :]
         print('x2', x.shape, x)
         print('-'*100)
-        next_token_scores = logits_processor(x, logits)
-        next_token_scores = logits_wraper(x, next_token_scores)
+        next_token_scores = logits_processor(idx, logits)
+        next_token_scores = logits_wraper(idx, next_token_scores)
         next_token_scores = next_token_scores.squeeze(0)
 
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
