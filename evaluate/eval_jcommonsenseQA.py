@@ -15,8 +15,9 @@ from transformers.generation.utils import (
     TopKLogitsWarper,
     TopPLogitsWarper,
     TemperatureLogitsWarper,
-    RepetitionPenaltyLogitsProcessor
+    RepetitionPenaltyLogitsProcessor,    
 )
+from transformers.generation.logits_process import LogitsProcessor
 import datasets
 
 
@@ -27,6 +28,23 @@ sys.path.append(str(wd))
 from lit_llama import LLaMA, Tokenizer, HFTokenizer
 from lit_llama import GPT
 from lit_llama.utils import lazy_load, llama_model_lookup, quantization
+
+
+
+class MyRepetitionPenaltyLogitsProcessor(LogitsProcessor):
+    def __init__(self, penalty: float):
+        if not isinstance(penalty, float) or not (penalty > 0):
+            raise ValueError(f"`penalty` has to be a strictly positive float, but is {penalty}")
+        print('penalty', penalty)
+        self.penalty = penalty
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        score = torch.gather(scores, 1, input_ids)
+
+        # if score < 0 then repetition penalty has to be multiplied to reduce the previous token probability
+        score = torch.where(score < 0, score * self.penalty, score / self.penalty)
+
+        scores.scatter_(1, input_ids, score)
+        return scores
 
 @torch.no_grad()
 def generate(
@@ -57,7 +75,7 @@ def generate(
     """
 
     logits_processor = LogitsProcessorList([
-        RepetitionPenaltyLogitsProcessor(repetition_penalty),
+        MyRepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
 
     logits_wraper = LogitsProcessorList([
@@ -93,6 +111,7 @@ def generate(
         logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
+        print('x', x.shape, x)
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
         next_token_scores = next_token_scores.squeeze(0)
