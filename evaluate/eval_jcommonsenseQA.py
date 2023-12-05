@@ -185,7 +185,7 @@ def main(
     include_cnt = 0
     ds = datasets.load_dataset("shunk031/JGLUE", name="JCommonsenseQA", split="train")
     ds_size = len(ds)
-    for row in ds:
+    for row in ds.select(range(0, 1000)):
         choices = [row['choice0'],row['choice1'],row['choice2'],row['choice3'],row['choice4']]
         prompt = format_text(row['question'], choices)        
         encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
