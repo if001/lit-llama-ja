@@ -110,9 +110,11 @@ def generate(
         # forward
         logits = model(x, input_pos)
         # logits = logits[0, -1]
-        print('x', x.shape, x)
+        print('id', idx.shape, idx)
+        print('x1', x.shape, x)
         logits = logits[:, -1, :]
-        print('x', x.shape, x)
+        print('x2', x.shape, x)
+        print('-'*100)
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
         next_token_scores = next_token_scores.squeeze(0)
