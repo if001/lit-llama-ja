@@ -1,3 +1,45 @@
+"""
+入力した文章に続く、単語をtop_k分の確率と単語を表示する
+
+例:
+input 
+text:  0.4670667350292206 山
+text:  0.16267991065979004 水
+text:  0.14469051361083984 、
+text:  0.12376037240028381 ウ
+text:  0.10180250555276871 から
+----------------------------------------------------------------------------------------------------
+input 私は
+text:  0.3446035385131836 「
+text:  0.2156473845243454 お
+text:  0.16405588388442993 私は
+text:  0.14591431617736816 東京
+text:  0.1297788769006729 この
+----------------------------------------------------------------------------------------------------
+input 、
+text:  0.657270610332489 、
+text:  0.16107109189033508 都
+text:  0.07973597198724747 ・
+text:  0.03947216644883156 を
+text:  0.03122505359351635 や
+----------------------------------------------------------------------------------------------------
+input 東京
+text:  0.5059266686439514 大阪
+text:  0.31660082936286926 東京
+text:  0.07175566256046295 京都
+text:  0.059024590998888016 神
+text:  0.046692296862602234 愛
+----------------------------------------------------------------------------------------------------
+input 、
+text:  0.9138786196708679 知
+text:  0.04015302658081055 媛
+text:  0.0214923657476902 、
+text:  0.015724150463938713 川
+text:  0.008751808665692806 称
+----------------------------------------------------------------------------------------------------
+私は、東京、愛、
+"""
+
 import sys
 import time
 import warnings
@@ -86,6 +128,7 @@ def generate(
         xm.mark_step()
     
     next_probs = []
+    current_idxs = []
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
@@ -109,19 +152,21 @@ def generate(
         idx_next = idx_next.to(dtype=dtype)
 
         # advance
-        input_pos = input_pos[-1:] + 1        
+        input_pos = input_pos[-1:] + 1
+
 
         if idx.device.type == "xla":
             xm.mark_step()
 
         # concatenate the new generation
         idx = idx.index_copy(0, input_pos, idx_next)
+        current_idxs.append(idx)
 
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:
             return idx[:input_pos]  # include the EOS token
 
-    return idx, next_probs
+    return idx, next_probs,current_idxs
 
 
 def main(
@@ -182,14 +227,14 @@ def main(
     
     
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
-    result_ids, next_probs = generate(model, encoded, max_new_tokens, 
+    result_ids, current_idxs, next_probs = generate(model, encoded, max_new_tokens, 
                 temperature=temperature, 
                 top_k=top_k, 
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
-    for id, probs in zip(result_ids, next_probs):        
-        input = tokenizer.decode(torch.tensor([id]))
+    for ids, probs in zip(current_idxs, next_probs):        
+        input = tokenizer.decode(ids)
         print('input', input)
         for p in probs:
             text = tokenizer.decode(torch.tensor([p['index']]))
@@ -197,7 +242,7 @@ def main(
         print('-'*100)
 
     result_text = tokenizer.decode(result_ids)
-    print(result_text)
+    print('final result: ', result_text)
 
 if __name__ == "__main__":
     from jsonargparse import CLI
