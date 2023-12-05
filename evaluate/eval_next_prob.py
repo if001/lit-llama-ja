@@ -84,7 +84,8 @@ def generate(
         import torch_xla.core.xla_model as xm
 
         xm.mark_step()
-
+    
+    next_probs = []
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
@@ -99,10 +100,10 @@ def generate(
         
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         
-        x = probs.to('cpu').detach().numpy().copy()
-        x = np.sort(x)[::-1][:top_k+1]
-        print('probs', x)
-
+        _probs=probs.detach()
+        top_values, top_indices = torch.topk(_probs, top_k)        
+        next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
+        next_probs.append(next_prob)
 
         idx_next = torch.multinomial(probs, num_samples=1)
         idx_next = idx_next.to(dtype=dtype)
@@ -120,7 +121,7 @@ def generate(
         if idx_next == eos_id:
             return idx[:input_pos]  # include the EOS token
 
-    return idx
+    return idx, next_probs
 
 
 def main(
@@ -181,13 +182,18 @@ def main(
     
     
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
-    y = generate(model, encoded, max_new_tokens, 
+    result_ids, next_probs = generate(model, encoded, max_new_tokens, 
                 temperature=temperature, 
                 top_k=top_k, 
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
-    result_text = tokenizer.decode(y)        
+    for id, probs in zip(result_ids, next_probs):
+        print(id)
+        print(probs)
+        print('-'*100)
+
+    result_text = tokenizer.decode(result_ids)
     print(result_text)
 
 if __name__ == "__main__":
@@ -205,3 +211,4 @@ if __name__ == "__main__":
         message="MatMul8bitLt: inputs will be cast from torch.bfloat16 to float16 during quantization",
     )
     CLI(main)
+
