@@ -58,8 +58,7 @@ texts = """昨夜見た夢について書きたいと思います。夢の中で
 私が尊敬する人物について話したいと思います。その人は
 子供の頃に学んだ大切なことは何ですか？それは
 私の一日のルーティンについて書きたいと思います。朝は
-ある特別な出来事が私の人生を変えました。それは
-"""
+ある特別な出来事が私の人生を変えました。それは"""
 
 def get_texts():
     return texts.split('\n')
@@ -226,13 +225,13 @@ def main(
                     top_p=top_p, 
                     repetition_penalty=repetition_penalty,
                     eos_id=eos_id)
-        result_text = tokenizer.decode(y)
-        print()
-        print(f'result_text {result_text}')
-        print('-'*100)
+        result_text = tokenizer.decode(y)        
         toks = sp.encode(result_text, out_type=str)
         toks_str = " ".join(toks)
         ppl = kenlm_model.perplexity(toks_str)
+        print()
+        print(f'ppl {ppl}, result_text: {result_text}')
+        print('-'*100)
         ppl_score += float(ppl/text_len)
 
     print(f"score... {ppl_score}")
