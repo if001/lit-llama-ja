@@ -134,7 +134,7 @@ def generate(
         
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
 
-        print('probs', probs)
+        print('probs', probs.shape, probs)
 
         idx_next = torch.multinomial(probs, num_samples=1)
         idx_next = idx_next.to(dtype=dtype)
