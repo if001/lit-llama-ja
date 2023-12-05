@@ -189,11 +189,10 @@ def main(
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
     for id, probs in zip(result_ids, next_probs):        
-        input = tokenizer.decode([id])
+        input = tokenizer.decode(np.array([id]))
         print('input', input)
-        for p in probs:            
-            text = tokenizer.decode([p['index']])
-            p['p']
+        for p in probs:
+            text = tokenizer.decode(np.array([p['index']]))
             print('text: ', p['p'], text)
         print('-'*100)
 
