@@ -38,7 +38,11 @@ class MyRepetitionPenaltyLogitsProcessor(LogitsProcessor):
         print('penalty', penalty)
         self.penalty = penalty
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        print('s', scores)
+        print('i', input_ids)
         score = torch.gather(scores, 1, input_ids)
+        print('score', score)
+        print('='*50)
 
         # if score < 0 then repetition penalty has to be multiplied to reduce the previous token probability
         score = torch.where(score < 0, score * self.penalty, score / self.penalty)
