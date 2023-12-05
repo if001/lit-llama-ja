@@ -227,9 +227,11 @@ def main(
                     repetition_penalty=repetition_penalty,
                     eos_id=eos_id)
         result_text = tokenizer.decode(y)
-        print('result_text {result_text}')
-        print('-'*100)        
+        print()
+        print(f'result_text {result_text}')
+        print('-'*100)
         toks = sp.encode(result_text, out_type=str)
+        print('toks', toks)
         ppl = kenlm_model.perplexity(toks)
         ppl_score += float(ppl/text_len)
 
