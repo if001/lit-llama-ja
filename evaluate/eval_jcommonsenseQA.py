@@ -128,9 +128,6 @@ def get_result(text):
     return extracted_string
 
 def main(
-    prompt: str = "Hello, my name is",
-    *,
-    num_samples: int = 1,
     max_new_tokens: int = 50,
     top_k: int = 200,
     top_p: float = 0.9,
@@ -188,11 +185,10 @@ def main(
     include_cnt = 0
     ds = datasets.load_dataset("shunk031/JGLUE", name="JCommonsenseQA", split="train")
     ds_size = len(ds)
-    for row in ds:
+    for row in ds.select([0,1,2,3]):
         choices = [row['choice0'],row['choice1'],row['choice2'],row['choice3'],row['choice4']]
         prompt = format_text(row['question'], choices)
-        print('prompt', prompt)
-        exit(0)
+        print('prompt', prompt)        
         encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
         y = generate(model, encoded, max_new_tokens, 
                     temperature=temperature, 
@@ -201,7 +197,9 @@ def main(
                     repetition_penalty=repetition_penalty,
                     eos_id=eos_id)
         text = tokenizer.decode(y)
+        print('text', text)
         result = get_result(text)
+        print('result', result)
         correct_label = row['label']
         correct = row[f'choice{correct_label}']        
 
