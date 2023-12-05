@@ -234,7 +234,6 @@ def main(
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
     for ids, probs in zip(current_idxs, next_probs):
-        print('ids: ', ids)
         input = tokenizer.decode(ids)
         print('input', input)
         for p in probs:
