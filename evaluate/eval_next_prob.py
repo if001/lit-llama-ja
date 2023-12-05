@@ -227,14 +227,14 @@ def main(
     
     
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
-    result_ids, current_idxs, next_probs = generate(model, encoded, max_new_tokens, 
+    result_ids, next_probs, current_idxs = generate(model, encoded, max_new_tokens, 
                 temperature=temperature, 
                 top_k=top_k, 
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
     for ids, probs in zip(current_idxs, next_probs):
-        print('ids: ', ids) 
+        print('ids: ', ids)
         input = tokenizer.decode(ids)
         print('input', input)
         for p in probs:
