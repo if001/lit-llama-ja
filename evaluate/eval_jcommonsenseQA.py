@@ -103,9 +103,10 @@ def generate(
 
         xm.mark_step()
 
+    idx = idx.reshape(1, idx.size(-1))
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
-        x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
+        # x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
         # forward
         logits = model(x, input_pos)
