@@ -110,7 +110,7 @@ def generate(
         print('input_pos', input_pos)
 
         # forward
-        logits = model(idx, input_pos)
+        logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         print('logits', logits.shape)
