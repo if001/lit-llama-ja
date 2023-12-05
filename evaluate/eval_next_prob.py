@@ -188,9 +188,13 @@ def main(
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
-    for id, probs in zip(result_ids, next_probs):
-        print(id)
-        print(probs)
+    for id, probs in zip(result_ids, next_probs):        
+        input = tokenizer.decode([id])
+        print('input', input)
+        for p in probs:            
+            text = tokenizer.decode(p['index'])
+            p['p']
+            print('text: ', p['p'], text)
         print('-'*100)
 
     result_text = tokenizer.decode(result_ids)
