@@ -103,22 +103,19 @@ def generate(
 
         xm.mark_step()
 
-    idx = idx.view(1, idx.size(-1))
-    print('id', idx.shape, idx)
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
         print('x1', x.shape, x)
+        print('input_pos', input_pos)
 
         # forward
         logits = model(idx, input_pos)
-        # logits = logits[0, -1]
-        print('id', idx.shape, idx)        
-        logits = logits[:, -1, :]
-        # print('x2', x.shape, x)
+        # logits = logits[0, -1]        
+        logits = logits[:, -1, :]        
         print('-'*100)
-        next_token_scores = logits_processor(idx, logits)
-        next_token_scores = logits_wraper(idx, next_token_scores)
+        next_token_scores = logits_processor(x, logits)
+        next_token_scores = logits_wraper(x, next_token_scores)
         next_token_scores = next_token_scores.squeeze(0)
 
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
