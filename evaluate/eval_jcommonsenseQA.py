@@ -196,6 +196,7 @@ def main(
                     repetition_penalty=repetition_penalty,
                     eos_id=eos_id)
         text = tokenizer.decode(y)
+        print()
         print('result:', text)
         print('-'*100)
         result = get_result(text)
