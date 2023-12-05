@@ -35,15 +35,10 @@ class MyRepetitionPenaltyLogitsProcessor(LogitsProcessor):
     def __init__(self, penalty: float):
         if not isinstance(penalty, float) or not (penalty > 0):
             raise ValueError(f"`penalty` has to be a strictly positive float, but is {penalty}")
-        print('penalty', penalty)
         self.penalty = penalty
-    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
-        print('s', scores)
-        print('i', input_ids)
-        score = torch.gather(scores, 1, input_ids)
-        print('score', score)
-        print('='*50)
 
+    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
+        score = torch.gather(scores, 1, input_ids)
         # if score < 0 then repetition penalty has to be multiplied to reduce the previous token probability
         score = torch.where(score < 0, score * self.penalty, score / self.penalty)
 
@@ -78,14 +73,14 @@ def generate(
         eos_id: If specified, stop generating any more token once the <eos> token is triggered
     """
 
-    logits_processor = LogitsProcessorList([
-        MyRepetitionPenaltyLogitsProcessor(repetition_penalty),
+    logits_processor = LogitsProcessorList([        
     ])
 
     logits_wraper = LogitsProcessorList([
             TopKLogitsWarper(top_k),
             TopPLogitsWarper(top_p),
             TemperatureLogitsWarper(temperature),
+            RepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
@@ -117,8 +112,6 @@ def generate(
         logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
-        print('logits', logits.shape, logits)
-        print('-'*100)
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
         next_token_scores = next_token_scores.squeeze(0)
