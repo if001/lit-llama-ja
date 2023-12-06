@@ -125,7 +125,8 @@ def generate(
         idx_next = idx_next.to(dtype=dtype)
 
         # advance
-        input_pos = input_pos[-1:] + 1        
+        # input_pos = input_pos[-1:] + 1
+        input_pos = input_pos + [input_pos[-1] + 1]
 
         if idx.device.type == "xla":
             xm.mark_step()
