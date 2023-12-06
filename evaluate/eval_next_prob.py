@@ -134,6 +134,7 @@ def generate(
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
         print()
         print('x', x.shape, x)
+        print('input', input_pos.shape, input_pos)
         print()
         # forward
         logits = model(x, input_pos)
