@@ -91,7 +91,7 @@ def generate(
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
         print()
-        print('idx', x.idx, idx)
+        print('idx', idx.shape, idx)
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
         print('x1', x.shape, x)
         print('input_pos', input_pos)
