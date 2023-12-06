@@ -222,7 +222,7 @@ def main(
     ppl = kenlm_model.perplexity(toks_str)
     print('ppl', ppl)
 
-    sample = 'ある蒸し暑いであった。'
+    sample = 'ある蒸し、暑いであった。'
     toks = sp.encode(sample, out_type=str)
     toks_str = " ".join(toks)
     ppl = kenlm_model.perplexity(toks_str)
@@ -234,7 +234,7 @@ def main(
     ppl = kenlm_model.perplexity(toks_str)
     print('ppl', ppl)
     exit(0)
-    
+
     L.seed_everything(1234)
     ppl_score = 0
     text_list = get_texts()
