@@ -58,13 +58,13 @@ def generate(
         eos_id: If specified, stop generating any more token once the <eos> token is triggered
     """
 
-    logits_processor = LogitsProcessorList([        
+    logits_processor = LogitsProcessorList([
     ])
 
-    logits_wraper = LogitsProcessorList([            
-            # TopKLogitsWarper(top_k),
-            # TopPLogitsWarper(top_p),
-            # TemperatureLogitsWarper(temperature),
+    logits_wraper = LogitsProcessorList([
+            TopKLogitsWarper(top_k),
+            TopPLogitsWarper(top_p),
+            TemperatureLogitsWarper(temperature),
             RepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
 
@@ -107,13 +107,19 @@ def generate(
         # advance
         # input_pos = input_pos[-1:] + 1
         last_pos = input_pos[-1].unsqueeze(0) + 1
-        input_pos = torch.cat((input_pos, last_pos))        
+        input_pos = torch.cat((input_pos, last_pos))
 
         if idx.device.type == "xla":
             xm.mark_step()
 
         # concatenate the new generation
+        print()
+        print('idx', idx)
+        print('last_pos', last_pos)
+        print('idx_next', idx_next)
         idx = idx.index_copy(0, last_pos, idx_next)
+        print('idx2', idx)
+        print('-'*100)
 
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:

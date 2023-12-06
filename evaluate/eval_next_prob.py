@@ -152,19 +152,20 @@ def generate(
         idx_next = idx_next.to(dtype=dtype)
 
         # advance
-        input_pos = input_pos[-1:] + 1
-
+        # input_pos = input_pos[-1:] + 1
+        last_pos = input_pos[-1].unsqueeze(0) + 1
+        input_pos = torch.cat((input_pos, last_pos))        
 
         if idx.device.type == "xla":
             xm.mark_step()
 
         # concatenate the new generation
-        idx = idx.index_copy(0, input_pos, idx_next)
+        idx = idx.index_copy(0, last_pos, idx_next)
         current_idxs.append(idx)
 
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:
-            return idx[:input_pos]  # include the EOS token
+            return idx[:last_pos]  # include the EOS token
 
     return idx, next_probs,current_idxs
 
