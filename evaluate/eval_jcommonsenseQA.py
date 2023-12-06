@@ -64,8 +64,8 @@ def generate(
     logits_wraper = LogitsProcessorList([            
             # TopKLogitsWarper(top_k),
             # TopPLogitsWarper(top_p),
-            TemperatureLogitsWarper(temperature),
-            # RepetitionPenaltyLogitsProcessor(repetition_penalty),
+            # TemperatureLogitsWarper(temperature),
+            RepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
 
     # create an empty tensor of the expected final shape and fill in the current tokens    
