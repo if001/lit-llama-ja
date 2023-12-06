@@ -147,8 +147,11 @@ def generate(
         top_values, top_indices = torch.topk(_probs, top_k)        
         next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
         next_probs.append(next_prob)
+        
+        print('probs', probs.shape, probs)
 
-        idx_next = torch.multinomial(probs, num_samples=1)
+        idx_next = torch.argmax(probs, dim=-1) ## greedy search
+        # idx_next = torch.multinomial(probs, num_samples=1)
         idx_next = idx_next.to(dtype=dtype)
 
         # advance
@@ -169,6 +172,8 @@ def generate(
 
     return idx, next_probs,current_idxs
 
+def make_graph(probs):
+    pass
 
 def main(
     prompt: str = "",
@@ -234,16 +239,21 @@ def main(
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id)
+    
+    new_probs = []
     for ids, probs in zip(current_idxs, next_probs):
         input = tokenizer.decode(ids)
         print('input', input)
         for p in probs:
             text = tokenizer.decode(torch.tensor([p['index']]))
             print('text: ', p['p'], text)
+            new_probs.append({ 'text': text, 'p': p['p']})
         print('-'*100)
-
+        
     result_text = tokenizer.decode(result_ids)
     print('final result: ', result_text)
+
+    # make_graph(new_probs)
 
 if __name__ == "__main__":
     from jsonargparse import CLI
