@@ -127,18 +127,19 @@ def generate(
         # advance
         # input_pos = input_pos[-1:] + 1
         print('input_pos', input_pos)
-        input_pos = torch.cat((input_pos, input_pos[-1].unsqueeze(0) + 1))
+        last_pos = input_pos[-1].unsqueeze(0) + 1
+        input_pos = torch.cat((input_pos, last_pos))
         print('input_pos2', input_pos)
 
         if idx.device.type == "xla":
             xm.mark_step()
 
         # concatenate the new generation
-        idx = idx.index_copy(0, input_pos, idx_next)
+        idx = idx.index_copy(0, last_pos, idx_next)
 
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:
-            return idx[:input_pos]  # include the EOS token
+            return idx[:last_pos]  # include the EOS token
 
     return idx
 
