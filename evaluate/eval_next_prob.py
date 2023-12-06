@@ -103,9 +103,9 @@ def generate(
     ])
 
     logits_wraper = LogitsProcessorList([
-            TopKLogitsWarper(top_k),
-            TopPLogitsWarper(top_p),
             TemperatureLogitsWarper(temperature),
+            TopPLogitsWarper(top_p),
+            TopKLogitsWarper(top_k),
     ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
@@ -136,11 +136,14 @@ def generate(
         # forward
         logits = model(x, input_pos)
         # logits = logits[0, -1]
+        print('logits', logits.shape)
         logits = logits[:, -1, :]
+        print('logits2', logits.shape)
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
+        print('next_token_scores', next_token_scores.shape)
         next_token_scores = next_token_scores.squeeze(0)
-        
+        print('next_token_scores2', next_token_scores.shape)
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         
         _probs=probs.detach()
