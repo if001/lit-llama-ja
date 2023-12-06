@@ -126,7 +126,7 @@ def generate(
 
         # advance
         # input_pos = input_pos[-1:] + 1
-        input_pos = input_pos + [input_pos[-1] + 1]
+        input_pos = torch.cat((input_pos, input_pos[-1].unsqueeze(0) + 1))
 
         if idx.device.type == "xla":
             xm.mark_step()
