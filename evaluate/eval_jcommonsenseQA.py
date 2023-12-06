@@ -30,21 +30,6 @@ from lit_llama import GPT
 from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 
 
-
-class MyRepetitionPenaltyLogitsProcessor(LogitsProcessor):
-    def __init__(self, penalty: float):
-        if not isinstance(penalty, float) or not (penalty > 0):
-            raise ValueError(f"`penalty` has to be a strictly positive float, but is {penalty}")
-        self.penalty = penalty
-
-    def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:
-        score = torch.gather(scores, 1, input_ids)
-        # if score < 0 then repetition penalty has to be multiplied to reduce the previous token probability
-        score = torch.where(score < 0, score * self.penalty, score / self.penalty)
-
-        scores.scatter_(1, input_ids, score)
-        return scores
-
 @torch.no_grad()
 def generate(
     model: GPT,
@@ -76,12 +61,13 @@ def generate(
     logits_processor = LogitsProcessorList([        
     ])
 
-    logits_wraper = LogitsProcessorList([
+    logits_wraper = LogitsProcessorList([            
             TopKLogitsWarper(top_k),
-            TopPLogitsWarper(top_p),
-            TemperatureLogitsWarper(temperature),
-            RepetitionPenaltyLogitsProcessor(repetition_penalty),
+            # TopPLogitsWarper(top_p),
+            # TemperatureLogitsWarper(temperature),
+            # RepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
+
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
     T_new = T + max_new_tokens
@@ -113,7 +99,21 @@ def generate(
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
+
+        _a = next_token_scores.detach().squeeze(0)
+        top_values, top_indices = torch.topk(_a, top_k)
+        next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
+        print('next_prob', next_prob)
+
         next_token_scores = logits_wraper(x, next_token_scores)
+
+        _a = next_token_scores.detach().squeeze(0)
+        top_values, top_indices = torch.topk(_a, top_k)
+        next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
+        print('next_prob2', next_prob)
+        print('-'*100)
+
+
         next_token_scores = next_token_scores.squeeze(0)
 
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
