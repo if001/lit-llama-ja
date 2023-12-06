@@ -216,32 +216,6 @@ def main(
 
     sp, kenlm_model = load_ppl_model(kenlm_model_path, sp_model_path)
 
-    sample = 'ある蒸し暑い晩のことであった。'
-    toks = sp.encode(sample, out_type=str)
-    toks_str = " ".join(toks)
-    ppl = kenlm_model.perplexity(toks_str)
-    s = kenlm_model.score(toks_str, bos = True, eos = True)
-    print('s', s)
-    print('ppl', ppl)
-
-    sample = 'ある蒸し暑いであった。'
-    toks = sp.encode(sample, out_type=str)
-    toks_str = " ".join(toks)
-    ppl = kenlm_model.perplexity(toks_str)
-    print('ppl', ppl)
-    s = kenlm_model.score(toks_str, bos = True, eos = True)
-    print('s', s)
-
-    sample = '晩のことであった、ある蒸し。'
-    toks = sp.encode(sample, out_type=str)
-    toks_str = " ".join(toks)
-    ppl = kenlm_model.perplexity(toks_str)
-    print('ppl', ppl)
-    s = kenlm_model.score(toks_str, bos = True, eos = True)
-    print('s', s)
-
-    exit(0)
-
     L.seed_everything(1234)
     ppl_score = 0
     text_list = get_texts()
