@@ -113,13 +113,7 @@ def generate(
             xm.mark_step()
 
         # concatenate the new generation
-        print()
-        print('idx', idx)
-        print('last_pos', last_pos)
-        print('idx_next', idx_next)
         idx = idx.index_copy(0, last_pos, idx_next)
-        print('idx2', idx)
-        print('-'*100)
 
         # if <eos> token is triggered, return the output (stop generation)
         if idx_next == eos_id:
