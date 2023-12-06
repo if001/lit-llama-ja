@@ -132,7 +132,9 @@ def generate(
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
-
+        print()
+        print('x', x.shape, x)
+        print()
         # forward
         logits = model(x, input_pos)
         # logits = logits[0, -1]
@@ -147,11 +149,9 @@ def generate(
         top_values, top_indices = torch.topk(_probs, top_k)        
         next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
         next_probs.append(next_prob)
-        
-        print('probs', probs.shape, probs)
 
         idx_next = torch.argmax(probs, dim=-1) ## greedy search
-        # idx_next = torch.multinomial(probs, num_samples=1)
+        # idx_next = torch.multinomial(probs, num_samples=1) ## sample
         idx_next = idx_next.to(dtype=dtype)
 
         # advance
