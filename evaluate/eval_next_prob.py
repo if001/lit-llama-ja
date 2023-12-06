@@ -135,15 +135,11 @@ def generate(
 
         # forward
         logits = model(x, input_pos)
-        # logits = logits[0, -1]
-        print('logits', logits.shape)
-        logits = logits[:, -1, :]
-        print('logits2', logits.shape)
+        # logits = logits[0, -1]        
+        logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]        
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
-        print('next_token_scores', next_token_scores.shape)
-        next_token_scores = next_token_scores.squeeze(0)
-        print('next_token_scores2', next_token_scores.shape)
+        next_token_scores = next_token_scores.squeeze(0) ## [1, 35008] => [35008]
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         
         _probs=probs.detach()
