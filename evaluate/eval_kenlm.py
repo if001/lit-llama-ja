@@ -220,19 +220,26 @@ def main(
     toks = sp.encode(sample, out_type=str)
     toks_str = " ".join(toks)
     ppl = kenlm_model.perplexity(toks_str)
+    s = kenlm_model.score(toks_str, bos = True, eos = True)
+    print('s', s)
     print('ppl', ppl)
 
-    sample = 'ある蒸し、暑いであった。'
+    sample = 'ある蒸し暑いであった。'
     toks = sp.encode(sample, out_type=str)
     toks_str = " ".join(toks)
     ppl = kenlm_model.perplexity(toks_str)
     print('ppl', ppl)
+    s = kenlm_model.score(toks_str, bos = True, eos = True)
+    print('s', s)
 
     sample = '晩のことであった、ある蒸し。'
     toks = sp.encode(sample, out_type=str)
     toks_str = " ".join(toks)
     ppl = kenlm_model.perplexity(toks_str)
     print('ppl', ppl)
+    s = kenlm_model.score(toks_str, bos = True, eos = True)
+    print('s', s)
+
     exit(0)
 
     L.seed_everything(1234)
