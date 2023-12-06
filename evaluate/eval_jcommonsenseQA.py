@@ -102,6 +102,7 @@ def generate(
         next_token_scores = logits_processor(x, logits)
 
         _a = next_token_scores.detach().squeeze(0)
+        print('a:', _a)
         top_values, top_indices = torch.topk(_a, top_k)
         next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
         print('next_prob', next_prob)
@@ -109,6 +110,7 @@ def generate(
         next_token_scores = logits_wraper(x, next_token_scores)
 
         _a = next_token_scores.detach().squeeze(0)
+        print('b:', _a)
         top_values, top_indices = torch.topk(_a, top_k)
         next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
         print('next_prob2', next_prob)
