@@ -90,34 +90,14 @@ def generate(
 
     # generate max_new_tokens tokens
     for _ in range(max_new_tokens):
-        print()
-        print('idx', idx.shape, idx)
-        x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
-        print('x1', x.shape, x)
-        print('input_pos', input_pos)
+        x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)
 
         # forward
         logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
-
-        _a = next_token_scores.detach().squeeze(0)
-        print('a:', _a)
-        top_values, top_indices = torch.topk(_a, top_k)
-        next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
-        print('next_prob', next_prob)
-
         next_token_scores = logits_wraper(x, next_token_scores)
-
-        _a = next_token_scores.detach().squeeze(0)
-        print('b:', _a)
-        top_values, top_indices = torch.topk(_a, top_k)
-        next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
-        print('next_prob2', next_prob)
-        print('-'*100)
-
-
         next_token_scores = next_token_scores.squeeze(0)
 
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
@@ -126,10 +106,8 @@ def generate(
 
         # advance
         # input_pos = input_pos[-1:] + 1
-        print('input_pos', input_pos)
         last_pos = input_pos[-1].unsqueeze(0) + 1
-        input_pos = torch.cat((input_pos, last_pos))
-        print('input_pos2', input_pos)
+        input_pos = torch.cat((input_pos, last_pos))        
 
         if idx.device.type == "xla":
             xm.mark_step()
