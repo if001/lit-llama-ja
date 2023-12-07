@@ -96,7 +96,7 @@ def main(
     
     with fabric.init_tensor():
         # enable the kv cache
-        model.set_kv_cache(batch_size=1, index=len(encoded))
+        model.set_kv_cache(batch_size=1, index=0)
     
     # Attentionの取得
     attention_weights = gen(model, encoded, target_layer_idx)
