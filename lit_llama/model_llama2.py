@@ -329,19 +329,20 @@ class CausalSelfAttention(nn.Module):
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
             # expanded_tensor[:, :scale_tensor.size(1), :] = scale_tensor
             scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)
-            y, _scaled_attn_weight = self._scaled_dot_product_attention_v2(
+            y, _attn_weight = self._scaled_dot_product_attention_v2(
                 q, k, v, scale_tensor, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
         else:
-            y = self.scaled_dot_product_attention(q, k, v, mask)        
+            y, _attn_weight = self._scaled_dot_product_attention_v2(
+                q, k, v, scale_tensor = None, 
+                attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
+            # y = self.scaled_dot_product_attention(q, k, v, mask)        
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
         # output projection
         y = self.proj(y)
         if self.config.non_liner or self.config.compress:            
             y = self.active(y)
-        if self.config.use_scale_tensor:
-            return y, _scaled_attn_weight
-        return y, (q, k, v)
+        return y, _attn_weight
 
     def scaled_dot_product_attention(
         self, q: torch.Tensor, k: torch.Tensor, v: torch.Tensor, mask: Optional[torch.Tensor] = None
@@ -368,7 +369,7 @@ class CausalSelfAttention(nn.Module):
         )
         return y.transpose(1, 2)
 
-    def _scaled_dot_product_attention_v2(self, query, key, value, scale_tensor, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:        
+    def _scaled_dot_product_attention_v2(self, query, key, value, scale_tensor=None, attn_mask=None, dropout_p=0.0, is_causal=False, scale=None) -> torch.Tensor:        
         """
         softmaxを取る前の行列に対し、scale用の行列を足し合わせる
 
@@ -393,12 +394,12 @@ class CausalSelfAttention(nn.Module):
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
-        attn_weight += scale_tensor ## scaleする
-        _scaled_attn_weight = attn_weight.detach()
-        attn_weight += attn_bias        
+        if scale_tensor is not None:
+            attn_weight += scale_tensor ## scaleする
+        attn_weight += attn_bias
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
-        return attn_weight @ value, _scaled_attn_weight
+        return attn_weight @ value, attn_weight
 
     def build_kv_cache(
         self,

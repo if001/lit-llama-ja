@@ -25,8 +25,7 @@ from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 def gen(
         model: GPT,
         idx: torch.Tensor,
-        target_layer_idx: Optional[int],
-        scaled_attention: bool,
+        target_layer_idx: Optional[int]
 ):
     print('idx, ', idx.shape)
     attention = None
@@ -48,24 +47,23 @@ def gen(
     model(x, input_pos)
     hook.remove()
 
-    if scaled_attention:
-        attention_weights = []
-        attention = attention.squeeze(0)
-        for a in attention:
-            attention_weights.append(a[:, :T])
-        return attention_weights
-
-    q, k, v = attention
     attention_weights = []
-    for k_part, q_part in zip(k[0],q[0]):
-        k_part=k_part[:T,]
-        _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
-        attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))        
-        attention_weight = attention_weight.squeeze()
-        attention_weight = torch.softmax(attention_weight, dim=-1)        
-        attention_weights.append(attention_weight)
-
+    attention = attention.squeeze(0)
+    for a in attention:
+        attention_weights.append(a[:, :T])
     return attention_weights
+
+    # q, k, v = attention
+    # attention_weights = []
+    # for k_part, q_part in zip(k[0],q[0]):
+    #     k_part=k_part[:T,]
+    #     _k = torch.transpose(k_part, 0, 1) ## 1, num_heads, seq_len, hidden_dim => hidden_dim, seq_len
+    #     attention_weight = torch.matmul(q_part, _k) / np.sqrt(q_part.size(-1))        
+    #     attention_weight = attention_weight.squeeze()
+    #     attention_weight = torch.softmax(attention_weight, dim=-1)        
+    #     attention_weights.append(attention_weight)
+
+    # return attention_weights
 
 def main(
         prompt: str = "",
@@ -74,8 +72,7 @@ def main(
         tokenizer_path: str = "",
         target_layer_idx: Optional[int] = None,
         quantize: Optional[str] = None,
-        save_fig: Optional[str] = None,
-        scaled_attention: bool = False
+        save_fig: Optional[str] = None        
 ):
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
     fabric = L.Fabric(devices=1, precision=precision)
@@ -103,7 +100,7 @@ def main(
 
     
     # Attentionの取得
-    attention_weights = gen(model, encoded, target_layer_idx, scaled_attention)
+    attention_weights = gen(model, encoded, target_layer_idx)
     graph_num = len(attention_weights)
     if graph_num == 1:
         figsize=(6, 6*graph_num)
