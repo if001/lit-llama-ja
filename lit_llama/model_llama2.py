@@ -102,9 +102,7 @@ class GPT(nn.Module):
                 sin = self._sin_list[i].index_select(0, input_pos)
                 if self.mask_cache is None:
                     raise TypeError("You need to call `gpt.set_kv_cache()`")
-                print('self.mask_cache', self.mask_cache)
                 mask = self.mask_cache.index_select(2, input_pos)
-                print('mask', mask)
             else:
                 cos = self._cos_list[i][:T]
                 sin = self._sin_list[i][:T]
