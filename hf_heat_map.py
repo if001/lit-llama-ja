@@ -20,7 +20,8 @@ def main(
     
     tokens = tokenizer.encode_plus(prompt, return_tensors='pt', add_special_tokens=True, max_length=512, truncation=True)
 
-    outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
+    # outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
+    outputs = model(tokens['input_ids'], attention_mask=None, output_attentions=True)
     attentions = outputs.attentions[target_layer_idx].squeeze(0)
 
     figsize=(20, 20)
