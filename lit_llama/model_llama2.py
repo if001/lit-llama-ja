@@ -390,6 +390,7 @@ class CausalSelfAttention(nn.Module):
         if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
                 attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
+                print('fill attn_mask', attn_mask)
             else:
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
@@ -398,7 +399,7 @@ class CausalSelfAttention(nn.Module):
             attn_weight += scale_tensor ## scaleする
         if attn_mask is not None:
             attn_weight += attn_mask
-            print('attn_mask', attn_mask)
+            print('attn_mask2', attn_mask)
         attn_weight += attn_bias
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
