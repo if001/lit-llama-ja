@@ -22,6 +22,7 @@ def main(
 
     outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
     print('outputs.attentions', len(outputs.attentions))
+    print('outputs.attentions[-1]', outputs.attentions[-1].shape)
     attention_mean = torch.mean(outputs.attentions[-1], dim=1)
     print('attention_mean', attention_mean.shape)
     attention = attention_mean[target_layer_idx].detach().numpy()    
