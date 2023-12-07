@@ -191,7 +191,6 @@ class Block(nn.Module):
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         n_1 = self.norm_1(x)
-        print('mask', mask)
         h, _ = self.attn(n_1, cos, sin, mask, input_pos)
         if self.config.parallel_residual:
             n_2 = n_1 if self.config.shared_attention_norm else self.norm_2(x)
@@ -334,7 +333,6 @@ class CausalSelfAttention(nn.Module):
                 q, k, v, scale_tensor = scale_tensor, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
         else:
-            print('mask2', mask is None, mask)
             y, _attn_weight = self._scaled_dot_product_attention_v2(
                 q, k, v, scale_tensor = None, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
@@ -390,19 +388,16 @@ class CausalSelfAttention(nn.Module):
             # attn_bias.to(query.dtype)
 
         if attn_mask is not None:
-            if attn_mask.dtype == torch.bool:                
-                # attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
-                ## originalの実装は上だが、attn_maskをfillしても意味なさそう
+            if attn_mask.dtype == torch.bool:
                 attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
-                print('attn_mask', attn_mask.shape)
             else:
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
         if scale_tensor is not None:
             attn_weight += scale_tensor ## scaleする
-        print('attn_weight', attn_weight.shape)
-        print('attn_bias', attn_bias.shape)
+        if attn_mask is not None:
+            attn_weight += attn_mask
         attn_weight += attn_bias
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
