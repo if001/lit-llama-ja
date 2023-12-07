@@ -103,7 +103,6 @@ class GPT(nn.Module):
                 if self.mask_cache is None:
                     raise TypeError("You need to call `gpt.set_kv_cache()`")
                 mask = self.mask_cache.index_select(2, input_pos)
-                print('mask', mask)
             else:
                 cos = self._cos_list[i][:T]
                 sin = self._sin_list[i][:T]
@@ -192,6 +191,7 @@ class Block(nn.Module):
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         n_1 = self.norm_1(x)
+        print('mask', mask)
         h, _ = self.attn(n_1, cos, sin, mask, input_pos)
         if self.config.parallel_residual:
             n_2 = n_1 if self.config.shared_attention_norm else self.norm_2(x)
@@ -330,6 +330,7 @@ class CausalSelfAttention(nn.Module):
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
             # expanded_tensor[:, :scale_tensor.size(1), :] = scale_tensor
             scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)
+            print('mask2', mask is None, mask)
             y, _attn_weight = self._scaled_dot_product_attention_v2(
                 q, k, v, scale_tensor, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
@@ -382,6 +383,7 @@ class CausalSelfAttention(nn.Module):
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
         attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)
+        print('is_causal', is_causal)
         if is_causal:
             assert attn_mask is None
             temp_mask = torch.ones(L, S, dtype=torch.bool, device=query.device).tril(diagonal=0)            
