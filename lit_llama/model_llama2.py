@@ -103,6 +103,7 @@ class GPT(nn.Module):
                 if self.mask_cache is None:
                     raise TypeError("You need to call `gpt.set_kv_cache()`")
                 mask = self.mask_cache.index_select(2, input_pos)
+                print('mask', mask)
             else:
                 cos = self._cos_list[i][:T]
                 sin = self._sin_list[i][:T]
@@ -383,8 +384,7 @@ class CausalSelfAttention(nn.Module):
         attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)
         if is_causal:
             assert attn_mask is None
-            temp_mask = torch.ones(L, S, dtype=torch.bool, device=query.device).tril(diagonal=0)
-            print('temp_mask', temp_mask)
+            temp_mask = torch.ones(L, S, dtype=torch.bool, device=query.device).tril(diagonal=0)            
             attn_bias.masked_fill_(temp_mask.logical_not(), float("-inf"))
             # attn_bias.to(query.dtype)
 
@@ -397,7 +397,7 @@ class CausalSelfAttention(nn.Module):
         # print('attn_weight', attn_weight.shape)
         if scale_tensor is not None:
             attn_weight += scale_tensor ## scaleする
-        print('attn_bias', attn_bias)
+
         attn_weight += attn_bias
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
