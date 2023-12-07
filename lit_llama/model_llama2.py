@@ -103,7 +103,6 @@ class GPT(nn.Module):
                 if self.mask_cache is None:
                     raise TypeError("You need to call `gpt.set_kv_cache()`")
                 mask = self.mask_cache.index_select(2, input_pos)
-                print('mask', mask.shape, mask)
             else:
                 cos = self._cos_list[i][:T]
                 sin = self._sin_list[i][:T]
@@ -395,9 +394,6 @@ class CausalSelfAttention(nn.Module):
 
         if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
-                print('attn_weight', attn_weight.shape)
-                print('attn_mask', attn_mask.shape)
-                print('-----------')
                 attn_weight.masked_fill_(attn_mask.logical_not(), float("-inf"))
             else:
                 attn_bias += attn_mask
