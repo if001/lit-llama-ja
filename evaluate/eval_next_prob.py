@@ -135,6 +135,7 @@ def generate(
 
         # forward
         print('input_pos', input_pos)
+        print('x', x.shape)
         logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]        
