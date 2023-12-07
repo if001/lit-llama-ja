@@ -329,12 +329,12 @@ class CausalSelfAttention(nn.Module):
             ## (B, nh, T, block_size) => (B, nh, block_size, block_size)に拡張
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
             # expanded_tensor[:, :scale_tensor.size(1), :] = scale_tensor
-            scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)
-            print('mask2', mask is None, mask)
+            scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)            
             y, _attn_weight = self._scaled_dot_product_attention_v2(
-                q, k, v, scale_tensor, 
+                q, k, v, scale_tensor = scale_tensor, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
         else:
+            print('mask2', mask is None, mask)
             y, _attn_weight = self._scaled_dot_product_attention_v2(
                 q, k, v, scale_tensor = None, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
@@ -382,8 +382,7 @@ class CausalSelfAttention(nn.Module):
         # Efficient implementation equivalent to the following:
         L, S = query.size(-2), key.size(-2)
         scale_factor = 1 / math.sqrt(query.size(-1)) if scale is None else scale
-        attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)
-        print('is_causal', is_causal)
+        attn_bias = torch.zeros(L, S, dtype=query.dtype, device=query.device)        
         if is_causal:
             assert attn_mask is None
             temp_mask = torch.ones(L, S, dtype=torch.bool, device=query.device).tril(diagonal=0)            
@@ -391,8 +390,10 @@ class CausalSelfAttention(nn.Module):
             # attn_bias.to(query.dtype)
 
         if attn_mask is not None:
-            if attn_mask.dtype == torch.bool:
-                attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
+            if attn_mask.dtype == torch.bool:                
+                # attn_mask.masked_fill_(attn_mask.logical_not(), float("-inf"))
+                ## originalの実装は上だが、attn_maskをfillしても意味なさそう
+                attn_bias.masked_fill_(attn_mask.logical_not(), float("-inf"))
             else:
                 attn_bias += attn_mask
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
