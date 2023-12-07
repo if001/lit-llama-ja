@@ -26,6 +26,7 @@ def gen(
         model: GPT,
         idx: torch.Tensor,
         target_layer_idx: Optional[int],
+        scaled_attention: bool,
 ):
     print('idx, ', idx.shape)
     attention = None
@@ -46,9 +47,15 @@ def gen(
     hook = model.transformer.h[target_idx].attn.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
-    print('attention.shape', attention.shape)
 
-    q, k, v = attention    
+    if scaled_attention:
+        attention_weights = []
+        attention = attention.squeeze(0)
+        for a in attention:
+            attention_weights.append(a[:, :T])
+        return attention_weights
+
+    q, k, v = attention
     attention_weights = []
     for k_part, q_part in zip(k[0],q[0]):
         k_part=k_part[:T,]
@@ -67,7 +74,8 @@ def main(
         tokenizer_path: str = "",
         target_layer_idx: Optional[int] = None,
         quantize: Optional[str] = None,
-        save_fig: Optional[str] = None
+        save_fig: Optional[str] = None,
+        scaled_attention: bool = False
 ):
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
     fabric = L.Fabric(devices=1, precision=precision)
@@ -95,7 +103,7 @@ def main(
 
     
     # Attentionの取得
-    attention_weights = gen(model, encoded, target_layer_idx)
+    attention_weights = gen(model, encoded, target_layer_idx, scaled_attention)
     graph_num = len(attention_weights)
     if graph_num == 1:
         figsize=(6, 6*graph_num)
