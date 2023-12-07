@@ -1,3 +1,5 @@
+from typing import Optional
+
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import seaborn as sns
