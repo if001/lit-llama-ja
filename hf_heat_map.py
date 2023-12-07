@@ -12,7 +12,8 @@ japanize_matplotlib.japanize()
 def main(
         prompt: str = "",
         model_name:str = "rinna/youri-7b",
-        save_fig: Optional[str] = None        
+        save_fig: Optional[str] = None,
+        target_layer_idx: int = 0,
 ):    
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForCausalLM.from_pretrained(model_name)
@@ -21,7 +22,9 @@ def main(
 
     outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
     print('outputs.attentions', len(outputs.attentions))
-    attention = torch.mean(outputs.attentions[-1], dim=1)[0].detach().numpy()
+    attention_mean = torch.mean(outputs.attentions[-1], dim=1)
+    print('attention_mean', attention_mean.shape)
+    attention = attention_mean[target_layer_idx].detach().numpy()    
 
     sns.heatmap(attention, cmap="YlGnBu", xticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]), yticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]))
     if save_fig:
