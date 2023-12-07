@@ -23,7 +23,7 @@ def main(
     outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
     attentions = outputs.attentions[target_layer_idx].squeeze(0)
 
-    figsize=(12, 12)
+    figsize=(20, 20)
     plt.figure(figsize=figsize)
 
     for i, attention in enumerate(attentions):
