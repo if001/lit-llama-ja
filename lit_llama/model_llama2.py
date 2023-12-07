@@ -395,6 +395,9 @@ class CausalSelfAttention(nn.Module):
 
         if attn_mask is not None:
             if attn_mask.dtype == torch.bool:
+                print('attn_weight', attn_weight.shape)
+                print('attn_mask', attn_mask.shape)
+                print('-----------')
                 attn_weight.masked_fill_(attn_mask.logical_not(), float("-inf"))
             else:
                 attn_bias += attn_mask
