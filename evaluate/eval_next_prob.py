@@ -245,7 +245,7 @@ def main(
         for p in probs:
             text = tokenizer.decode(torch.tensor([p['index']]))
             _p = p['p']
-            print(f'{text} p:{_p:.2f}')
+            print(f'p:{_p:.2f}, word: {text}')
             new_probs.append({ 'text': text, 'p': p['p']})
         print('-'*100)
         
