@@ -134,8 +134,9 @@ def generate(
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
         # forward
+        print('input_pos', input_pos)
         logits = model(x, input_pos)
-        # logits = logits[0, -1]        
+        # logits = logits[0, -1]
         logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]        
         next_token_scores = logits_processor(x, logits)
         next_token_scores = logits_wraper(x, next_token_scores)
