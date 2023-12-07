@@ -21,13 +21,16 @@ def main(
     tokens = tokenizer.encode_plus(prompt, return_tensors='pt', add_special_tokens=True, max_length=512, truncation=True)
 
     outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
-    print('outputs.attentions', len(outputs.attentions))
-    print('outputs.attentions[-1]', outputs.attentions[-1].shape)
-    attention_mean = torch.mean(outputs.attentions[-1], dim=1)
-    print('attention_mean', attention_mean.shape)
-    attention = attention_mean[target_layer_idx].detach().numpy()    
+    attentions = outputs.attentions[target_layer_idx].squeeze(0)
 
-    sns.heatmap(attention, cmap="YlGnBu", xticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]), yticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]))
+    figsize=(6, 6)
+    plt.figure(figsize=figsize)
+
+    for i, attention in enumerate(attentions):
+        plt.subplot(4, 4, i+1)
+        attention = attention.to(device='cpu', dtype=torch.float32).detach().numpy().copy()
+        sns.heatmap(attention, cmap="YlGnBu", xticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]), yticklabels=tokenizer.convert_ids_to_tokens(tokens['input_ids'][0]))
+    
     if save_fig:
         plt.savefig(save_fig)
         print(f'save fig...{save_fig}')
