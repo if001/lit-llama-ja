@@ -19,7 +19,7 @@ def main(
     model = AutoModelForCausalLM.from_pretrained(model_name)
     
     tokens = tokenizer.encode_plus(prompt, return_tensors='pt', add_special_tokens=True, max_length=512, truncation=True)
-
+    print('tokens[attention_mask]', tokens['attention_mask'])
     # outputs = model(tokens['input_ids'], attention_mask=tokens['attention_mask'], output_attentions=True)
     outputs = model(tokens['input_ids'], attention_mask=None, output_attentions=True)
     attentions = outputs.attentions[target_layer_idx].squeeze(0)
