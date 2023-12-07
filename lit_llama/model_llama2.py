@@ -384,6 +384,7 @@ class CausalSelfAttention(nn.Module):
         if is_causal:
             assert attn_mask is None
             temp_mask = torch.ones(L, S, dtype=torch.bool, device=query.device).tril(diagonal=0)
+            print('temp_mask', temp_mask)
             attn_bias.masked_fill_(temp_mask.logical_not(), float("-inf"))
             # attn_bias.to(query.dtype)
 
