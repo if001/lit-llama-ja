@@ -398,6 +398,7 @@ class CausalSelfAttention(nn.Module):
             attn_weight += scale_tensor ## scaleする
         if attn_mask is not None:
             attn_weight += attn_mask
+            print('attn_mask', attn_mask)
         attn_weight += attn_bias
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
