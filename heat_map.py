@@ -46,8 +46,9 @@ def gen(
     hook = model.transformer.h[target_idx].attn.register_forward_hook(hook_function)
     model(x, input_pos)
     hook.remove()
-    q, k, v = attention
-    
+    print('attention.shape', attention.shape)
+
+    q, k, v = attention    
     attention_weights = []
     for k_part, q_part in zip(k[0],q[0]):
         k_part=k_part[:T,]

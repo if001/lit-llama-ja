@@ -329,7 +329,7 @@ class CausalSelfAttention(nn.Module):
             # expanded_tensor = torch.zeros((B, self._n_head, self.config.block_size, self.config.block_size))
             # expanded_tensor[:, :scale_tensor.size(1), :] = scale_tensor
             scale_tensor = scale_tensor.reshape(B, self._n_head, T, self.config.block_size)
-            y = self._scaled_dot_product_attention_v2(
+            y, _scaled_attn_weight = self._scaled_dot_product_attention_v2(
                 q, k, v, scale_tensor, 
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
         else:
@@ -339,6 +339,8 @@ class CausalSelfAttention(nn.Module):
         y = self.proj(y)
         if self.config.non_liner or self.config.compress:            
             y = self.active(y)
+        if self.config.use_scale_tensor:
+            return y, _scaled_attn_weight
         return y, (q, k, v)
 
     def scaled_dot_product_attention(
@@ -392,10 +394,11 @@ class CausalSelfAttention(nn.Module):
         attn_weight = query @ key.transpose(-2, -1) * scale_factor
         # print('attn_weight', attn_weight.shape)
         attn_weight += scale_tensor ## scaleする
+        _scaled_attn_weight = attn_weight.detach()
         attn_weight += attn_bias        
         attn_weight = torch.softmax(attn_weight, dim=-1)        
         attn_weight = torch.dropout(attn_weight, dropout_p, train=True)        
-        return attn_weight @ value
+        return attn_weight @ value, _scaled_attn_weight
 
     def build_kv_cache(
         self,
