@@ -88,16 +88,15 @@ def main(
 
     model.eval()
     model = fabric.setup(model)
-     
-    with fabric.init_tensor():
-        # enable the kv cache
-        model.set_kv_cache(batch_size=1, index=0)
-
+    
     tokenizer = HFTokenizer(tokenizer_path)
 
     # テキストのトークン化    
     encoded = tokenizer.encode(prompt, bos=True, eos=False, device=fabric.device)
-
+    
+    with fabric.init_tensor():
+        # enable the kv cache
+        model.set_kv_cache(batch_size=1, index=len(encoded))
     
     # Attentionの取得
     attention_weights = gen(model, encoded, target_layer_idx)
