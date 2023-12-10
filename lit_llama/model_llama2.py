@@ -240,10 +240,20 @@ class CausalSelfAttention(nn.Module):
             q_per_kv = self._n_head // self._n_query_groups
             _q_shape = self._n_query_groups * q_per_kv * self._head_size
             self.q_l = nn.Linear(config.n_embd, _q_shape)
+            if config.separate_qkv_deep:
+                self.q_l_2 = nn.Linear(config.n_embd, _q_shape)
+                self.q_l_3 = nn.Linear(config.n_embd, _q_shape)
 
             _kv_shape = self._n_query_groups * self._head_size
             self.k_l = nn.Linear(config.n_embd, _kv_shape)
+            if config.separate_qkv_deep:
+                self.k_l_2 = nn.Linear(config.n_embd, _q_shape)
+                self.k_l_3 = nn.Linear(config.n_embd, _q_shape)
+
             self.v_l = nn.Linear(config.n_embd, _kv_shape)
+            if config.separate_qkv_deep:
+                self.v_l_2 = nn.Linear(config.n_embd, _kv_shape)
+                self.v_l_3 = nn.Linear(config.n_embd, _kv_shape)
 
         if config.use_scale_tensor:
             self._scale_layer1 = nn.Linear(config.n_embd, config.block_size, bias=True)
@@ -286,27 +296,27 @@ class CausalSelfAttention(nn.Module):
             _q = self.q_l(x)
             _q = self.active(_q)
             if self.config.separate_qkv_deep:
-                _q = self.q_l(_q)
+                _q = self.q_l_2(_q)
                 _q = self.active(_q)
-                _q = self.q_l(_q)
+                _q = self.q_l_3(_q)
                 _q = self.active(_q)
             q = _q.view(B, self._n_query_groups, q_per_kv, T, self._head_size)
 
             _k = self.k_l(x)
             _k = self.active(_k)
             if self.config.separate_qkv_deep:
-                _k = self.k_l(_k)
+                _k = self.k_l_2(_k)
                 _k = self.active(_k)
-                _k = self.k_l(_k)
+                _k = self.k_l_3(_k)
                 _k = self.active(_k)            
             k = _k.view(B, self._n_query_groups, 1, T, self._head_size)
 
             _v = self.v_l(x)
             _v = self.active(_v)
             if self.config.separate_qkv_deep:
-                _v = self.v_l(_v)
+                _v = self.v_l_2(_v)
                 _v = self.active(_v)
-                _v = self.v_l(_v)
+                _v = self.v_l_3(_v)
                 _v = self.active(_v)
             v = _v.view(B, self._n_query_groups, 1, T, self._head_size)
 
