@@ -285,14 +285,29 @@ class CausalSelfAttention(nn.Module):
         if self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てる
             _q = self.q_l(x)
             _q = self.active(_q)
+            if self.config.separate_qkv_deep:
+                _q = self.q_l(_q)
+                _q = self.active(_q)
+                _q = self.q_l(_q)
+                _q = self.active(_q)
             q = _q.view(B, self._n_query_groups, q_per_kv, T, self._head_size)
 
             _k = self.k_l(x)
             _k = self.active(_k)
+            if self.config.separate_qkv_deep:
+                _k = self.k_l(_k)
+                _k = self.active(_k)
+                _k = self.k_l(_k)
+                _k = self.active(_k)            
             k = _k.view(B, self._n_query_groups, 1, T, self._head_size)
 
-            _v = self.k_l(x)
+            _v = self.v_l(x)
             _v = self.active(_v)
+            if self.config.separate_qkv_deep:
+                _v = self.v_l(_v)
+                _v = self.active(_v)
+                _v = self.v_l(_v)
+                _v = self.active(_v)
             v = _v.view(B, self._n_query_groups, 1, T, self._head_size)
 
         # repeat k and v if necessary

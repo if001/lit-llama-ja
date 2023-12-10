@@ -67,6 +67,7 @@ class Llama2Config:
     compress: bool = False ## qkvの計算前に次元を圧縮する
     non_liner: bool = False ## qkvの計算とattentionの出力に非線形activationを追加する
     separate_qkv: bool = False ## qkvのそれぞれにlinearを使う
+    separate_qkv_deep: bool = False ## qkvのそれぞれにlinearを使う
     use_scale_tensor:bool = False ## qkの積に対して、更にscalingを行う
 
     def __post_init__(self):        
@@ -824,6 +825,28 @@ llama_2 = [
         intermediate_size=2400,
         norm_eps=1.0e-6,
         separate_qkv=True,
+        _description="103.44M",
+    ),
+    dict(
+        org="meta-llama",
+        name="Llama-2-100M_another_heads_separate_qkv_deep",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=4096,
+        n_layer=None,
+        n_head=None,
+        n_heads=[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],        
+        n_embd=620,        
+        # n_query_groups_list=[1, 1, 1],
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=False,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=2400,
+        norm_eps=1.0e-6,
+        separate_qkv=True,
+        separate_qkv_deep=True,
         _description="103.44M",
     ),
     dict(
