@@ -220,14 +220,13 @@ class CausalSelfAttention(nn.Module):
         self._rope_n_elem = config.rope_n_elems[idx]
 
         # key, query, value projections for all heads, but in a batch
-        start_dim = config.n_embd
-        if config.compress:
-            start_dim = config.n_embd/2
-
         if not config.separate_qkv:
-            self.attn = nn.Linear(start_dim, shape, bias=config.bias)
+            self.attn = nn.Linear(config.n_embd, shape, bias=config.bias)
             # output projection
         self.proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
+        if config.deep_ffn:
+            self.proj_2 = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
+            self.proj_3 = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
         # disabled by default
         self.kv_cache: Optional[KVCache] = None
 
@@ -275,7 +274,7 @@ class CausalSelfAttention(nn.Module):
 
         if not self.config.separate_qkv: ## original: qkvにそれぞれlinearを割り当てない            
             qkv = self.attn(x) ## batch size, sequence length, embedding dimensionality (n_embd)
-            if self.config.non_liner or self.config.compress:
+            if self.config.non_liner:
                 qkv = self.active(qkv)
 
             # assemble into a number of query groups to support MHA, MQA and GQA together (see `config.n_query_groups`)
@@ -365,7 +364,12 @@ class CausalSelfAttention(nn.Module):
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
         # output projection
         y = self.proj(y)
-        if self.config.non_liner or self.config.compress:            
+        if self.config.non_liner:
+            y = self.active(y)
+        if self.config.deep_ffn:
+            y = self.proj_2(y)
+            y = self.active(y)
+            y = self.proj_3(y)
             y = self.active(y)
         return y, _attn_weight
 
