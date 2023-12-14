@@ -232,6 +232,7 @@ class TrainingConfig():
                 or model_size == "Llama-2-100M_another_heads_separate_qkv_deep"
                 or model_size == "Llama-2-100M_another_heads_basic_scaled_attention_weight"
                 or model_size == "Llama-2-100M_another_heads_deep_ffn"
+                or model_size == "Llama-2-100M_another_heads_separate_deep_qkv_scaled_deep_ffn"
         ):
             block_size = 4096
             ds_size = 1e+9
@@ -254,7 +255,7 @@ class TrainingConfig():
                 warmup_iters=500,
                 lr_decay_iters=max_iters,
             )
-            return cls(**conf)            
+            return cls(**conf)
 
         elif model_size == "open_llama_130M":
             max_iters = 143000
