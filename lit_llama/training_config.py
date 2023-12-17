@@ -233,6 +233,7 @@ class TrainingConfig():
                 or model_size == "Llama-2-100M_another_heads_basic_scaled_attention_weight"
                 or model_size == "Llama-2-100M_another_heads_deep_ffn"
                 or model_size == "Llama-2-100M_another_heads_separate_deep_qkv_scaled_deep_ffn"
+                or model_size == "Llama-2-100M_moe"
         ):
             block_size = 4096
             ds_size = 1e+9

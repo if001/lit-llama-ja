@@ -3,3 +3,4 @@ from lit_llama.tokenizer import Tokenizer, HFTokenizer
 from lit_llama.config_llama2 import Llama2Config
 from lit_llama.model_llama2 import GPT
 from lit_llama.training_config import TrainingConfig
+from lit_llama.moe_module import MoE

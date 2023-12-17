@@ -70,6 +70,11 @@ class Llama2Config:
     use_scale_tensor:bool = False ## qkの積に対して、更にscalingを行う
     deep_ffn:bool = False ## attention層のffnをdeepにする
 
+    use_moe: bool = False
+    num_experts: int = 4
+    expert_hidden_size:int = 256
+    gate_hidden_size: int = 256
+
     def __post_init__(self):        
         # assert self.n_embd % self.n_head == 0
         # self.head_size = self.n_embd // self.n_head
@@ -915,7 +920,7 @@ llama_2 = [
         separate_qkv=True,
         separate_qkv_deep=True,
         deep_ffn=True,
-        _description="103.44M",
+        _description="159.68M",
     ),
     dict(        
         org="meta-llama",
@@ -956,6 +961,30 @@ llama_2 = [
         intermediate_size=2400,
         norm_eps=1.0e-6,
         _description="104.21M",
+    ),
+    dict(
+        org="meta-llama",
+        name="Llama-2-100M_moe",
+        vocab_size=35000,
+        padding_multiple=64,
+        block_size=4096,
+        n_layer=None,
+        n_head=None,
+        n_heads=[8, 8, 8, 8, 4, 4, 4, 1, 1, 1],
+        n_embd=624,
+        # n_query_groups=[1, 1, 1, 4, 8, 10, 10, 16, 16, 16],
+        rotary_percentage=1.0,
+        parallel_residual=False,
+        bias=False,
+        _norm_class="RMSNorm",
+        _mlp_class="LLaMAMLP",
+        intermediate_size=2400,
+        norm_eps=1.0e-6,
+        _description="104.21M",
+        use_moe=True,
+        num_experts= 4,
+        expert_hidden_size=1024,
+        gate_hidden_size=1024,
     ),
     dict(
         org="meta-llama",

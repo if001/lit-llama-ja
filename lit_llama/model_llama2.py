@@ -262,6 +262,14 @@ class CausalSelfAttention(nn.Module):
             self._scale_active = nn.Tanh()
             self._scale_factor = 0.1
 
+        if config.use_moe:
+            from lit_llama.moe_module import MoE            
+            self.moe = MoE(
+                num_experts=config.num_experts,
+                expert_hidden_size=config.expert_hidden_size,
+                gate_hidden_size=config.gate_hidden_size
+            )
+
     def forward(
         self,
         x: torch.Tensor,
@@ -362,6 +370,12 @@ class CausalSelfAttention(nn.Module):
                 attn_mask=mask, dropout_p=0.0, is_causal=mask is None)
             # y = self.scaled_dot_product_attention(q, k, v, mask)        
         y = y.reshape(B, T, C)  # re-assemble all head outputs side by side
+
+        # output as moe
+        if self.config.use_moe:
+            y = self.moe(y)
+            return y, _attn_weight
+
         # output projection
         y = self.proj(y)
         if self.config.non_liner:
