@@ -266,6 +266,7 @@ class CausalSelfAttention(nn.Module):
             from lit_llama.moe_module import MoE            
             self.moe = MoE(
                 num_experts=config.num_experts,
+                embed_size=config.n_embd,
                 expert_hidden_size=config.expert_hidden_size,
                 gate_hidden_size=config.gate_hidden_size
             )
