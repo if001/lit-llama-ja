@@ -37,8 +37,7 @@ class MoE(nn.Module):
         # batch_size, seq_len, _ = x.size()
         
         gating_scores = self.gate(x)
-        gating_weights = F.softmax(gating_scores, dim=2) # (batch_size, seq_len, num_experts)
-        print('gating_weights', gating_weights.shape, gating_weights)
+        gating_weights = F.softmax(gating_scores, dim=2) # (batch_size, seq_len, num_experts)        
         
         expert_outputs = torch.stack([expert(x) for expert in self.experts], dim=2) # (batch_size, seq_len, num_experts, embed_size)
         ## gating_weights.unsqueeze(-1) # (batch_size, seq_len, num_experts, 1)
