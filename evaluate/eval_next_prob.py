@@ -83,19 +83,18 @@ def show_graph(probs, save_fig_name):
     for idx, level in enumerate(probs):
         next_node = max(level, key=lambda x: x['p'])['text']
         for item in level:
-            # node_name = f"{item['text']}_L{idx+1}"
-            node_name = f"{item['text']}"
+            node_name = f"{repr(item['text'])}_{idx+1}"
             G.add_node(node_name)
             G.add_edge(current_node, node_name, label=f"{item['p']:.2f}")
-        current_node = f"{next_node}"
+        current_node = f"{next_node}_{idx+1}"
     
     # レイアウトを階層的に設定
     pos = nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
     edge_labels = nx.get_edge_attributes(G, 'label')
 
     # グラフの描画
-    plt.figure(figsize=(10, 6))
-    nx.draw(G, pos, with_labels=True, node_color='lightblue', 
+    plt.figure(figsize=(12, 8))
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_shape='s',
             node_size=2000, font_size=10, font_weight='bold', font_family='IPAexGothic')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
     plt.title("")
