@@ -82,11 +82,11 @@ def show_graph(probs, save_fig_name):
         next_node = max(level, key=lambda x: x['p'])['text']        
         for item in level:
             node_name = f"{item['text']}_L{idx+1}"
-            G.add_node(node_name)            
-            G.add_edge(current_node, item['text'], label=f"{item['p']:.2f}")
+            G.add_node(node_name)
+            G.add_edge(current_node, node_name, label=f"{item['p']:.2f}")
         current_node = f"{next_node}_L{idx+1}"
 
-
+    print(G)
     # レイアウトを階層的に設定
     pos = nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
     edge_labels = nx.get_edge_attributes(G, 'label')
