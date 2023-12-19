@@ -79,11 +79,12 @@ def show_graph(probs, save_fig_name):
     current_node = "Start"
     for idx, level in enumerate(probs):
         print('level', level)
-        next_node = max(level, key=lambda x: x['p'])['text']
-        print('next_node', next_node)
+        next_node = max(level, key=lambda x: x['p'])['text']        
         for item in level:
-            G.add_node(item['text'])
-            G.add_edge(current_node, item['text'], label=f"{item['p']}")        
+            G.add_node()
+            print('a:', item['text'])
+            _p = f"{item['p']:.2f}"            
+            G.add_edge(current_node, item['text'], label=f"{_p}")
         current_node = f"{next_node}_L{idx+1}"
 
 
