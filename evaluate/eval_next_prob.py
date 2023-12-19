@@ -83,10 +83,11 @@ def show_graph(probs, save_fig_name):
     for idx, level in enumerate(probs):
         next_node = max(level, key=lambda x: x['p'])['text']
         for item in level:
-            node_name = f"{item['text']}_L{idx+1}"
+            # node_name = f"{item['text']}_L{idx+1}"
+            node_name = f"{item['text']}"
             G.add_node(node_name)
             G.add_edge(current_node, node_name, label=f"{item['p']:.2f}")
-        current_node = f"{next_node}_L{idx+1}"
+        current_node = f"{next_node}"
     
     # レイアウトを階層的に設定
     pos = nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
