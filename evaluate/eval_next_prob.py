@@ -93,7 +93,8 @@ def show_graph(probs, save_fig_name):
 
     # グラフの描画
     plt.figure(figsize=(10, 6))
-    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=2000, font_size=10, font_weight='bold')
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', 
+            node_size=2000, font_size=10, font_weight='bold', font_family='Noto')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
     plt.title("")
     # plt.show()    
@@ -280,7 +281,7 @@ def main(
         new_probs.append(nodes)
         print('-'*100)
     
-    save_fig_name = f"./{model_name}.png"
+    save_fig_name = f"./tree_{model_name}.png"
     show_graph(new_probs, save_fig_name)
 
     result_text = tokenizer.decode(result_ids)
