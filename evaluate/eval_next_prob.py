@@ -81,10 +81,9 @@ def show_graph(probs, save_fig_name):
         print('level', level)
         next_node = max(level, key=lambda x: x['p'])['text']        
         for item in level:
-            G.add_node()
-            print('a:', item['text'])
-            _p = f"{item['p']:.2f}"            
-            G.add_edge(current_node, item['text'], label=f"{_p}")
+            node_name = f"{item['text']}_L{idx+1}"
+            G.add_node(node_name)            
+            G.add_edge(current_node, item['text'], label=f"{item['p']:.2f}")
         current_node = f"{next_node}_L{idx+1}"
 
 
