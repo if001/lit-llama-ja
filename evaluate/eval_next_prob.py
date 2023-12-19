@@ -95,7 +95,7 @@ def show_graph(probs, save_fig_name):
     # グラフの描画
     plt.figure(figsize=(10, 6))
     nx.draw(G, pos, with_labels=True, node_color='lightblue', 
-            node_size=2000, font_size=10, font_weight='bold')
+            node_size=2000, font_size=10, font_weight='bold', font_family='IPAexGothic')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
     plt.title("")
     # plt.show()
