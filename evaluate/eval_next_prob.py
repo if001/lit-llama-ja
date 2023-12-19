@@ -77,18 +77,16 @@ japanize_matplotlib.japanize()
 
 def show_graph(probs, save_fig_name):
     G = nx.DiGraph()
-    G.add_node("Start")
+    G.add_node("EOS")
 
-    current_node = "Start"
+    current_node = "EOS"
     for idx, level in enumerate(probs):
         next_node = repr(max(level, key=lambda x: x['p'])['text'])
         for item in level:
-            # node_name = f"{repr(item['text'])}_{idx+1}"
-            node_name = f"{repr(item['text'])}"
+            node_name = f"{repr(item['text'])}_{idx+1}"            
             G.add_node(node_name)
             G.add_edge(current_node, node_name, label=f"{item['p']:.2f}")
-        # current_node = f"{next_node}_{idx+1}"
-        current_node = f"{next_node}"
+        current_node = f"{next_node}_{idx+1}"
     
     # レイアウトを階層的に設定
     pos = nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
