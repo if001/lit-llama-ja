@@ -78,6 +78,7 @@ def show_graph(probs, save_fig_name):
 
     current_node = "Start"
     for level in probs:
+        print('a', level, max(level, key=lambda x: x['p']))
         next_node = max(level, key=lambda x: x['p'])['text']
         for item in level:
             G.add_node(item['text'])
