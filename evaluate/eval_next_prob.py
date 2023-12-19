@@ -75,13 +75,13 @@ import japanize_matplotlib
 japanize_matplotlib.japanize()
 
 
-def show_graph(probs, save_fig_name):    
+def show_graph(probs, save_fig_name):
     G = nx.DiGraph()
     G.add_node("Start")
 
     current_node = "Start"
     for idx, level in enumerate(probs):
-        next_node = max(level, key=lambda x: x['p'])['text']
+        next_node = repr(max(level, key=lambda x: x['p'])['text'])
         for item in level:
             node_name = f"{repr(item['text'])}_{idx+1}"
             G.add_node(node_name)
