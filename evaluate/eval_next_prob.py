@@ -75,11 +75,12 @@ import japanize_matplotlib
 japanize_matplotlib.japanize()
 
 
-def show_graph(probs, save_fig_name):
+def show_graph(probs, start_prompt, save_fig_name):
     G = nx.DiGraph()
-    G.add_node("EOS")
+    start=start_prompt
+    G.add_node(start)
 
-    current_node = "EOS"
+    current_node = start
     for idx, level in enumerate(probs):
         next_node = repr(max(level, key=lambda x: x['p'])['text'])
         for item in level:
@@ -284,7 +285,7 @@ def main(
         print('-'*100)
     
     save_fig_name = f"./tree_{model_name}.png"
-    show_graph(new_probs, save_fig_name)
+    show_graph(new_probs, prompt, save_fig_name)
 
     result_text = tokenizer.decode(result_ids)
     print('final result: ', result_text)
