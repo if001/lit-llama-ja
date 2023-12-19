@@ -18,3 +18,4 @@ zstandard  # prepare_redpajama.py
 tokenizers
 deepspeed
 colabtools
+networkx

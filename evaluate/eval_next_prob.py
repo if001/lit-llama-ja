@@ -69,6 +69,32 @@ from lit_llama import LLaMA, Tokenizer, HFTokenizer
 from lit_llama import GPT
 from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
+def show_graph(probs, save_fig_name):    
+    G = nx.DiGraph()
+    G.add_node("Start")
+
+    current_node = "Start"
+    for level in probs:
+        next_node = max(level, key=lambda x: x['p'])['text']
+        for item in level:
+            G.add_node(item['text'])
+            G.add_edge(current_node, item['text'], label=f"{item['p']}")
+        current_node = next_node
+
+    # レイアウトを階層的に設定
+    pos = nx.drawing.nx_agraph.graphviz_layout(G, prog='dot')
+    edge_labels = nx.get_edge_attributes(G, 'label')
+
+    # グラフの描画
+    plt.figure(figsize=(10, 6))
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=2000, font_size=10, font_weight='bold')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
+    plt.title("")
+    # plt.show()    
+    plt.savefig(save_fig_name)
 
 @torch.no_grad()
 def generate(
@@ -103,9 +129,9 @@ def generate(
     ])
 
     logits_wraper = LogitsProcessorList([
-            TopKLogitsWarper(top_k),
-            TopPLogitsWarper(top_p),
             TemperatureLogitsWarper(temperature),
+            TopPLogitsWarper(top_p),
+            TopKLogitsWarper(top_k),
     ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
@@ -248,7 +274,10 @@ def main(
             print(f'p:{_p:.2f}, {text}')
             new_probs.append({ 'text': text, 'p': p['p']})
         print('-'*100)
-        
+    
+    save_fig_name = f"./{model_name}.png"
+    show_graph(new_probs, save_fig_name)
+
     result_text = tokenizer.decode(result_ids)
     print('final result: ', result_text)
 
