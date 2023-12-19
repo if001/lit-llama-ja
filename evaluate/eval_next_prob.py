@@ -78,7 +78,7 @@ def show_graph(probs, save_fig_name):
 
     current_node = "Start"
     for idx, level in enumerate(probs):
-        next_node = max(level, key=lambda x: x['p'])['text']        
+        next_node = max(level, key=lambda x: x['p'])['text']
         for item in level:
             node_name = f"{item['text']}_L{idx+1}"
             G.add_node(node_name)
@@ -92,7 +92,7 @@ def show_graph(probs, save_fig_name):
     # グラフの描画
     plt.figure(figsize=(10, 6))
     nx.draw(G, pos, with_labels=True, node_color='lightblue', 
-            node_size=2000, font_size=10, font_weight='bold', font_family='Mono')
+            node_size=2000, font_size=10, font_weight='bold', font_family='DejaVuSans')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
     plt.title("")
     # plt.show()
