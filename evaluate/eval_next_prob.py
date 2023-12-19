@@ -95,7 +95,8 @@ def show_graph(probs, save_fig_name):
             node_size=2000, font_size=10, font_weight='bold', font_family='Noto')
     nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='red')
     plt.title("")
-    # plt.show()    
+    # plt.show()
+    print('save fig...', save_fig_name)
     plt.savefig(save_fig_name)
 
 @torch.no_grad()
