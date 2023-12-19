@@ -270,11 +270,12 @@ def main(
         print('input', input)
         for p in probs:
             text = tokenizer.decode(torch.tensor([p['index']]))
-            _p = p['p']
+            _p = float(p['p'])
             print(f'p:{_p:.2f}, {text}')
             new_probs.append({ 'text': text, 'p': p['p']})
         print('-'*100)
     
+    print(new_probs)
     save_fig_name = f"./{model_name}.png"
     show_graph(new_probs, save_fig_name)
 
