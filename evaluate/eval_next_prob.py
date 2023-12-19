@@ -78,7 +78,8 @@ def show_graph(probs, save_fig_name):
 
     current_node = "Start"
     for level in probs:
-        print('a', level, max(level, key=lambda x: x['p']))
+        print('a0',level)
+        print('a', max(level, key=lambda x: x['p']))
         next_node = max(level, key=lambda x: x['p'])['text']
         for item in level:
             G.add_node(item['text'])
@@ -269,11 +270,13 @@ def main(
     for ids, probs in zip(current_idxs, next_probs):
         input = tokenizer.decode(ids)
         print('input', input)
+        nodes = []
         for p in probs:
             text = tokenizer.decode(torch.tensor([p['index']]))
             _p = float(p['p'])
             print(f'p:{_p:.2f}, {text}')
-            new_probs.append({ 'text': text, 'p': p['p']})
+            nodes.append({ 'text': text, 'p': p['p']})
+        new_probs.append(nodes)
         print('-'*100)
     
     print(new_probs)
