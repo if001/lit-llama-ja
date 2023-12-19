@@ -19,3 +19,4 @@ tokenizers
 deepspeed
 colabtools
 networkx
+pygraphviz

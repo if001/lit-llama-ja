@@ -78,8 +78,6 @@ def show_graph(probs, save_fig_name):
 
     current_node = "Start"
     for level in probs:
-        print('a0',level)
-        print('a', max(level, key=lambda x: x['p']))
         next_node = max(level, key=lambda x: x['p'])['text']
         for item in level:
             G.add_node(item['text'])
@@ -279,7 +277,6 @@ def main(
         new_probs.append(nodes)
         print('-'*100)
     
-    print(new_probs)
     save_fig_name = f"./{model_name}.png"
     show_graph(new_probs, save_fig_name)
 
