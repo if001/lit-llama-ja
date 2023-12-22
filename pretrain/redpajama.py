@@ -314,8 +314,10 @@ def train(
             # )
             if config.use_mixtral_moe:
                 logits, router_logit = model(input_ids)
+                print('router_logit', router_logit)
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
                 _loss = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
+                print('_loss', _loss)
                 loss += _loss
             else:
                 logits, router_logit = model(input_ids)
