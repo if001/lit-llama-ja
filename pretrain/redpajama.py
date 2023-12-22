@@ -291,6 +291,7 @@ def train(
     # save_interval = 500
     # eval_interval = 100
     total_time = 0
+    eval_interval = 1
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
