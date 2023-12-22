@@ -311,10 +311,12 @@ def train(
             logits, router_logit = model(input_ids)
             # loss = torch.nn.functional.cross_entropy(
             #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-            # )            
+            # )
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             if use_mixtral_moe:
+                print('router_logit', router_logit)
                 router_logit = load_balance_loss(router_logit)
+                print('router_logit2', router_logit)
                 fabric.backward((loss+router_logit) / grad_accum_steps)
             else:
                 fabric.backward(loss / grad_accum_steps)
