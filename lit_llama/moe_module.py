@@ -189,6 +189,13 @@ def get_load_balance_loss(
         top_k=2,
         num_experts=2
 ):
+    """    
+    v3.36.2ではバグがあるので注意
+    
+    以下のissueでmainには取り込まれている
+    https://github.com/huggingface/transformers/issues/28093
+    """
+
     if gate_logits is None or not isinstance(gate_logits, tuple):
         return 0
 
