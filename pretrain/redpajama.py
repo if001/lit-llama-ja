@@ -334,7 +334,7 @@ def train(
             t1 = time.time()
 
             if val_dataloader is not None and step_count % eval_interval == 0:
-                val_loss = validate(fabric, model, val_dataloader, eval_iters=eval_iters)
+                val_loss = validate(config, fabric, model, val_dataloader, eval_iters=eval_iters)
                 print('-'*100)
                 fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
