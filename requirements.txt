@@ -18,5 +18,9 @@ zstandard  # prepare_redpajama.py
 tokenizers
 deepspeed
 colabtools
-networkx
-pygraphviz
+
+
+## todo first !sudo apt-get -y install graphviz graphviz-dev
+# networkx
+# pygraphviz
+# japanize-matplotlib
