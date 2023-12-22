@@ -280,7 +280,7 @@ class CausalSelfAttention(nn.Module):
             from lit_llama.moe_module import MixtralSparseMoeBlock
             self.moe = MixtralSparseMoeBlock(
                 num_experts=config.num_experts,
-                top_k=2,
+                top_k=config.top_k,
                 embed_size=config.n_embd,
                 expert_hidden_size=config.expert_hidden_size,
                 gate_hidden_size=config.gate_hidden_size

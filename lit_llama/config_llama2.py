@@ -73,9 +73,10 @@ class Llama2Config:
     use_moe: bool = False
     use_mixtral_moe: bool = False
     num_experts: int = 4
+    top_k: int = 2
     expert_hidden_size:int = 256
     gate_hidden_size: int = 256
-
+    
     def __post_init__(self):        
         # assert self.n_embd % self.n_head == 0
         # self.head_size = self.n_embd // self.n_head

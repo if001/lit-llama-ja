@@ -240,9 +240,9 @@ def main(
 
     ds_size = int(8e+9 * train_data_rate)
     print("ds size:", format_number(ds_size))
-    train(trainingConfig, fabric, model, optimizer, train_dataloader, 
+    train(config, trainingConfig, fabric, model, optimizer, train_dataloader, 
           val_dataloader, gradient_accumulation_iters, devices, str(out_model_dir), 
-          restart_iter, interrupt, model_size, ds_size, config.use_mixtral_moe)
+          restart_iter, interrupt, model_size, ds_size)
     fabric.print(f"Saving checkpoint to {str(out_model_dir)}")
     save_model_checkpoint_with_fabric(fabric, model, str(out_model_dir), f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     try:
@@ -251,6 +251,7 @@ def main(
         print("error", e)
 
 def train(
+    config: Llama2Config,
     trainingConfig: TrainingConfig,
     fabric: L.Fabric,
     model: torch.nn.Module,
@@ -264,7 +265,6 @@ def train(
     interrupt: bool = False,
     model_size: str = "",
     ds_size: int = 8e+9,
-    use_mixtral_moe: bool = False
 ) -> None:
     """The training loop.
 
@@ -313,9 +313,9 @@ def train(
             #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
             # )
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-            if use_mixtral_moe:
+            if config.use_mixtral_moe:
                 print('router_logit', router_logit)
-                router_logit = load_balance_loss(router_logit)
+                router_logit = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
                 print('router_logit2', router_logit)
                 fabric.backward((loss+router_logit) / grad_accum_steps)
             else:
