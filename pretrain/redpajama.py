@@ -314,11 +314,12 @@ def train(
             # )
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             if config.use_mixtral_moe:
-                router_logit = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
-                print('router_logit', router_logit)
-                fabric.backward((loss+router_logit) / grad_accum_steps)
-            else:
-                fabric.backward(loss / grad_accum_steps)
+                _loss = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
+                loss += _loss
+                print('loss', loss.shape, loss)
+                print('_loss', _loss.shape, _loss)
+
+            fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
 
@@ -404,7 +405,9 @@ def train(
 
 @torch.no_grad()
 def validate(
-    fabric: L.Fabric, model: torch.nn.Module, val_dataloader: DataLoader, eval_iters = 100
+    config: Llama2Config,
+    fabric: L.Fabric, model: torch.nn.Module, 
+    val_dataloader: DataLoader, eval_iters = 100
 ) -> torch.Tensor:
     fabric.print("Validating ...")
     model.eval()
@@ -413,12 +416,14 @@ def validate(
         if k >= eval_iters:
             break
         input_ids = val_data[:, 0 : model.config.block_size].contiguous()
-        targets = val_data[:, 1 : model.config.block_size + 1].contiguous()
-        logits = model(input_ids)
-        # loss = torch.nn.functional.cross_entropy(
-        #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
-        # )
-        loss = chunked_cross_entropy(logits, targets, chunk_size=0)        
+        targets = val_data[:, 1 : model.config.block_size + 1].contiguous()        
+        logits, router_logits = model(input_ids)
+        loss = chunked_cross_entropy(logits, targets, chunk_size=0)
+        if config.use_mixtral_moe:
+            _loss = load_balance_loss(router_logits, top_k=config.top_k, num_experts=config.num_experts)
+            print('val loss', loss.shape, loss)
+            print('val _loss', _loss.shape, _loss)
+            loss += _loss
         losses[k] = loss.item()
     out = losses.mean()
     model.train()
