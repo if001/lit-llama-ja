@@ -94,7 +94,7 @@ class GPT(nn.Module):
         if self.max_seq_length < T:
             raise ValueError(f"Cannot forward sequence of length {T}, max seq length is only {self.max_seq_length}.")
 
-
+        router_logits = None
         x = self.transformer.wte(idx)  # token embeddings of shape (b, t, n_embd)        
         for i, block in enumerate(self.transformer.h):
             if input_pos is not None:  # use the kv cache
@@ -107,9 +107,9 @@ class GPT(nn.Module):
                 cos = self._cos_list[i][:T]
                 sin = self._sin_list[i][:T]
                 mask = None
-            x = block(x, cos, sin, mask, input_pos)
+            x, router_logits = block(x, cos, sin, mask, input_pos)
         x = self.transformer.ln_f(x)
-        return self.lm_head(x)  # (b, t, vocab_size)
+        return self.lm_head(x), router_logits  # (b, t, vocab_size)
 
     @classmethod
     def from_name(cls, name: str, **kwargs: Any) -> Self:
@@ -191,7 +191,13 @@ class Block(nn.Module):
         input_pos: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         n_1 = self.norm_1(x)
-        h, _ = self.attn(n_1, cos, sin, mask, input_pos)
+        
+        router_logits = None
+        if self.config.use_mixtral_moe:
+            h, _, router_logits = self.attn(n_1, cos, sin, mask, input_pos)
+        else:
+            h, _ = self.attn(n_1, cos, sin, mask, input_pos)
+
         if self.config.parallel_residual:
             n_2 = n_1 if self.config.shared_attention_norm else self.norm_2(x)
             x = x + h + self.mlp(n_2)
@@ -203,7 +209,7 @@ class Block(nn.Module):
                 )
             x = x + h
             x = x + self.mlp(self.norm_2(x))
-        return x
+        return x, router_logits
 
 
 class CausalSelfAttention(nn.Module):
@@ -263,9 +269,18 @@ class CausalSelfAttention(nn.Module):
             self._scale_factor = 0.1
 
         if config.use_moe:
-            from lit_llama.moe_module import MoE            
+            from lit_llama.moe_module import MoE
             self.moe = MoE(
                 num_experts=config.num_experts,
+                embed_size=config.n_embd,
+                expert_hidden_size=config.expert_hidden_size,
+                gate_hidden_size=config.gate_hidden_size
+            )
+        if config.use_mixtral_moe:
+            from lit_llama.moe_module import MixtralSparseMoeBlock
+            self.moe = MixtralSparseMoeBlock(
+                num_experts=config.num_experts,
+                top_k=2,
                 embed_size=config.n_embd,
                 expert_hidden_size=config.expert_hidden_size,
                 gate_hidden_size=config.gate_hidden_size
@@ -376,6 +391,10 @@ class CausalSelfAttention(nn.Module):
         if self.config.use_moe:
             y = self.moe(y)
             return y, _attn_weight
+
+        if self.config.use_mixtral_moe:
+            y, router_logits = self.moe(y)
+            return y, _attn_weight, router_logits
 
         # output projection
         y = self.proj(y)

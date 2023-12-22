@@ -30,7 +30,7 @@ from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fa
 from lit_llama.model_llama2 import GPT
 from lit_llama.config_llama2 import Llama2Config
 from lit_llama.training_config import TrainingConfig
-
+from lit_llama.moe_module import load_balance_loss
 
 # out_dir = "out/training"
 # save_interval = 1000
@@ -242,7 +242,7 @@ def main(
     print("ds size:", format_number(ds_size))
     train(trainingConfig, fabric, model, optimizer, train_dataloader, 
           val_dataloader, gradient_accumulation_iters, devices, str(out_model_dir), 
-          restart_iter, interrupt, model_size, ds_size)
+          restart_iter, interrupt, model_size, ds_size, config.use_mixtral_moe)
     fabric.print(f"Saving checkpoint to {str(out_model_dir)}")
     save_model_checkpoint_with_fabric(fabric, model, str(out_model_dir), f"iter-{trainingConfig.max_iters:06d}-ckpt.pth")
     try:
@@ -263,7 +263,8 @@ def train(
     restart_iter: int = 0,    
     interrupt: bool = False,
     model_size: str = "",
-    ds_size: int = 8e+9
+    ds_size: int = 8e+9,
+    use_mixtral_moe: bool = False
 ) -> None:
     """The training loop.
 
@@ -307,12 +308,16 @@ def train(
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
-            logits = model(input_ids)
+            logits, router_logit = model(input_ids)
             # loss = torch.nn.functional.cross_entropy(
             #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
             # )            
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-            fabric.backward(loss / grad_accum_steps)
+            if use_mixtral_moe:
+                router_logit = load_balance_loss(router_logit)
+                fabric.backward((loss+router_logit) / grad_accum_steps)
+            else:
+                fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
 
