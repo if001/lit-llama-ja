@@ -291,7 +291,6 @@ def train(
     # save_interval = 500
     # eval_interval = 100
     total_time = 0
-    eval_interval = 1
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
@@ -309,17 +308,18 @@ def train(
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
-            logits, router_logit = model(input_ids)
+            
             # loss = torch.nn.functional.cross_entropy(
             #     logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1
             # )
-            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             if config.use_mixtral_moe:
+                logits, router_logit = model(input_ids)
+                loss = chunked_cross_entropy(logits, targets, chunk_size=0)
                 _loss = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
                 loss += _loss
-                print('loss', loss.shape, loss)
-                print('_loss', _loss.shape, _loss)
-
+            else:
+                logits, router_logit = model(input_ids)
+                loss = chunked_cross_entropy(logits, targets, chunk_size=0)            
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
@@ -419,12 +419,15 @@ def validate(
         input_ids = val_data[:, 0 : model.config.block_size].contiguous()
         targets = val_data[:, 1 : model.config.block_size + 1].contiguous()        
         logits, router_logits = model(input_ids)
-        loss = chunked_cross_entropy(logits, targets, chunk_size=0)
+
         if config.use_mixtral_moe:
+            logits = model(input_ids)
+            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             _loss = load_balance_loss(router_logits, top_k=config.top_k, num_experts=config.num_experts)
-            print('val loss', loss.shape, loss)
-            print('val _loss', _loss.shape, _loss)
             loss += _loss
+        else:
+            logits, router_logits = model(input_ids)
+            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
         losses[k] = loss.item()
     out = losses.mean()
     model.train()

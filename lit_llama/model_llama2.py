@@ -109,7 +109,10 @@ class GPT(nn.Module):
                 mask = None
             x, router_logits = block(x, cos, sin, mask, input_pos)
         x = self.transformer.ln_f(x)
-        return self.lm_head(x), router_logits  # (b, t, vocab_size)
+
+        if self.config.use_mixtral_moe:
+            return self.lm_head(x), router_logits  # (b, t, vocab_size)
+        return self.lm_head(x)  # (b, t, vocab_size)
 
     @classmethod
     def from_name(cls, name: str, **kwargs: Any) -> Self:

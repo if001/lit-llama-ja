@@ -987,8 +987,8 @@ llama_2 = [
         _description="",
         use_moe=True,
         num_experts= 4,
-        expert_hidden_size=1024,
-        gate_hidden_size=1024,
+        expert_hidden_size=512,
+        gate_hidden_size=512,
     ),
     dict(
         org="meta-llama",
