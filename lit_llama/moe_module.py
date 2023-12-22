@@ -136,10 +136,10 @@ class MixtralSparseMoeBlock(nn.Module):
         self.num_experts = num_experts
         self.top_k = top_k
         # self.gate = nn.Linear(embed_size, self.num_experts, bias=False)
-        self.gate =  nn.sequential(
-            nn.linear(embed_size, gate_hidden_size),
-            nn.elu(),
-            nn.linear(gate_hidden_size, num_experts),
+        self.gate =  nn.Sequential(
+            nn.Linear(embed_size, gate_hidden_size),
+            nn.ELU(),
+            nn.Linear(gate_hidden_size, num_experts),
         )
         self.experts = nn.ModuleList([MixtralBLockSparseTop2MLP(expert_hidden_size, embed_size) for _ in range(num_experts)])
 
