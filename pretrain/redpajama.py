@@ -30,7 +30,7 @@ from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fa
 from lit_llama.model_llama2 import GPT
 from lit_llama.config_llama2 import Llama2Config
 from lit_llama.training_config import TrainingConfig
-from lit_llama.moe_module import load_balance_loss
+from lit_llama.moe_module import get_load_balance_loss
 
 # out_dir = "out/training"
 # save_interval = 1000
@@ -316,9 +316,9 @@ def train(
                 logits, router_logit = model(input_ids)
                 print('router_logit', router_logit)
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-                _loss = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
+                _loss = get_load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
                 print('_loss', _loss)
-                loss += _loss
+                loss += config.router_aux_loss_coef*_loss
             else:
                 logits, router_logit = model(input_ids)
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)            
@@ -425,8 +425,8 @@ def validate(
         if config.use_mixtral_moe:
             logits = model(input_ids)
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-            _loss = load_balance_loss(router_logits, top_k=config.top_k, num_experts=config.num_experts)
-            loss += _loss
+            _loss = get_load_balance_loss(router_logits, top_k=config.top_k, num_experts=config.num_experts)
+            loss += config.router_aux_loss_coef*_loss
         else:
             logits, router_logits = model(input_ids)
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)

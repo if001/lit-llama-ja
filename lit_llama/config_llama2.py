@@ -73,9 +73,10 @@ class Llama2Config:
     use_moe: bool = False
     use_mixtral_moe: bool = False
     num_experts: int = 4
-    top_k: int = 2
+    top_k: int = 2 ## for mixtral
     expert_hidden_size:int = 256
     gate_hidden_size: int = 256
+    router_aux_loss_coef: float = 0.001 ## for mixtral
     
     def __post_init__(self):        
         # assert self.n_embd % self.n_head == 0

@@ -90,6 +90,8 @@ class GPT(nn.Module):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     def forward(self, idx: torch.Tensor, input_pos: Optional[torch.Tensor] = None) -> torch.Tensor:
+        all_router_logits = () 
+
         T = idx.size(1)
         if self.max_seq_length < T:
             raise ValueError(f"Cannot forward sequence of length {T}, max seq length is only {self.max_seq_length}.")
@@ -108,10 +110,11 @@ class GPT(nn.Module):
                 sin = self._sin_list[i][:T]
                 mask = None
             x, router_logits = block(x, cos, sin, mask, input_pos)
+            all_router_logits += (router_logits,)
         x = self.transformer.ln_f(x)
 
         if self.config.use_mixtral_moe:
-            return self.lm_head(x), router_logits  # (b, t, vocab_size)
+            return self.lm_head(x), all_router_logits  # (b, t, vocab_size), (router_logits_layer0, router_logits_layer1,...)
         return self.lm_head(x)  # (b, t, vocab_size)
 
     @classmethod
