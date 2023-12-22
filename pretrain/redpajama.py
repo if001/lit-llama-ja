@@ -314,9 +314,7 @@ def train(
             # )
             loss = chunked_cross_entropy(logits, targets, chunk_size=0)
             if config.use_mixtral_moe:
-                print('router_logit', router_logit)
                 router_logit = load_balance_loss(router_logit, top_k=config.top_k, num_experts=config.num_experts)
-                print('router_logit2', router_logit)
                 fabric.backward((loss+router_logit) / grad_accum_steps)
             else:
                 fabric.backward(loss / grad_accum_steps)

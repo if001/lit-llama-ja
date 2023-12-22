@@ -1011,8 +1011,9 @@ llama_2 = [
         _description="",
         use_mixtral_moe=True,
         num_experts= 4,
-        expert_hidden_size=1024,
-        gate_hidden_size=1024,
+        top_k=2,
+        expert_hidden_size=512,
+        gate_hidden_size=512,
     ),
     dict(
         org="meta-llama",
