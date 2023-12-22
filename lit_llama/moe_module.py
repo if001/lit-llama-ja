@@ -73,11 +73,9 @@ class SparseMoE(nn.Module):
         # batch_size, seq_len, _ = x.size()
 
         gating_scores = self.gate(x)
-        gating_probs = F.softmax(gating_scores, dim=2)
-        print('gating_probs', gating_probs.shape, gating_probs)
+        gating_probs = F.softmax(gating_scores, dim=2)        
         
-        top_k_probs, top_k_indices = gating_probs.topk(self.top_k, dim=2)
-        print('top_k_indices', top_k_indices)
+        top_k_probs, top_k_indices = gating_probs.topk(self.top_k, dim=2)        
 
         output = torch.zeros_like(x)
         
@@ -107,10 +105,6 @@ class MixtralBLockSparseTop2MLP(nn.Module):
     def forward(self, hidden_states, routing_weights):
         current_hidden_states = self.act_fn(self.w1(hidden_states)) * self.w3(hidden_states)
         current_hidden_states = self.w2(current_hidden_states)
-
-        print('routing_weights', routing_weights)
-        print('current_hidden_states', current_hidden_states)
-        print('routing_weights * current_hidden_states', routing_weights * current_hidden_states)
         return routing_weights * current_hidden_states
     
 class MixtralSparseMoeBlock(nn.Module):
