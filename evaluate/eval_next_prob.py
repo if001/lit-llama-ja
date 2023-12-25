@@ -116,6 +116,7 @@ def generate(
     repetition_penalty: float = 1.0,
 
     eos_id: Optional[int] = None,
+    use_mixtral_moe: bool = False
 ) -> torch.Tensor:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -166,7 +167,10 @@ def generate(
     for _ in range(max_new_tokens):
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
-        logits = model(x, input_pos)
+        if use_mixtral_moe:
+            logits, _ = model(x, input_pos)
+        else:
+            logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]        
         next_token_scores = logits_processor(x, logits)
@@ -220,6 +224,7 @@ def main(
     eos_id: Optional[int] = None,
     kenlm_model_path: str = "",
     sp_model_path: str = "",
+    use_mixtral_moe: bool = False
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -269,7 +274,8 @@ def main(
                 top_k=top_k, 
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
-                eos_id=eos_id)
+                eos_id=eos_id,
+                use_mixtral_moe=use_mixtral_moe)
     
     new_probs = []
     for ids, probs in zip(current_idxs, next_probs):
