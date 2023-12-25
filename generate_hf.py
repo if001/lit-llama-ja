@@ -38,6 +38,7 @@ def generate(
     repetition_penalty: float = 1.0,
 
     eos_id: Optional[int] = None,
+    use_mixtral_moe: bool = False
 ) -> torch.Tensor:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -87,7 +88,10 @@ def generate(
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
         # forward
-        logits = model(x, input_pos)
+        if use_mixtral_moe:
+            logits, _ = model(x, input_pos)
+        else:
+            logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
