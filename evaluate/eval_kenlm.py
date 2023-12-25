@@ -246,7 +246,7 @@ def main(
             print('-'*100)
             ppl_score += float(ppl/text_len)
         else:
-            print(result_text)
+            print(f"{i}: {result_text}")
 
     print(f"score... {ppl_score}")
 
