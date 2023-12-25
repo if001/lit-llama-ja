@@ -136,6 +136,7 @@ def main(
     quantize: Optional[str] = None,
     model_name: str = "7B",
     eos_id: Optional[int] = None,
+    use_mixtral_moe: bool = False
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -188,7 +189,8 @@ def main(
                      top_k=top_k, 
                      top_p=top_p, 
                      repetition_penalty=repetition_penalty,
-                     eos_id=eos_id)
+                     eos_id=eos_id,
+                     use_mixtral_moe=use_mixtral_moe)
         t = time.perf_counter() - t0
 
         ## model.reset_cache()
