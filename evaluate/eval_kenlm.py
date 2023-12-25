@@ -219,7 +219,7 @@ def main(
     tokenizer = HFTokenizer(tokenizer_path)
 
 
-    if kenlm_model_path != "" and sp_model_path != "":        
+    if kenlm_model_path != None and sp_model_path != None:
         sp, kenlm_model = load_ppl_model(kenlm_model_path, sp_model_path)
 
     L.seed_everything(1234)
