@@ -25,13 +25,17 @@ from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 def gen(
         model: GPT,
         idx: torch.Tensor,
-        target_layer_idx: Optional[int]
+        target_layer_idx: Optional[int],
+        use_mixtral_moe: bool = False
 ):
     print('idx, ', idx.shape)
     attention = None
     def hook_function(module, input, output):
         nonlocal attention
-        _, attention = output
+        if use_mixtral_moe:
+            _, attention, _ = output
+        else:
+            _, attention = output
     
     device, dtype = idx.device, idx.dtype
     T = idx.size(0)
@@ -72,7 +76,8 @@ def main(
         tokenizer_path: str = "",
         target_layer_idx: Optional[int] = None,
         quantize: Optional[str] = None,
-        save_fig: Optional[str] = None        
+        save_fig: Optional[str] = None,
+        use_mixtral_moe: bool = False
 ):
     precision = "bf16-true" if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else "32-true"
     fabric = L.Fabric(devices=1, precision=precision)
@@ -99,7 +104,7 @@ def main(
         model.set_kv_cache(batch_size=1, index=0)
     
     # Attentionの取得
-    attention_weights = gen(model, encoded, target_layer_idx)
+    attention_weights = gen(model, encoded, target_layer_idx, use_mixtral_moe)
     graph_num = len(attention_weights)
     if graph_num == 1:
         figsize=(6, 6*graph_num)
