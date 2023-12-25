@@ -76,6 +76,7 @@ def generate(
     repetition_penalty: float = 1.0,
 
     eos_id: Optional[int] = None,
+    use_mixtral_moe: bool = False,
 ) -> torch.Tensor:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -124,7 +125,10 @@ def generate(
         x = idx.index_select(0, input_pos).view(1, -1).to(dtype=torch.int64)        
 
         # forward
-        logits = model(x, input_pos)
+        if use_mixtral_moe:
+            logits, _ = model(x, input_pos)
+        else:
+            logits = model(x, input_pos)
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
@@ -171,8 +175,9 @@ def main(
     quantize: Optional[str] = None,
     model_name: str = "7B",
     eos_id: Optional[int] = None,
-    kenlm_model_path: str = "",
-    sp_model_path: str = "",
+    use_mixtral_moe: bool = False,
+    kenlm_model_path: Optional[str] = None,
+    sp_model_path: Optional[str] = None,
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -213,7 +218,9 @@ def main(
     
     tokenizer = HFTokenizer(tokenizer_path)
 
-    sp, kenlm_model = load_ppl_model(kenlm_model_path, sp_model_path)
+
+    if kenlm_model_path != "" and sp_model_path != "":        
+        sp, kenlm_model = load_ppl_model(kenlm_model_path, sp_model_path)
 
     L.seed_everything(1234)
     ppl_score = 0
@@ -226,15 +233,20 @@ def main(
                     top_k=top_k, 
                     top_p=top_p, 
                     repetition_penalty=repetition_penalty,
-                    eos_id=eos_id)
+                    eos_id=eos_id,
+                    use_mixtral_moe=use_mixtral_moe)
         result_text = tokenizer.decode(y)        
-        toks = sp.encode(result_text, out_type=str)
-        toks_str = " ".join(toks)
-        ppl = kenlm_model.perplexity(toks_str)
-        print()
-        print(f'i:{i}, ppl {ppl}, result_text: {result_text}')
-        print('-'*100)
-        ppl_score += float(ppl/text_len)
+        
+        if kenlm_model_path != "" and sp_model_path != "":
+            toks = sp.encode(result_text, out_type=str)
+            toks_str = " ".join(toks)
+            ppl = kenlm_model.perplexity(toks_str)
+            print()
+            print(f'i:{i}, ppl {ppl}, result_text: {result_text}')
+            print('-'*100)
+            ppl_score += float(ppl/text_len)
+        else:
+            print(result_text)
 
     print(f"score... {ppl_score}")
 
