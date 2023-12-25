@@ -237,7 +237,7 @@ def main(
                     use_mixtral_moe=use_mixtral_moe)
         result_text = tokenizer.decode(y)        
         
-        if kenlm_model_path != "" and sp_model_path != "":
+        if kenlm_model_path != None and sp_model_path != None:
             toks = sp.encode(result_text, out_type=str)
             toks_str = " ".join(toks)
             ppl = kenlm_model.perplexity(toks_str)
