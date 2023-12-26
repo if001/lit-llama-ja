@@ -116,7 +116,9 @@ def generate(
     repetition_penalty: float = 1.0,
 
     eos_id: Optional[int] = None,
-    use_mixtral_moe: bool = False
+    use_mixtral_moe: bool = False,
+    simple: bool = False,
+    greedy: bool = False
 ) -> torch.Tensor:
     """Takes a conditioning sequence (prompt) as input and continues to generate as many tokens as requested.
 
@@ -172,19 +174,24 @@ def generate(
         else:
             logits = model(x, input_pos)
         # logits = logits[0, -1]
-        logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]        
-        next_token_scores = logits_processor(x, logits)
-        next_token_scores = logits_wraper(x, next_token_scores)
-        next_token_scores = next_token_scores.squeeze(0) ## [1, 35008] => [35008]
+        logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]
+        if simple:
+            logits_processor = LogitsProcessorList([])
+            next_token_scores = logits_processor(x, logits)
+        else:
+            next_token_scores = logits_processor(x, logits)
+            next_token_scores = logits_wraper(x, next_token_scores)
+            next_token_scores = next_token_scores.squeeze(0) ## [1, 35008] => [35008]
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         
         _probs=probs.detach()
         top_values, top_indices = torch.topk(_probs, top_k)        
         next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
         next_probs.append(next_prob)
-
-        idx_next = torch.argmax(probs, dim=-1) ## greedy search
-        # idx_next = torch.multinomial(probs, num_samples=1) ## sample
+        if greedy:
+            idx_next = torch.argmax(probs, dim=-1) ## greedy search
+        else:
+            idx_next = torch.multinomial(probs, num_samples=1) ## sample
         idx_next = idx_next.to(dtype=dtype)
 
         # advance
