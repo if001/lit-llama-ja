@@ -191,6 +191,7 @@ def main(
     use_mixtral_moe: bool = False,
     kenlm_model_path: Optional[str] = None,
     sp_model_path: Optional[str] = None,
+    gen_num: int = 1
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -240,26 +241,27 @@ def main(
     text_list = get_texts()
     text_len = len(text_list)
     for i, text in enumerate(text_list):
-        encoded = tokenizer.encode(text, bos=True, eos=False, device=fabric.device)
-        y = generate(model, encoded, max_new_tokens, 
-                    temperature=temperature, 
-                    top_k=top_k, 
-                    top_p=top_p, 
-                    repetition_penalty=repetition_penalty,
-                    eos_id=eos_id,
-                    use_mixtral_moe=use_mixtral_moe)
-        result_text = tokenizer.decode(y)        
-        
-        if kenlm_model_path != None and sp_model_path != None:
-            toks = sp.encode(result_text, out_type=str)
-            toks_str = " ".join(toks)
-            ppl = kenlm_model.perplexity(toks_str)
-            print()
-            print(f'i:{i}, ppl {ppl}, result_text: {result_text}')
-            print('-'*100)
-            ppl_score += float(ppl/text_len)
-        else:
-            print(f"{i}: {result_text}")
+        for _ in range(gen_num):
+            encoded = tokenizer.encode(text, bos=True, eos=False, device=fabric.device)
+            y = generate(model, encoded, max_new_tokens, 
+                        temperature=temperature, 
+                        top_k=top_k, 
+                        top_p=top_p, 
+                        repetition_penalty=repetition_penalty,
+                        eos_id=eos_id,
+                        use_mixtral_moe=use_mixtral_moe)
+            result_text = tokenizer.decode(y)        
+            
+            if kenlm_model_path != None and sp_model_path != None:
+                toks = sp.encode(result_text, out_type=str)
+                toks_str = " ".join(toks)
+                ppl = kenlm_model.perplexity(toks_str)
+                print()
+                print(f'i:{i}, ppl {ppl}, result_text: {result_text}')
+                print('-'*100)
+                ppl_score += float(ppl/text_len)
+            else:
+                print(f"{i}: {result_text}")
 
     print(f"score... {ppl_score}")
 
