@@ -109,9 +109,9 @@ def generate(
         RepetitionPenaltyLogitsProcessor(repetition_penalty),
     ])
     logits_wraper = LogitsProcessorList([
-            TopKLogitsWarper(top_k),
+            TemperatureLogitsWarper(temperature),
             TopPLogitsWarper(top_p),
-            TemperatureLogitsWarper(temperature),            
+            TopKLogitsWarper(top_k),
     ])
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
