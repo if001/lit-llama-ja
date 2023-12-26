@@ -184,7 +184,7 @@ def generate(
         probs = torch.nn.functional.softmax(next_token_scores, dim=-1)
         
         _probs=probs.detach()
-        top_values, top_indices = torch.topk(_probs, top_k)        
+        top_values, top_indices = torch.topk(_probs, top_k)
         next_prob = [{"index": int(index), "p": float(prob)} for index, prob in zip(top_indices, top_values)]
         next_probs.append(next_prob)
         if greedy:
@@ -296,7 +296,7 @@ def main(
         for p in probs:
             text = tokenizer.decode(torch.tensor([p['index']]))
             _p = float(p['p'])
-            print(f'p:{_p:.2f}, {text}')
+            print(f'p:{_p:.4f}, {text}')
             nodes.append({ 'text': text, 'p': p['p']})
         new_probs.append(nodes)
         print('-'*100)
