@@ -231,7 +231,9 @@ def main(
     eos_id: Optional[int] = None,
     kenlm_model_path: str = "",
     sp_model_path: str = "",
-    use_mixtral_moe: bool = False
+    use_mixtral_moe: bool = False,
+    simple: bool = False,
+    greedy: bool = False
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -282,7 +284,10 @@ def main(
                 top_p=top_p, 
                 repetition_penalty=repetition_penalty,
                 eos_id=eos_id,
-                use_mixtral_moe=use_mixtral_moe)
+                use_mixtral_moe=use_mixtral_moe,
+                simple=simple,
+                greedy=greedy
+                )
     
     new_probs = []
     for ids, probs in zip(current_idxs, next_probs):
