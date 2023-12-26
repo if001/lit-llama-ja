@@ -176,7 +176,7 @@ def generate(
         # logits = logits[0, -1]
         logits = logits[:, -1, :] ## [1, seq_size, vocab_size] =>  [1, vocab_size]
         if simple:
-            next_token_scores = logits
+            next_token_scores = logits.squeeze(0)
         else:
             next_token_scores = logits_processor(x, logits)
             next_token_scores = logits_wraper(x, next_token_scores)
