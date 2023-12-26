@@ -73,6 +73,13 @@ texts = """今日は雨が
 幸福とは何か
 存在の意味を"""
 
+texts = """猫は非常に
+なぜ人々は
+星空の下で
+気候変動における
+週末の計画は
+幸福とは何か"""
+
 def get_texts():
     return texts.split('\n')
 
@@ -280,3 +287,4 @@ if __name__ == "__main__":
         message="MatMul8bitLt: inputs will be cast from torch.bfloat16 to float16 during quantization",
     )
     CLI(main)
+
