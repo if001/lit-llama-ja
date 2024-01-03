@@ -109,11 +109,11 @@ class MixtralConfig_HF(MixtralConfig):
     def from_name(cls, size='7B'):
         if size == "Mixtral-100M":
             conf = dict(
-                hidden_size=690,
+                hidden_size=640,
                 intermediate_size=2000,
                 num_hidden_layers=10,
-                num_attention_heads=10,
-                num_key_value_heads=5,
+                num_attention_heads=12,
+                num_key_value_heads=6,
                 bos_token_id=1,
                 eos_token_id=2,
                 num_experts_per_tok=2,
