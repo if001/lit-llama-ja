@@ -240,8 +240,8 @@ def train(
             param_group["lr"] = lr
 
 
-        input_ids = train_data[:, 0 : model.config.block_size].contiguous()
-        targets = train_data[:, 1 : model.config.block_size + 1].contiguous()
+        input_ids = train_data[:, 0 : config.hidden_size].contiguous()
+        targets = train_data[:, 1 : config.hidden_size + 1].contiguous()
         
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
@@ -297,8 +297,8 @@ def train(
         dt = t1 - t0
         total_time += dt
 
-        tokens += trainingConfig.micro_batch_size * model.config.block_size
-        total_tokens += trainingConfig.micro_batch_size * model.config.block_size
+        tokens += trainingConfig.micro_batch_size * config.hidden_size
+        total_tokens += trainingConfig.micro_batch_size * config.hidden_size
         step_time += t1 - prev_t1
         prev_t1 = t1
 
@@ -345,8 +345,8 @@ def validate(
     for k, val_data in enumerate(val_dataloader):
         if k >= eval_iters:
             break
-        input_ids = val_data[:, 0 : model.config.block_size].contiguous()
-        targets = val_data[:, 1 : model.config.block_size + 1].contiguous()        
+        input_ids = val_data[:, 0 : config.hidden_size].contiguous()
+        targets = val_data[:, 1 : config.hidden_size + 1].contiguous()        
         logits, router_logits = model(input_ids)
 
         logits, router_logits = model(input_ids)            

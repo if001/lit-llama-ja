@@ -15,7 +15,8 @@ class TrainingConfig():
                 grad_clip,
                 decay_lr,
                 warmup_iters,
-                lr_decay_iters
+                lr_decay_iters,
+                block_size
                 ) -> None:
         self.model_size = model_size
         self.learning_rate = learning_rate        
@@ -69,7 +70,8 @@ class TrainingConfig():
     @classmethod
     def from_name(cls, model_size):
         if model_size == "Mixtral-100M":
-            block_size = 4096
+            # block_size = 4096
+            block_size = 960
             ds_size = 8e+9
             batch_size = 128
             micro_batch_size = 4
