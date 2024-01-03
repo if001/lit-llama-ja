@@ -1,3 +1,3 @@
-from mixtral import MixtralForCausalLM_HF
-from mixtral import MixtralConfig_HF
-from traning_config import TrainingConfig
+from mixtral_hf.mixtral import MixtralForCausalLM_HF
+from mixtral_hf.mixtral import MixtralConfig_HF
+from mixtral_hf.traning_config import TrainingConfig
