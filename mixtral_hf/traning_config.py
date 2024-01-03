@@ -16,7 +16,6 @@ class TrainingConfig():
                 decay_lr,
                 warmup_iters,
                 lr_decay_iters,
-                block_size
                 ) -> None:
         self.model_size = model_size
         self.learning_rate = learning_rate        
