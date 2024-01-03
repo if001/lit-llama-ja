@@ -30,7 +30,9 @@ from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fa
 # from lit_llama.model_llama2 import GPT
 # from lit_llama.config_llama2 import Llama2Config
 # from lit_llama.training_config import TrainingConfig
-from mixtral_hf.mixtral import MixtralConfig_HF, MixtralForCausalLM_HF, TrainingConfig
+from mixtral_hf.mixtral import MixtralConfig_HF, MixtralForCausalLM_HF
+from mixtral_hf.traning_config import TrainingConfig
+
 
 
 from lit_llama.moe_module import get_load_balance_loss
