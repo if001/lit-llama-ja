@@ -213,7 +213,7 @@ def train(
 
     step_time = 0.0
     tokens = 0
-    total_tokens = restart_iter * trainingConfig.micro_batch_size * model.config.block_size
+    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size
     tokens_sec = 0.0
     prev_t1 = time.time()
 
