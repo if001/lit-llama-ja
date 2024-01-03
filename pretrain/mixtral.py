@@ -351,7 +351,7 @@ def validate(
 
         logits, router_logits = model(input_ids)            
         loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-        _loss = get_load_balance_loss(router_logits, top_k=config.top_k, num_experts=config.num_experts)
+        _loss = get_load_balance_loss(router_logits, top_k=config.top_k, num_experts=config.num_local_experts)
         loss += config.router_aux_loss_coef*_loss
 
         losses[k] = loss.item()
