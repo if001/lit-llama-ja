@@ -184,6 +184,7 @@ class MixtralSparseMoeBlock(nn.Module):
             final_hidden_states.index_add_(0, top_x, current_hidden_states.to(hidden_states.dtype))
         final_hidden_states = final_hidden_states.reshape(batch_size, sequence_length, hidden_dim)
         return final_hidden_states, router_logits
+
 def get_load_balance_loss(
         gate_logits,
         top_k=2,
@@ -194,6 +195,9 @@ def get_load_balance_loss(
     
     以下のissueでmainには取り込まれている
     https://github.com/huggingface/transformers/issues/28093
+
+    まだ壊れている。以下のPRの内容を取り込む
+    https://github.com/huggingface/transformers/pull/28256
     """
 
     if gate_logits is None or not isinstance(gate_logits, tuple):
@@ -208,19 +212,76 @@ def get_load_balance_loss(
 
     selected_experts = selected_experts.reshape(-1)
 
-    expert_mask = torch.nn.functional.one_hot(selected_experts, num_experts)
+    expert_mask = torch.nn.functional.one_hot(selected_experts, num_experts)        
+    expert_mask = expert_mask.reshape(-1,top_k, num_experts)
     expert_mask = torch.max(expert_mask, dim=-2).values
 
     # Compute the percentage of tokens routed to each experts
-    tokens_per_expert = torch.mean(expert_mask.float(), dim=0)
+    tokens_per_expert = torch.mean(expert_mask.float(), dim=0) / top_k
 
     # Compute the average probability of routing to these experts
     router_prob_per_expert = torch.mean(routing_weights, dim=0)
 
-    overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(-1))
+    # overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(-1))
+    overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert)
     return overall_loss * num_experts
 
-def main():
+def get_load_balance_loss2(gate_logits: torch.Tensor, num_experts: torch.Tensor = None, top_k=2) -> float:
+    if isinstance(gate_logits, tuple):
+        compute_device = gate_logits[0].device
+        concatenated_gate_logits = torch.cat([layer_gate.to(compute_device) for layer_gate in gate_logits], dim=0)
+
+    routing_weights = torch.nn.functional.softmax(concatenated_gate_logits, dim=-1)
+    _, selected_experts = torch.topk(routing_weights, top_k, dim=-1) # [batch_size X sequence_length, top_k]
+
+    expert_mask = torch.nn.functional.one_hot(selected_experts, num_experts) # [batch_size X sequence_length, top_k, num_experts]
+    # print('expert_mask', expert_mask)
+    tokens_per_expert = torch.mean(expert_mask.float(), dim=0) # [top_k, num_experts]
+    # print('tokens_per_expert', tokens_per_expert)
+
+    # Compute the average probability of routing to these experts
+    router_prob_per_expert = torch.mean(routing_weights, dim=0) # [num_experts]
+    # overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(0)) # / top_k
+    overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(0)) / top_k
+    return overall_loss * num_experts
+
+def router_z_loss(logits, num_microbatches, importance=None):
+    """Loss that encourages router logits to remain small and improves stability.
+
+    Args:
+      logits: a tensor with shape [<batch_dims>, experts_dim]
+      experts_dim: the number of experts (an integer)
+      num_microbatches: number of microbatches
+      importance: an optional tensor with shape [<batch_dims>, group_size_dim]
+
+    Returns:
+      z_loss: scalar loss only applied by non-padded tokens and normalized by
+        num_microbatches.
+    """
+    if isinstance(logits, tuple):
+        compute_device = logits[0].device
+        concatenated_gate_logits = torch.cat([layer_gate.to(compute_device) for layer_gate in logits], dim=0)
+    # Compute logsumexp across the experts dimension            
+    log_z = torch.logsumexp(concatenated_gate_logits, dim=-1)    
+    
+    # Compute the square of log_z
+    z_loss = torch.square(log_z)
+    
+    if importance is not None:
+        # Apply importance weighting
+        importance_mask = torch.eq(importance, 1.0).to(dtype=z_loss.dtype)
+        z_loss *= importance_mask
+        
+        # Calculate the denominator for normalization
+        denom = torch.sum(importance_mask)
+    else:
+        denom = concatenated_gate_logits.shape[-1]
+
+    # Normalize the loss
+    z_loss = torch.sum(z_loss) / (denom * num_microbatches)    
+    return z_loss
+
+def model_test():
     torch.set_default_dtype(torch.float32)
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -245,11 +306,28 @@ def main():
     #     expert_hidden_size=5
     # )
     inp = torch.rand([batch_size, seq_len, embding_size])
-
-
     print('input:', inp.shape, inp)
     out, _ = moe.forward(inp)
     print('output:', out.shape, out)
+
+def loss_test():
+    batch_size = 100
+    seq_len = 1000
+    num_experts = 8
+    layers = 10
+    top_k = 2
+    for _ in range(5):
+        logits = [torch.randn([batch_size*seq_len, num_experts]) for _ in range(layers)]
+        logits = tuple(logits)
+        # print(logits)
+        out = get_load_balance_loss2(logits, top_k=top_k, num_experts=num_experts)
+        # out = get_load_balance_loss(logits, top_k=top_k, num_experts=num_experts)
+        # out = router_z_loss(logits, seq_len*batch_size)
+        print(out)        
+
+def main():
+    # model_test()
+    loss_test()
 
 if __name__ == '__main__':
     main()
