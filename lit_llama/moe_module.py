@@ -185,7 +185,7 @@ class MixtralSparseMoeBlock(nn.Module):
         final_hidden_states = final_hidden_states.reshape(batch_size, sequence_length, hidden_dim)
         return final_hidden_states, router_logits
 
-def get_load_balance_loss(
+def get_load_balance_loss_0(
         gate_logits,
         top_k=2,
         num_experts=2
@@ -226,22 +226,22 @@ def get_load_balance_loss(
     overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert)
     return overall_loss * num_experts
 
-def get_load_balance_loss2(gate_logits: torch.Tensor, num_experts: torch.Tensor = None, top_k=2) -> float:
+def get_load_balance_loss(gate_logits: torch.Tensor, num_experts: torch.Tensor = None, top_k=2) -> float:
     if isinstance(gate_logits, tuple):
         compute_device = gate_logits[0].device
         concatenated_gate_logits = torch.cat([layer_gate.to(compute_device) for layer_gate in gate_logits], dim=0)
+    else:
+        concatenated_gate_logits = gate_logits
 
     routing_weights = torch.nn.functional.softmax(concatenated_gate_logits, dim=-1)
     _, selected_experts = torch.topk(routing_weights, top_k, dim=-1) # [batch_size X sequence_length, top_k]
 
     expert_mask = torch.nn.functional.one_hot(selected_experts, num_experts) # [batch_size X sequence_length, top_k, num_experts]
-    # print('expert_mask', expert_mask)
-    tokens_per_expert = torch.mean(expert_mask.float(), dim=0) # [top_k, num_experts]
-    # print('tokens_per_expert', tokens_per_expert)
+    tokens_per_expert = torch.mean(expert_mask.float(), dim=0) # [top_k, num_experts]    
 
     # Compute the average probability of routing to these experts
     router_prob_per_expert = torch.mean(routing_weights, dim=0) # [num_experts]
-    # overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(0)) # / top_k
+    # overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(0)) # / top_k    
     overall_loss = torch.sum(tokens_per_expert * router_prob_per_expert.unsqueeze(0)) / top_k
     return overall_loss * num_experts
 
@@ -311,19 +311,24 @@ def model_test():
     print('output:', out.shape, out)
 
 def loss_test():
-    batch_size = 100
-    seq_len = 1000
+    batch_size = 1
+    seq_len = 100
     num_experts = 8
-    layers = 10
+    layers = 2
     top_k = 2
-    for _ in range(5):
+    for _ in range(10):
         logits = [torch.randn([batch_size*seq_len, num_experts]) for _ in range(layers)]
         logits = tuple(logits)
         # print(logits)
         out = get_load_balance_loss2(logits, top_k=top_k, num_experts=num_experts)
+        print(out)        
+        # for logit in logits:
+        #     out = get_load_balance_loss2(logit, top_k=top_k, num_experts=num_experts)
+        #     print(out)
+
         # out = get_load_balance_loss(logits, top_k=top_k, num_experts=num_experts)
         # out = router_z_loss(logits, seq_len*batch_size)
-        print(out)        
+        
 
 def main():
     # model_test()

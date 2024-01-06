@@ -67,6 +67,7 @@ class MixtralConfig_HF(MixtralConfig):
                 num_key_value_heads=8,
                 bos_token_id=1,
                 eos_token_id=2,
+                pad_token_id=0,
                 num_experts_per_tok=2,
                 num_local_experts=8,
                 **kwargs):
@@ -80,6 +81,7 @@ class MixtralConfig_HF(MixtralConfig):
             num_key_value_heads=num_key_value_heads,
             bos_token_id=bos_token_id,
             eos_token_id=eos_token_id,
+            pad_token_id=pad_token_id,
             num_experts_per_tok=num_experts_per_tok,
             num_local_experts=num_local_experts,
             **kwargs)
@@ -110,12 +112,13 @@ class MixtralConfig_HF(MixtralConfig):
         if size == "Mixtral-100M":
             conf = dict(
                 hidden_size=640,
-                intermediate_size=2000,
-                num_hidden_layers=10,
-                num_attention_heads=10,
-                num_key_value_heads=5,
+                intermediate_size=2400,
+                num_hidden_layers=8,
+                num_attention_heads=8,
+                num_key_value_heads=4,
                 bos_token_id=1,
                 eos_token_id=2,
+                pad_token_id=0,
                 num_experts_per_tok=2,
                 num_local_experts=6,
             )
