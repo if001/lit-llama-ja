@@ -84,6 +84,7 @@ class MixtralConfig_HF(MixtralConfig):
             pad_token_id=pad_token_id,
             num_experts_per_tok=num_experts_per_tok,
             num_local_experts=num_local_experts,
+            output_router_logits=True,
             **kwargs)
 
     def save(self, output_dir):

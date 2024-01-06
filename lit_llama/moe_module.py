@@ -232,7 +232,7 @@ def get_load_balance_loss(gate_logits: torch.Tensor, num_experts: torch.Tensor =
         concatenated_gate_logits = torch.cat([layer_gate.to(compute_device) for layer_gate in gate_logits], dim=0)
     else:
         concatenated_gate_logits = gate_logits
-    print('concatenated_gate_logits', concatenated_gate_logits)
+    
     # routing_weights = torch.nn.functional.softmax(concatenated_gate_logits, dim=-1)
     routing_weights = torch.softmax(concatenated_gate_logits, dim=-1)
     _, selected_experts = torch.topk(routing_weights, top_k, dim=-1) # [batch_size X sequence_length, top_k]
