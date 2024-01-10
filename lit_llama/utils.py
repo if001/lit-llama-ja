@@ -82,7 +82,9 @@ def keep_file(out_dir, max_files=3):
     sorted_files = sorted(filtered_files, key=lambda x: int(pattern.match(x).group(1)), reverse=True)
         
     for file in sorted_files[max_files:]:
-        os.remove(os.path.join(out_dir, file))
+        remove_file = os.path.join(out_dir, file)
+        print('remove', str(remove_file))
+        os.remove(remove_file)
 
 def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
     """Handles boilerplate logic for retrieving and saving the state_dict.
