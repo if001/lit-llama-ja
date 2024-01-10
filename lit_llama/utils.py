@@ -15,6 +15,7 @@ from torch.distributed.fsdp import FullStateDictConfig
 from torch.distributed.fsdp import FullyShardedDataParallel as FSDP
 from torch.distributed.fsdp import StateDictType
 from torch.serialization import normalize_storage_type
+import re
 
 llama_model_sizes = {
     512: "19M",  # 19M n_embd=512
@@ -70,6 +71,19 @@ def save_model_checkpoint(fabric, model, file_path):
         torch.save(state_dict, file_path)        
     fabric.barrier()
 
+
+def keep_file(out_dir, max_files=3):
+    files = os.listdir(out_dir)
+    
+    # 'iter-xxxxx-ckpt.pth' 形式のファイルをフィルタリング
+    pattern = re.compile(r'iter-(\d+)-ckpt\.pth$')
+    filtered_files = [f for f in files if pattern.match(f)]
+    
+    sorted_files = sorted(filtered_files, key=lambda x: int(pattern.match(x).group(1)), reverse=True)
+        
+    for file in sorted_files[max_files:]:
+        os.remove(os.path.join(out_dir, file))
+
 def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
     """Handles boilerplate logic for retrieving and saving the state_dict.
     
@@ -100,7 +114,7 @@ def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
         fabric_dir = Path(f"{out_dir}/fabric")
         fabric.save(fabric_dir, {"model": model})
     fabric.barrier()
-
+    keep_file(out_dir, max_files=3)
 
 class EmptyInitOnDevice(torch.overrides.TorchFunctionMode):
     def __init__(self, device=None, dtype=None, quantization_mode=None):
