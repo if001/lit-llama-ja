@@ -74,13 +74,14 @@ def save_model_checkpoint(fabric, model, file_path):
 
 def keep_file(out_dir, max_files=3):
     files = os.listdir(out_dir)
-    
-    # 'iter-xxxxx-ckpt.pth' 形式のファイルをフィルタリング
+    if(len(files) < max_files):
+        return
+
     pattern = re.compile(r'iter-(\d+)-ckpt\.pth$')
     filtered_files = [f for f in files if pattern.match(f)]
-    
+
     sorted_files = sorted(filtered_files, key=lambda x: int(pattern.match(x).group(1)), reverse=True)
-        
+    
     for file in sorted_files[max_files:]:
         remove_file = os.path.join(out_dir, file)
         print('remove', str(remove_file))
