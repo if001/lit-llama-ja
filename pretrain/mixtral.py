@@ -224,8 +224,8 @@ def train(
     # eval_interval = 8192 / trainingConfig.batch_size
     eval_interval = 12800 / trainingConfig.batch_size
     save_interval = 12800 / trainingConfig.batch_size
-    eval_interval = 38400 / trainingConfig.batch_size
-    save_interval = 38400 / trainingConfig.batch_size
+    eval_interval = 51200 / trainingConfig.batch_size
+    save_interval = 51200 / trainingConfig.batch_size
     
     # save_interval = 4096 / trainingConfig.batch_size
     # eval_interval = 4096 / trainingConfig.batch_size
