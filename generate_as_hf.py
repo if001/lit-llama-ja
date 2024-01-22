@@ -78,7 +78,6 @@ def main(
         temperature=temperature,
         repetition_penalty=repetition_penalty,
     )
-    print(result)
     print(tokenizer.decode(result[0]))
 
 if __name__ == "__main__":
