@@ -100,11 +100,10 @@ def generate(
         else:
             logits = model(x, input_pos)        
         print('logits', logits)
-        print('a', isinstance(logits, ModelOutput))
-        if isinstance(logits, ModelOutput):
-            print('logits', logits)
+        if isinstance(logits, ModelOutput):            
             logits = logits.logits
-            print('logits.shape', logits.shape)
+        print('logits shape', logits.shape)
+
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
