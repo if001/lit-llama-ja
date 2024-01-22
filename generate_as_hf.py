@@ -79,7 +79,7 @@ def main(
         repetition_penalty=repetition_penalty,
     )
     print(result)
-    print(tokenizer.decode(result))
+    print(tokenizer.decode(result[0]))
 
 if __name__ == "__main__":
     from jsonargparse import CLI
