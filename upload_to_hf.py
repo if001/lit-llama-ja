@@ -15,12 +15,10 @@ from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM
 
 def main(
     repo_id: str = "",
-    checkpoint_path: Path = Path("checkpoints/lit-llama/7B/lit-llama.pth"),
-    tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
+    checkpoint_path: Path = Path("checkpoints/lit-llama/7B/lit-llama.pth"),    
     model_name: str = "7B",
 ) -> None:  
-    assert checkpoint_path.is_file(), checkpoint_path
-    assert tokenizer_path.is_file(), tokenizer_path
+    assert checkpoint_path.is_file(), checkpoint_path    
 
     print(f"Loading model ...{model_name}", file=sys.stderr)
     with lazy_load(checkpoint_path) as checkpoint:
