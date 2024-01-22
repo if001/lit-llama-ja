@@ -65,7 +65,7 @@ def generate(
     # create an empty tensor of the expected final shape and fill in the current tokens    
     T = idx.size(0)
     T_new = T + max_new_tokens
-    block_size = model.config.block_size if model.config.block_size is not None else 2048
+    block_size = model.config.block_size if hasattr(model.config, 'block_size') is not None else 2048
     if max_seq_length is None:
         max_seq_length = min(T_new, block_size)
 
