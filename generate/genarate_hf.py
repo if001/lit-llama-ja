@@ -98,10 +98,11 @@ def generate(
         if use_mixtral_moe:
             logits, _ = model(x, input_pos)
         else:
-            logits = model(x, input_pos)        
+            logits = model(x, input_pos)
         print('model', model)
         print('logits', logits)
-        if isinstance(logits, ModelOutput):            
+        print('isinstance(logits, ModelOutput)',isinstance(logits, ModelOutput))
+        if isinstance(logits, ModelOutput):         
             logits = logits.logits        
 
         # logits = logits[0, -1]
