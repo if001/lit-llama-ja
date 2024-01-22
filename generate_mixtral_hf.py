@@ -83,7 +83,9 @@ def main(
                      top_p=top_p, 
                      repetition_penalty=repetition_penalty,
                      eos_id=eos_id,
-                     use_mixtral_moe=use_mixtral_moe)
+                     use_mixtral_moe=use_mixtral_moe,
+                     wrapped_hf_output=True
+                     )
         t = time.perf_counter() - t0
 
         ## model.reset_cache()

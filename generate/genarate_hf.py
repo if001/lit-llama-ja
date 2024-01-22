@@ -97,14 +97,13 @@ def generate(
         # forward
         if use_mixtral_moe:
             logits, _ = model(x, input_pos)
+        elif wrapped_hf_output:
+            output = model(x, return_dict=True)
+            print('output', output)
+            logits = output.logits
         else:
             logits = model(x, input_pos)
-        print('model', model)
-        print('logits', logits)
-        print('isinstance(logits, ModelOutput)',isinstance(logits, ModelOutput))
-        if isinstance(logits, ModelOutput):         
-            logits = logits.logits        
-
+        
         # logits = logits[0, -1]
         logits = logits[:, -1, :]
         next_token_scores = logits_processor(x, logits)
