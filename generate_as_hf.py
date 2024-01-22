@@ -67,8 +67,13 @@ def main(
     
     result = model.generate(
         encoded,
-        num_beams=4, 
-        do_sample=True
+        num_beams=1,
+        do_sample=True,
+        max_new_tokens=max_new_tokens,
+        top_k=top_k,
+        top_p=top_p,
+        temperature=temperature,
+        repetition_penalty=repetition_penalty,
     )
     print('result', result)
 
