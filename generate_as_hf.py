@@ -65,7 +65,7 @@ def main(
     model.eval()    
     tokenizer = HFTokenizer(tokenizer_path)
     encoded = tokenizer.encode(prompt, bos=True, eos=False)
-    encoded.to(dtype=torch.int64)
+    encoded = encoded.to(dtype=torch.int64)
     encoded = encoded.unsqueeze(0)
     print('encoded', encoded)
     result = model.generate(
