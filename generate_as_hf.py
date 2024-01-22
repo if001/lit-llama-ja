@@ -66,7 +66,7 @@ def main(
     encoded = tokenizer.encode(prompt, bos=True, eos=False)
     
     result = model.generate(
-        encoded,
+        torch.tensor(encoded),
         num_beams=1,
         do_sample=True,
         max_new_tokens=max_new_tokens,
