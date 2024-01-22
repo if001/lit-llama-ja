@@ -66,7 +66,7 @@ def main(
     print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
 
     model.eval()
-    model = fabric.setup(model)
+    # model = fabric.setup(model)
      
     # tokenizer = Tokenizer(tokenizer_path)
     tokenizer = HFTokenizer(tokenizer_path)
