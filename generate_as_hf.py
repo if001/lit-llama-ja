@@ -64,10 +64,9 @@ def main(
 
     model.eval()    
     tokenizer = HFTokenizer(tokenizer_path)
-    encoded = tokenizer.encode(prompt, bos=True, eos=False)    
-    print('encoded', encoded.shape)
+    encoded = tokenizer.encode(prompt, bos=True, eos=False)        
     encoded = encoded.unsqueeze(0)
-    print('encoded', encoded.shape)
+    print('encoded', encoded)
     result = model.generate(
         encoded,
         num_beams=1,
