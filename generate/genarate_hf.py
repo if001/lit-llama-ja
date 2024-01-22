@@ -100,6 +100,7 @@ def generate(
         else:
             logits = model(x, input_pos)        
         print('model', model)
+        print('logits', logits)
         if isinstance(logits, ModelOutput):            
             logits = logits.logits        
 
