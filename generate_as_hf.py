@@ -16,7 +16,7 @@ from lit_llama.utils import lazy_load, llama_model_lookup, quantization
 from mixtral_hf.mixtral import MixtralConfig_HF, MixtralForCausalLM_HF
 from mixtral_hf.traning_config import TrainingConfig
 
-from generate.genarate_hf import generate
+from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM
 
 def main(
     prompt: str = "Hello, my name is",
@@ -57,7 +57,8 @@ def main(
     with lazy_load(checkpoint_path) as checkpoint:
         # name = llama_model_lookup(checkpoint)        
         config = MixtralConfig_HF.from_name(model_name)
-        model = MixtralForCausalLM_HF(config)            
+        # model = MixtralForCausalLM_HF(config)
+        model = MixtralForCausalLM(config)
         model.load_state_dict(checkpoint)
     print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
 
