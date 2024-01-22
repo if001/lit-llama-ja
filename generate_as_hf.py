@@ -64,7 +64,8 @@ def main(
     model.eval()    
     tokenizer = HFTokenizer(tokenizer_path)
     encoded = tokenizer.encode(prompt, bos=True, eos=False)
-    
+    encoded = torch.tensor(encoded)
+    print('encoded', encoded.shape)
     result = model.generate(
         torch.tensor(encoded),
         num_beams=1,
