@@ -16,6 +16,8 @@ from transformers.generation.utils import (
     RepetitionPenaltyLogitsProcessor
 )
 
+from transformers.utils import ModelOutput
+
 # support running without installing as a package
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
@@ -23,6 +25,7 @@ sys.path.append(str(wd))
 
 from lit_llama import GPT
 from mixtral_hf import MixtralForCausalLM_HF
+
 
 @torch.no_grad()
 def generate(
@@ -96,7 +99,8 @@ def generate(
             logits, _ = model(x, input_pos)
         else:
             logits = model(x, input_pos)
-        if wrapped_hf_output:
+            
+        if isinstance(logits, ModelOutput):
             print('logits', logits)
             logits = logits.logits
             print('logits.shape', logits.shape)
