@@ -99,7 +99,8 @@ def generate(
             logits, _ = model(x, input_pos)
         else:
             logits = model(x, input_pos)
-            
+        print('logits', logits)
+        print('a', isinstance(logits, ModelOutput))
         if isinstance(logits, ModelOutput):
             print('logits', logits)
             logits = logits.logits
