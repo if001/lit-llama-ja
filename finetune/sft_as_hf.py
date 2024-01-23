@@ -32,6 +32,109 @@ from trl import SFTTrainer, is_xpu_available
 --output_dir=""
 """
 
+from trl.utils import ConstantLengthDataset
+from datasets import Dataset
+from datasets.builder import DatasetGenerationError
+from datasets.arrow_writer import SchemaInferenceError
+from torch.utils.data import IterableDataset
+import random
+import warnings
+
+class ConstantLengthDatasetDebug(IterableDataset):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    def __iter__(self):
+        iterator = iter(self.dataset)
+        more_examples = True
+        while more_examples:
+            buffer, buffer_len = [], 0
+            while True:
+                if buffer_len >= self.max_buffer_size:
+                    break
+                try:
+                    buffer.append(self.formatting_func(next(iterator)))
+                    buffer_len += len(buffer[-1])
+                except StopIteration:
+                    if self.infinite:
+                        iterator = iter(self.dataset)
+                        warnings.warn("The dataset reached end and the iterator is reset to the start.")
+                    else:
+                        more_examples = False
+                        break
+            print('debug', buffer)
+            tokenized_inputs = self.tokenizer(buffer, add_special_tokens=self.add_special_tokens, truncation=False)[
+                "input_ids"
+            ]
+            all_token_ids = []
+            for tokenized_input in tokenized_inputs:
+                if self.append_concat_token:
+                    tokenized_input = tokenized_input + [self.concat_token_id]
+                all_token_ids.extend(tokenized_input)
+            examples = []
+            for i in range(0, len(all_token_ids), self.seq_length):
+                input_ids = all_token_ids[i : i + self.seq_length]
+                if len(input_ids) == self.seq_length:
+                    examples.append(input_ids)
+            if self.shuffle:
+                random.shuffle(examples)
+            for example in examples:
+                self.current_size += 1
+                yield {
+                    "input_ids": torch.LongTensor(example),
+                    "labels": torch.LongTensor(example),
+                }
+
+class SFTTrainerDebug(SFTTrainer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def _prepare_packed_dataloader(
+        self,
+        tokenizer,
+        dataset,
+        dataset_text_field,
+        max_seq_length,
+        num_of_sequences,
+        chars_per_token,
+        formatting_func=None,
+        append_concat_token=True,
+        add_special_tokens=True,
+    ):
+        if dataset_text_field is not None or formatting_func is not None:
+            if tokenizer is None:
+                raise ValueError("You need to pass a tokenizer when using `dataset_text_field` with `SFTTrainer`.")
+
+            constant_length_iterator = ConstantLengthDatasetDebug(
+                tokenizer,
+                dataset,
+                dataset_text_field=dataset_text_field,
+                formatting_func=formatting_func,
+                seq_length=max_seq_length,
+                infinite=False,
+                num_of_sequences=num_of_sequences,
+                chars_per_token=chars_per_token,
+                eos_token_id=tokenizer.eos_token_id,
+                append_concat_token=append_concat_token,
+                add_special_tokens=add_special_tokens,
+            )
+
+            def data_generator(constant_length_iterator):
+                for i in constant_length_iterator:
+                    yield i
+
+            try:
+                packed_dataset = Dataset.from_generator(
+                    data_generator, gen_kwargs={"constant_length_iterator": constant_length_iterator}
+                )
+            except (DatasetGenerationError, SchemaInferenceError):
+                raise ValueError(
+                    "Error occurred while packing the dataset. Make sure that your dataset has enough samples to at least yield one packed sequence."
+                )
+            return packed_dataset
+        else:
+            raise ValueError(
+                "You need to pass a `dataset_text_field` or `formatting_func` argument to the SFTTrainer if you want to use the `ConstantLengthDataset`."
+            )
 
 
 def format_instruction(ds):    
@@ -119,7 +222,7 @@ if ',' in script_args.dataset_name:
     dataset_names = script_args.dataset_name.split(",")    
     for name in dataset_names:
         ds = load_dataset(name, split="train")        
-        # ds = ds.select(range(3))
+        ds = ds.select(range(100))
         ds = ds.shuffle().map(format_instruction)
         unused_key = list(ds.features.keys())
         unused_key.remove('text')
@@ -197,7 +300,7 @@ else:
 # Define the Trainer
 tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_name, trust_remote_code=script_args.trust_remote_code)
 
-trainer = SFTTrainer(
+trainer = SFTTrainerDebug(
     model=model,
     args=training_args,
     max_seq_length=script_args.seq_length,
