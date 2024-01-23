@@ -103,7 +103,7 @@ def main(
         dataset_names = dataset_name.split(",")
         for name in dataset_names:
             ds = load_dataset(name, split="train")        
-            ds = ds.select(range(10))
+            ds = ds.select(range(100))
             ds = ds.shuffle().map(format_instruction)
             unused_key = list(ds.features.keys())
             unused_key.remove('text')
