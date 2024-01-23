@@ -39,7 +39,6 @@ from trl import is_xpu_available
 --batch_size=32 \
 --gradient_accumulation_steps=16 \
 --trust_remote_code=True \
---num_of_sequences=1024 \
 --output_dir=""
 """
 
@@ -224,3 +223,4 @@ trainer.train()
 
 # Save the model
 trainer.save_model(script_args.output_dir)
+print('done...', script_args.output_dir)
