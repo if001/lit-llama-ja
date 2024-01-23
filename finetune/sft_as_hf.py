@@ -119,24 +119,21 @@ if ',' in script_args.dataset_name:
     datasets = []
     dataset_names = script_args.dataset_name.split(",")    
     for name in dataset_names:
-        ds = load_dataset(name, split="train")
-        print('0', ds)
+        ds = load_dataset(name, split="train")        
         ds = ds.select(range(3))
         ds = ds.shuffle().map(format_instruction)        
         unused_key = list(ds.features.keys())        
         unused_key.remove('text')
-        ds = ds.remove_columns(unused_key)
-        print('1', ds)
+        ds = ds.remove_columns(unused_key)        
         datasets.append(ds)
     dataset = concatenate_datasets(datasets)
 else:
     dataset = load_dataset(script_args.dataset_name, split="train")
     dataset = dataset.shuffle().map(format_instruction)
 
-
-print('2', dataset)
 dataset = dataset.train_test_split(test_size=0.1)
-print('3', dataset)
+for v in dataset['train']:
+    print(v)
 exit(0)
 # Load the model
 if script_args.load_in_8bit and script_args.load_in_4bit:
