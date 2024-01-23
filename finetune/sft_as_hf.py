@@ -23,7 +23,7 @@ from transformers import (
 )
 
 from peft import PeftConfig, PeftModel, get_peft_model
-from trl.trainer.utils import _prepare_dataset, neftune_post_forward_hook
+from trl.trainer.utils import neftune_post_forward_hook
 from trl import is_xpu_available
 
 """sample
