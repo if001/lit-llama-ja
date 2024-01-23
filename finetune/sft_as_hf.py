@@ -39,15 +39,14 @@ def format_instruction(ds):
     instruction = ds['instruction']
     output = ds['output']
     if input is None:
-        f"""以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい
+        text = f"""以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい
 ### 指示:
 {instruction}
 
 ### 応答:
-{output}
-"""
-
-    return f"""以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。
+{output}"""
+    else:
+        text = f"""以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。
 ### 指示:
 {instruction}
 
@@ -57,9 +56,8 @@ def format_instruction(ds):
 ### 応答:
 {output}
 """
-
-
-
+        ds['text'] = text
+        return ds
 
 # Define and parse arguments.
 @dataclass
