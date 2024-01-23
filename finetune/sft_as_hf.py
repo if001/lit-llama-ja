@@ -131,7 +131,7 @@ else:
     dataset = dataset.shuffle().map(format_instruction)
 
 dataset = dataset.train_test_split(test_size=0.1)
-
+print('dataset', dataset)
 # Load the model
 if script_args.load_in_8bit and script_args.load_in_4bit:
     raise ValueError("You can't load the model in 8 bits and 4 bits at the same time")
@@ -201,7 +201,8 @@ trainer = SFTTrainer(
     model=model,
     args=training_args,
     max_seq_length=script_args.seq_length,
-    train_dataset=dataset,
+    train_dataset=dataset['train'],
+    eval_dataset=dataset['test'],
     dataset_text_field=script_args.dataset_text_field,
     peft_config=peft_config,
     tokenizer=tokenizer,
