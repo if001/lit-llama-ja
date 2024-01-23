@@ -55,7 +55,7 @@ def _prepare_packed_dataloader(
     if dataset_text_field is not None or formatting_func is not None:
         if tokenizer is None:
             raise ValueError("You need to pass a tokenizer when using `dataset_text_field` with `SFTTrainer`.")
-
+        print('formatting_func', formatting_func)
         constant_length_iterator = ConstantLengthDataset(
                 tokenizer,
                 dataset,
