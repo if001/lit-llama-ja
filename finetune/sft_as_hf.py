@@ -62,10 +62,14 @@ class ConstantLengthDatasetDebug(ConstantLengthDataset):
                     else:
                         more_examples = False
                         break
-            # print('debug', buffer)
-            tokenized_inputs = self.tokenizer(buffer, add_special_tokens=self.add_special_tokens, truncation=False)[
-                "input_ids"
-            ]
+            
+            try:
+                tokenized_inputs = self.tokenizer(buffer, add_special_tokens=self.add_special_tokens, truncation=False)[
+                    "input_ids"
+                ]
+            except Exception as e:
+                print('debug', buffer)
+                print('error', e)
             all_token_ids = []
             for tokenized_input in tokenized_inputs:
                 if self.append_concat_token:
@@ -120,12 +124,8 @@ class SFTTrainerDebug(SFTTrainer):
             )
 
             def data_generator(constant_length_iterator):
-                try:                    
-                    for i in constant_length_iterator:
-                        yield i
-                except Exception as e:
-                    print('debug!!')
-                    raise ValueError('error!!', e)
+                for i in constant_length_iterator:
+                    yield i
 
             try:
                 packed_dataset = Dataset.from_generator(
