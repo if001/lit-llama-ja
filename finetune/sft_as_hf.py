@@ -123,7 +123,7 @@ if ',' in script_args.dataset_name:
         print('0', ds)
         ds = ds.select(range(3))
         ds = ds.shuffle().map(format_instruction)        
-        ds = ds.remove_columns(ds.features.keys().remove('text'))
+        ds = ds.remove_columns(list(ds.features.keys()).remove('text'))
         print('1', ds)
         datasets.append(ds)
     dataset = concatenate_datasets(datasets)
