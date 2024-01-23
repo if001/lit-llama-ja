@@ -109,7 +109,7 @@ parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
 
 # Load the dataset
-if script_args.dataset_name in ",":
+if ',' in script_args.dataset_name:
     datasets = []
     dataset_names = script_args.dataset_name.split(",")    
     for name in dataset_names:
@@ -118,8 +118,11 @@ if script_args.dataset_name in ",":
         ds = ds.shuffle().map(format_instruction)
         print(ds)
         datasets.append(ds)
+    dataset = concatenate_datasets(datasets)
+else:
+    dataset = load_dataset(script_args.dataset_name, split="train")
+    dataset = dataset.shuffle().map(format_instruction)
 
-dataset = concatenate_datasets(datasets)
 print('2', dataset)
 dataset = dataset.train_test_split(test_size=0.3)
 print('3', dataset)
