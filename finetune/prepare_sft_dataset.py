@@ -92,6 +92,8 @@ def main(
         tokenizer_name: str = "",
         dataset_name: str = "",
         output_dir: str = "",
+        max_seq_length: int = 2048,
+        num_of_sequences: int =1024,
         trust_remote_code: bool = True
 ):
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, trust_remote_code=trust_remote_code)
@@ -115,8 +117,6 @@ def main(
     dataset = dataset.shuffle().train_test_split(test_size=0.1)
 
     dataset_text_field="text"
-    max_seq_length=2048    
-    num_of_sequences=1024
     chars_per_token=3.6
     remove_unused_columns=True
 
