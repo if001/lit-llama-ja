@@ -122,7 +122,8 @@ if ',' in script_args.dataset_name:
         ds = load_dataset(name, split="train")
         print('0', ds)
         ds = ds.select(range(3))
-        ds = ds.shuffle().map(format_instruction)
+        ds = ds.shuffle().map(format_instruction)        
+        ds = ds.remove_columns(ds.features.keys().remove('text'))
         print('1', ds)
         datasets.append(ds)
     dataset = concatenate_datasets(datasets)
@@ -130,8 +131,9 @@ else:
     dataset = load_dataset(script_args.dataset_name, split="train")
     dataset = dataset.shuffle().map(format_instruction)
 
+
 print('2', dataset)
-dataset = dataset.train_test_split(test_size=0.3)
+dataset = dataset.train_test_split(test_size=0.1)
 print('3', dataset)
 exit(0)
 # Load the model
