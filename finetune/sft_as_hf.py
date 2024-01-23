@@ -11,11 +11,20 @@ from typing import List, Optional
 
 import torch
 from accelerate import Accelerator
-from datasets import load_dataset, concatenate_datasets
-from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, HfArgumentParser, TrainingArguments
+from datasets import load_from_disk 
+from functools import wraps
+from transformers.modeling_utils import unwrap_model
 
-from trl import SFTTrainer, is_xpu_available
+from transformers import (
+    AutoModelForCausalLM, AutoTokenizer,
+    BitsAndBytesConfig, HfArgumentParser, 
+    TrainingArguments, Trainer,
+    DataCollatorForLanguageModeling
+)
+
+from peft import PeftConfig, PeftModel, get_peft_model
+from trl.trainer.utils import _prepare_dataset, neftune_post_forward_hook
+from trl import is_xpu_available
 
 """sample
 
@@ -32,29 +41,58 @@ from trl import SFTTrainer, is_xpu_available
 --output_dir=""
 """
 
-def format_instruction(ds):    
-    input = ds['input']
-    instruction = ds['instruction']
-    output = ds['output']
-    if input is None:
-        text = f"""以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい
-### 指示:
-{instruction}
+import importlib
+def is_peft_available() -> bool:
+    return importlib.util.find_spec("peft") is not None
 
-### 応答:
-{output}"""
-    else:
-        text = f"""以下は、タスクを説明する指示と、文脈のある入力の組み合わせです。要求を適切に満たす応答を書きなさい。
-### 指示:
-{instruction}
+class TrainerWrapped(Trainer):
+    """
+    wrapped impl    
+    https://github.com/huggingface/trl/blob/main/trl/trainer/sft_trainer.py
 
-### 入力:
-{input}
+    neftune使うためのwrap
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-### 応答:
-{output}"""
-        ds['text'] = text
-        return ds
+    @wraps(Trainer.train)
+    def train(self, *args, **kwargs):
+        # Activate neftune right before training.
+        if self.neftune_noise_alpha is not None and not self._trainer_supports_neftune:
+            self.model = self._trl_activate_neftune(self.model)
+
+        output = super().train(*args, **kwargs)
+
+        # After training we make sure to retrieve back the original forward pass method
+        # for the embedding layer by removing the forward post hook.
+        if self.neftune_noise_alpha is not None and not self._trainer_supports_neftune:
+            unwrapped_model = unwrap_model(self.model)
+            if is_peft_available() and isinstance(unwrapped_model, PeftModel):
+                embeddings = unwrapped_model.base_model.model.get_input_embeddings()
+            else:
+                embeddings = unwrapped_model.get_input_embeddings()
+
+            self.neftune_hook_handle.remove()
+            del embeddings.neftune_noise_alpha
+
+        return output
+    
+    def _trl_activate_neftune(self, model):
+        r"""
+        Activates the neftune as presented in this code: https://github.com/neelsjain/NEFTune and paper: https://arxiv.org/abs/2310.05914
+        Since in transformers Trainer we do have an `_activate_neftune` method, we need to rename this method to avoid conflicts.
+        """
+        unwrapped_model = unwrap_model(model)
+        if is_peft_available() and isinstance(unwrapped_model, PeftModel):
+            embeddings = unwrapped_model.base_model.model.get_input_embeddings()
+        else:
+            embeddings = unwrapped_model.get_input_embeddings()
+
+        embeddings.neftune_noise_alpha = self.neftune_noise_alpha
+        hook_handle = embeddings.register_forward_hook(neftune_post_forward_hook)
+        self.neftune_hook_handle = hook_handle
+        return model
+    
 
 # Define and parse arguments.
 @dataclass
@@ -68,11 +106,8 @@ class ScriptArguments:
     dataset_name: Optional[str] = field(
         default="timdettmers/openassistant-guanaco", metadata={"help": "the dataset name. if load any datasets, set xxx,yyy,zzz."}
     )
-    dataset_text_field: Optional[str] = field(default="text", metadata={"help": "the text field of the dataset"})
-    # report_to: Optional[str] = field(default="none", metadata={"help": "use 'wandb' to log with wandb"})
     learning_rate: Optional[float] = field(default=1.41e-5, metadata={"help": "the learning rate"})
     batch_size: Optional[int] = field(default=64, metadata={"help": "the batch size"})
-    seq_length: Optional[int] = field(default=512, metadata={"help": "Input sequence length"})
     gradient_accumulation_steps: Optional[int] = field(
         default=1, metadata={"help": "the number of gradient accumulation steps"}
     )
@@ -91,45 +126,25 @@ class ScriptArguments:
         default=100, metadata={"help": "Number of updates steps before two checkpoint saves"}
     )
     save_total_limit: Optional[int] = field(default=10, metadata={"help": "Limits total number of checkpoints."})
-    # push_to_hub: Optional[bool] = field(default=False, metadata={"help": "Push the model to HF Hub"})
     fp16: Optional[bool] = field(default=False, metadata={"help": "Whether to activate fp16 mixed precision"})
     bf16: Optional[bool] = field(default=False, metadata={"help": "Whether to activate bf16 mixed precision"})
     gradient_checkpointing: Optional[bool] = field(
         default=False, metadata={"help": "Whether to use gradient checkpointing or no"}
     )
-    gradient_checkpointing_kwargs: Optional[dict] = field(
-        default=None,
-        metadata={
-            "help": "key word arguments to be passed along `torch.utils.checkpoint.checkpoint` method - e.g. `use_reentrant=False`"
-        },
-    )
-    # hub_model_id: Optional[str] = field(default=None, metadata={"help": "The name of the model on HF Hub"})
-    mixed_precision: Optional[str] = field(default="bf16", metadata={"help": "Mixed precision training"})
-    target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})
-    num_of_sequences: Optional[int] = field(default=1024, metadata={"help": "The number of sequences to use for the `ConstantLengthDataset`. Defaults to `1024`."})
+    target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})    
+    train_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
+    test_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
 
 parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
 
-# Load the dataset
-if ',' in script_args.dataset_name:
-    datasets = []
-    dataset_names = script_args.dataset_name.split(",")    
-    for name in dataset_names:
-        ds = load_dataset(name, split="train")        
-        # ds = ds.select(range(2000))
-        ds = ds.shuffle().map(format_instruction)
-        unused_key = list(ds.features.keys())
-        unused_key.remove('text')
-        ds = ds.remove_columns(unused_key)        
-        datasets.append(ds)
-    dataset = concatenate_datasets(datasets)
-else:
-    dataset = load_dataset(script_args.dataset_name, split="train")
-    dataset = dataset.map(format_instruction)
+# Load tokenizer
+tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_name, trust_remote_code=script_args.trust_remote_code)
 
-dataset = dataset.shuffle().train_test_split(test_size=0.1)
-print('dataset', dataset)
+# Load the dataset
+train_data = load_from_disk(script_args.train_data_file)
+test_data = load_from_disk(script_args.test_data_file)
+
 # Load the model
 if script_args.load_in_8bit and script_args.load_in_4bit:
     raise ValueError("You can't load the model in 8 bits and 4 bits at the same time")
@@ -175,8 +190,6 @@ training_args = TrainingArguments(
     gradient_checkpointing=script_args.gradient_checkpointing,
     fp16=script_args.fp16,
     bf16=script_args.bf16,
-    # TODO: uncomment that on the next release
-    # gradient_checkpointing_kwargs=script_args.gradient_checkpointing_kwargs,
 )
 
 # Define the LoraConfig
@@ -189,23 +202,20 @@ if script_args.use_peft:
         task_type="CAUSAL_LM",
         target_modules=script_args.target_modules,
     )
+    model = get_peft_model(model, peft_config)
 else:
     peft_config = None
 
-# Define the Trainer
-tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_name, trust_remote_code=script_args.trust_remote_code)
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-trainer = SFTTrainer(
+# Define the Trainer
+trainer = TrainerWrapped(
     model=model,
     args=training_args,
-    max_seq_length=script_args.seq_length,
-    train_dataset=dataset['train'],
-    eval_dataset=dataset['test'],
-    dataset_text_field=script_args.dataset_text_field,
-    peft_config=peft_config,
-    tokenizer=tokenizer,
-    packing=True,
-    num_of_sequences=script_args.num_of_sequences,
+    data_collator=data_collator,    
+    train_dataset=train_data,
+    eval_dataset=test_data,
+    tokenizer=tokenizer
 )
 
 trainer.train()
