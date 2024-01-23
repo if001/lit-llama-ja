@@ -1,3 +1,11 @@
+"""
+参考
+
+https://huggingface.co/docs/trl/sft_trainer
+
+https://github.com/huggingface/trl/blob/main/examples/scripts/sft.py
+"""
+
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -27,9 +35,9 @@ from trl import SFTTrainer, is_xpu_available
 
 
 def format_instruction(ds):    
-    input = ds['train']['input']
-    instruction = ds['train']['instruction']
-    output = ds['train']['output']
+    input = ds['input']
+    instruction = ds['instruction']
+    output = ds['output']
     if input is None:
         f"""以下は、タスクを説明する指示です。要求を適切に満たす応答を書きなさい
 ### 指示:
@@ -63,7 +71,7 @@ class ScriptArguments:
     model_name: Optional[str] = field(default="facebook/opt-350m", metadata={"help": "the model name"})
     tokenizer_name: Optional[str] = field(default="facebook/opt-350m", metadata={"help": "the tokenizer name"})
     dataset_name: Optional[str] = field(
-        default="timdettmers/openassistant-guanaco", metadata={"help": "the dataset name"}
+        default="timdettmers/openassistant-guanaco", metadata={"help": "the dataset name. if load any datasets, set xxx,yyy,zzz."}
     )
     dataset_text_field: Optional[str] = field(default="text", metadata={"help": "the text field of the dataset"})
     # report_to: Optional[str] = field(default="none", metadata={"help": "use 'wandb' to log with wandb"})
@@ -114,9 +122,10 @@ if ',' in script_args.dataset_name:
     dataset_names = script_args.dataset_name.split(",")    
     for name in dataset_names:
         ds = load_dataset(name, split="train")
+        print('0', ds)
         ds = ds.select(range(3))
         ds = ds.shuffle().map(format_instruction)
-        print(ds)
+        print('1', ds)
         datasets.append(ds)
     dataset = concatenate_datasets(datasets)
 else:
