@@ -32,7 +32,7 @@ from trl import SFTTrainer, is_xpu_available
 --output_dir=""
 """
 
-from trl.utils import ConstantLengthDataset
+from trl.trainer.utils import ConstantLengthDataset
 from datasets import Dataset
 from datasets.builder import DatasetGenerationError
 from datasets.arrow_writer import SchemaInferenceError
