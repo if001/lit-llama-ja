@@ -113,7 +113,7 @@ def main(
         dataset = dataset.map(format_instruction)
         
     dataset = dataset.shuffle().train_test_split(test_size=0.1)
-        
+
     dataset_text_field="text"
     max_seq_length=2048    
     num_of_sequences=1024
@@ -130,7 +130,7 @@ def main(
         remove_unused_columns
         )
     test_data = _prepare_packed_dataloader(
-        dataset["text"], 
+        dataset["test"], 
         tokenizer,         
         dataset_text_field,
         max_seq_length,        
