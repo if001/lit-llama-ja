@@ -217,7 +217,7 @@ class ScriptArguments:
     # hub_model_id: Optional[str] = field(default=None, metadata={"help": "The name of the model on HF Hub"})
     mixed_precision: Optional[str] = field(default="bf16", metadata={"help": "Mixed precision training"})
     target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})
-
+    num_of_sequences: Optional[int] = field(default=1024, metadata={"help": "The number of sequences to use for the `ConstantLengthDataset`. Defaults to `1024`."})
 
 parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
@@ -316,7 +316,7 @@ trainer = SFTTrainerDebug(
     peft_config=peft_config,
     tokenizer=tokenizer,
     packing=True,
-    num_of_sequences=100
+    num_of_sequences=script_args.num_of_sequences,
 )
 
 trainer.train()
