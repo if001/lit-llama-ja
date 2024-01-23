@@ -4,7 +4,6 @@ from typing import List, Optional
 import torch
 from accelerate import Accelerator
 from datasets import load_dataset, concatenate_datasets
-from peft import LoraConfig
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, HfArgumentParser, TrainingArguments
 
@@ -176,6 +175,7 @@ training_args = TrainingArguments(
 
 # Define the LoraConfig
 if script_args.use_peft:
+    from peft import LoraConfig
     peft_config = LoraConfig(
         r=script_args.peft_lora_r,
         lora_alpha=script_args.peft_lora_alpha,
