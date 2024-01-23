@@ -68,8 +68,9 @@ class ConstantLengthDatasetDebug(ConstantLengthDataset):
                     "input_ids"
                 ]
             except Exception as e:
-                print('debug', buffer)
                 print('error', e)
+                print('debug', buffer)
+                
             all_token_ids = []
             for tokenized_input in tokenized_inputs:
                 if self.append_concat_token:
@@ -314,7 +315,8 @@ trainer = SFTTrainerDebug(
     dataset_text_field=script_args.dataset_text_field,
     peft_config=peft_config,
     tokenizer=tokenizer,
-    packing=True
+    packing=True,
+    num_of_sequences=100
 )
 
 trainer.train()
