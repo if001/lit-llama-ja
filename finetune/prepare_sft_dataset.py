@@ -121,8 +121,8 @@ def main(
     remove_unused_columns=True
 
     train_data = _prepare_packed_dataloader(
+        tokenizer,
         dataset["train"], 
-        tokenizer,         
         dataset_text_field,
         max_seq_length,        
         num_of_sequences,
@@ -130,8 +130,8 @@ def main(
         remove_unused_columns
         )
     test_data = _prepare_packed_dataloader(
-        dataset["test"], 
-        tokenizer,         
+        tokenizer,
+        dataset["test"],
         dataset_text_field,
         max_seq_length,        
         num_of_sequences,
