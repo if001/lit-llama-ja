@@ -40,35 +40,10 @@ from torch.utils.data import IterableDataset
 import random
 import warnings
 
-class ConstantLengthDatasetDebug(IterableDataset):
-    def __init__(self,
-                tokenizer,
-                dataset,
-                dataset_text_field=None,
-                formatting_func=None,
-                infinite=False,
-                seq_length=1024,
-                num_of_sequences=1024,
-                chars_per_token=3.6,
-                eos_token_id=0,
-                shuffle=True,
-                append_concat_token=True,
-                add_special_tokens=True,
-                 ):
-        super().__init__(
-                tokenizer,
-                dataset,
-                dataset_text_field=None,
-                formatting_func=None,
-                infinite=False,
-                seq_length=1024,
-                num_of_sequences=1024,
-                chars_per_token=3.6,
-                eos_token_id=0,
-                shuffle=True,
-                append_concat_token=True,
-                add_special_tokens=True,                             
-        )
+class ConstantLengthDatasetDebug(ConstantLengthDataset):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+ 
     def __iter__(self):
         iterator = iter(self.dataset)
         more_examples = True
