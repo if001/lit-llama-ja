@@ -89,9 +89,10 @@ def _prepare_packed_dataloader(
         )
             
 def main(
-        tokenizer_name: str = "",
+        tokenizer_name: str = "",        
         dataset_name: str = "",
-        output_dir: str = "",
+        output_train_data_dir: str = "",
+        output_test_data_dir: str = "",
         max_seq_length: int = 2048,
         num_of_sequences: int =1024,
         trust_remote_code: bool = True
@@ -140,8 +141,10 @@ def main(
     )
     print('train_data', train_data)
     print('test_data', test_data)
-    train_data.save_to_disk(output_dir)
-    print('save to...', output_dir)
+    train_data.save_to_disk(output_train_data_dir)
+    print('save to...', output_train_data_dir)
+    test_data.save_to_disk(output_test_data_dir)
+    print('save to...', output_test_data_dir)
 
 if __name__ == "__main__":
     from jsonargparse import CLI

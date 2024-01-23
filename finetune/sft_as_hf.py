@@ -31,13 +31,15 @@ from trl import is_xpu_available
 !python finetune/sft_as_hf.py \
 --model_name="if001/tiny_mixtral_ja" \
 --tokenizer_name="if001/sentencepiece_ja" \
---dataset_name="izumi-lab/llm-japanese-dataset,kunishou/databricks-dolly-15k-ja,if001/oasst1_ja_ppl" \
---seq_length=2048 \
+--train_data_dir="" \
+--test_data_dir="" \
 --logging_steps=1000 \
 --save_total_limit=3 \
 --save_steps=1000 \
 --batch_size=32 \
+--gradient_accumulation_steps=16 \
 --trust_remote_code=True \
+--num_of_sequences=1024 \
 --output_dir=""
 """
 
@@ -103,9 +105,9 @@ class ScriptArguments:
 
     model_name: Optional[str] = field(default="facebook/opt-350m", metadata={"help": "the model name"})
     tokenizer_name: Optional[str] = field(default="facebook/opt-350m", metadata={"help": "the tokenizer name"})
-    dataset_name: Optional[str] = field(
-        default="timdettmers/openassistant-guanaco", metadata={"help": "the dataset name. if load any datasets, set xxx,yyy,zzz."}
-    )
+    train_data_dir: Optional[str] = field(default="", metadata={"help": ""})
+    test_data_dir: Optional[str] = field(default="", metadata={"help": ""})
+
     learning_rate: Optional[float] = field(default=1.41e-5, metadata={"help": "the learning rate"})
     batch_size: Optional[int] = field(default=64, metadata={"help": "the batch size"})
     gradient_accumulation_steps: Optional[int] = field(
@@ -142,8 +144,8 @@ script_args = parser.parse_args_into_dataclasses()[0]
 tokenizer = AutoTokenizer.from_pretrained(script_args.tokenizer_name, trust_remote_code=script_args.trust_remote_code)
 
 # Load the dataset
-train_data = load_from_disk(script_args.train_data_file)
-test_data = load_from_disk(script_args.test_data_file)
+train_data = load_from_disk(script_args.train_data_dir)
+test_data = load_from_disk(script_args.test_data_dir)
 
 # Load the model
 if script_args.load_in_8bit and script_args.load_in_4bit:
