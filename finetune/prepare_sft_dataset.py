@@ -55,7 +55,7 @@ def _prepare_packed_dataloader(
     if dataset_text_field is not None or formatting_func is not None:
         if tokenizer is None:
             raise ValueError("You need to pass a tokenizer when using `dataset_text_field` with `SFTTrainer`.")
-        print('formatting_func', formatting_func)
+        
         constant_length_iterator = ConstantLengthDataset(
                 tokenizer,
                 dataset,
@@ -113,12 +113,14 @@ def main(
     else:
         dataset = load_dataset(dataset_name, split="train")
         dataset = dataset.map(format_instruction)
+        unused_key = list(dataset.features.keys())
+        unused_key.remove('text')
+        dataset = dataset.remove_columns(unused_key)        
         
     dataset = dataset.shuffle().train_test_split(test_size=0.1)
 
     dataset_text_field="text"
     chars_per_token=3.6
-    remove_unused_columns=True
 
     train_data = _prepare_packed_dataloader(
         tokenizer,
@@ -126,8 +128,7 @@ def main(
         dataset_text_field,
         max_seq_length,        
         num_of_sequences,
-        chars_per_token,
-        remove_unused_columns
+        chars_per_token
         )
     test_data = _prepare_packed_dataloader(
         tokenizer,
@@ -135,8 +136,7 @@ def main(
         dataset_text_field,
         max_seq_length,        
         num_of_sequences,
-        chars_per_token,
-        remove_unused_columns
+        chars_per_token        
     )
     print('train_data', train_data)
     print('test_data', test_data)
