@@ -119,7 +119,7 @@ if ',' in script_args.dataset_name:
     dataset_names = script_args.dataset_name.split(",")    
     for name in dataset_names:
         ds = load_dataset(name, split="train")        
-        ds = ds.select(range(3))
+        # ds = ds.select(range(3))
         ds = ds.shuffle().map(format_instruction)        
         unused_key = list(ds.features.keys())        
         unused_key.remove('text')
