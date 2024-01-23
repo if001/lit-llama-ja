@@ -54,8 +54,7 @@ def format_instruction(ds):
 {input}
 
 ### 応答:
-{output}
-"""
+{output}"""
         ds['text'] = text
         return ds
 
@@ -132,9 +131,7 @@ else:
     dataset = dataset.shuffle().map(format_instruction)
 
 dataset = dataset.train_test_split(test_size=0.1)
-for v in dataset['train']:
-    print(v)
-exit(0)
+
 # Load the model
 if script_args.load_in_8bit and script_args.load_in_4bit:
     raise ValueError("You can't load the model in 8 bits and 4 bits at the same time")
