@@ -182,6 +182,7 @@ else:
 training_args = TrainingArguments(
     output_dir=script_args.output_dir,
     per_device_train_batch_size=script_args.batch_size,
+    per_device_eval_batch_size==script_args.batch_size,
     gradient_accumulation_steps=script_args.gradient_accumulation_steps,
     learning_rate=script_args.learning_rate,
     logging_steps=script_args.logging_steps,
@@ -195,6 +196,9 @@ training_args = TrainingArguments(
     gradient_checkpointing=script_args.gradient_checkpointing,
     fp16=script_args.fp16,
     bf16=script_args.bf16,
+    evaluation_strategy="step",
+    save_strategy="step",
+    weight_decay=0.01,
 )
 
 # Define the LoraConfig
