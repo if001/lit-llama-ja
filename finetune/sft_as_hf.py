@@ -135,6 +135,7 @@ class ScriptArguments:
     target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})    
     train_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
     test_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
+    from_checkpoint: Optional[str] = field(default="", metadata={"help": "checkpoint dir"})
 
 parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
@@ -164,15 +165,18 @@ else:
     device_map = None
     quantization_config = None
     torch_dtype = None
-
-model = AutoModelForCausalLM.from_pretrained(
-    script_args.model_name,
-    quantization_config=quantization_config,
-    device_map=device_map,
-    trust_remote_code=script_args.trust_remote_code,
-    torch_dtype=torch_dtype,
-    use_auth_token=script_args.use_auth_token,
-)
+if script_args.from_checkpoint is not None:
+    print('load from checkpoint...', script_args.from_checkpoint)
+    model = AutoModelForCausalLM.from_pretrained(script_args.from_checkpoint)
+else:    
+    model = AutoModelForCausalLM.from_pretrained(
+        script_args.model_name,
+        quantization_config=quantization_config,
+        device_map=device_map,
+        trust_remote_code=script_args.trust_remote_code,
+        torch_dtype=torch_dtype,
+        use_auth_token=script_args.use_auth_token,
+    )
 
 # Define the training arguments
 training_args = TrainingArguments(
