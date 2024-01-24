@@ -227,7 +227,9 @@ trainer = TrainerWrapped(
     tokenizer=tokenizer
 )
 
-trainer.train()
+resume_from_checkpoint=script_args.from_checkpoint is not None
+print("resume_from_checkpoint", resume_from_checkpoint)
+trainer.train(resume_from_checkpoint=resume_from_checkpoint)
 
 # Save the model
 trainer.save_model(script_args.output_dir)
