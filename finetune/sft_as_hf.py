@@ -196,8 +196,8 @@ training_args = TrainingArguments(
     gradient_checkpointing=script_args.gradient_checkpointing,
     fp16=script_args.fp16,
     bf16=script_args.bf16,
-    evaluation_strategy="step",
-    save_strategy="step",
+    evaluation_strategy="steps",
+    save_strategy="steps",
     weight_decay=0.01,
 )
 
