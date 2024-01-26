@@ -126,6 +126,9 @@ class ScriptArguments:
     save_steps: Optional[int] = field(
         default=100, metadata={"help": "Number of updates steps before two checkpoint saves"}
     )
+    eval_steps: Optional[int] = field(
+        default=1000, metadata={"help": "Number of eval steps"}
+    )
     save_total_limit: Optional[int] = field(default=10, metadata={"help": "Limits total number of checkpoints."})
     fp16: Optional[bool] = field(default=False, metadata={"help": "Whether to activate fp16 mixed precision"})
     bf16: Optional[bool] = field(default=False, metadata={"help": "Whether to activate bf16 mixed precision"})
@@ -191,6 +194,7 @@ training_args = TrainingArguments(
     report_to=None,
     save_steps=script_args.save_steps,
     save_total_limit=script_args.save_total_limit,
+    eval_steps=script_args.eval_steps,
     # push_to_hub=script_args.push_to_hub,
     # hub_model_id=script_args.hub_model_id,
     gradient_checkpointing=script_args.gradient_checkpointing,
