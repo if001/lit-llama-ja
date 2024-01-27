@@ -55,18 +55,19 @@ class TrainerWrapped(Trainer):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.neftune_noise_alpha = 5
 
     @wraps(Trainer.train)
     def train(self, *args, **kwargs):
         # Activate neftune right before training.
-        if self.neftune_noise_alpha is not None and not self._trainer_supports_neftune:
+        if self.neftune_noise_alpha is not None:
             self.model = self._trl_activate_neftune(self.model)
 
         output = super().train(*args, **kwargs)
 
         # After training we make sure to retrieve back the original forward pass method
         # for the embedding layer by removing the forward post hook.
-        if self.neftune_noise_alpha is not None and not self._trainer_supports_neftune:
+        if self.neftune_noise_alpha is not None:
             unwrapped_model = unwrap_model(self.model)
             if is_peft_available() and isinstance(unwrapped_model, PeftModel):
                 embeddings = unwrapped_model.base_model.model.get_input_embeddings()
@@ -187,6 +188,7 @@ training_args = TrainingArguments(
     per_device_train_batch_size=script_args.batch_size,
     per_device_eval_batch_size=script_args.batch_size,
     gradient_accumulation_steps=script_args.gradient_accumulation_steps,
+    eval_accumulation_steps=script_args.gradient_accumulation_steps,
     learning_rate=script_args.learning_rate,
     logging_steps=script_args.logging_steps,
     num_train_epochs=script_args.num_train_epochs,
