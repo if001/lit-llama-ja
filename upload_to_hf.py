@@ -17,16 +17,26 @@ def main(
     repo_id: str = "",
     checkpoint_path: Path = Path("checkpoints/lit-llama/7B/lit-llama.pth"),    
     model_name: str = "7B",
+    from_tf: bool = False
 ) -> None:  
-    assert checkpoint_path.is_file(), checkpoint_path    
+    
+    if not from_tf:
+        ## checkpoint fileがpthの場合
+        assert checkpoint_path.is_file(), checkpoint_path
+        print(f"Loading model ...{model_name}", file=sys.stderr)
+        with lazy_load(checkpoint_path) as checkpoint:
+            # name = llama_model_lookup(checkpoint)        
+            config = MixtralConfig_HF.from_name(model_name)
+            # model = MixtralForCausalLM_HF(config)
+            model = MixtralForCausalLM(config)
+            model.load_state_dict(checkpoint)
 
-    print(f"Loading model ...{model_name}", file=sys.stderr)
-    with lazy_load(checkpoint_path) as checkpoint:
-        # name = llama_model_lookup(checkpoint)        
-        config = MixtralConfig_HF.from_name(model_name)
-        # model = MixtralForCausalLM_HF(config)
-        model = MixtralForCausalLM(config)
-        model.load_state_dict(checkpoint)
+    if from_tf:
+        ## transformerのcheckpointの場合
+        ## AutoModelForCausalLMでtrain/saveしたときに使う
+        from transformers import AutoModelForCausalLM
+        print(f"Loading model as transformers...{model_name}", file=sys.stderr)
+        model = AutoModelForCausalLM.from_pretrained(checkpoint_path)
 
     model.push_to_hub(repo_id)
 
