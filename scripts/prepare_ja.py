@@ -24,10 +24,11 @@ sample_ids = [
         'if001/oscar_2023_filtered',
         'if001/aozorabunko-clean-sin'
 ]
-
 sample_ids = [
         "izumi-lab/wikinews-ja-20230728",
         "izumi-lab/wikinews-en-20230728",
+        "izumi-lab/wikipedia-ja-20230720",
+        "izumi-lab/wikipedia-en-20230720",
         'izumi-lab/open-text-books',
         'if001/aozorabunko-clean-sin'
 ]
