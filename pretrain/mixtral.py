@@ -154,6 +154,8 @@ def main(
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
     ds_size = int(8e+9 * train_data_rate)
+    ds_size = int(5.29e+9 * train_data_rate) ## without oscar ds size
+    
     print("ds size:", format_number(ds_size))
     train(config, trainingConfig, fabric, model, optimizer, train_dataloader, 
           val_dataloader, gradient_accumulation_iters, devices, str(out_model_dir), 
