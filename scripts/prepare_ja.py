@@ -97,6 +97,7 @@ def prepare(
         tokenizer_path=tokenizer_path,
         destination_path=destination_path,
         chunk_size=chunk_size,
+        tokenizer_as_pretrained=tokenizer_as_pretrained
     )
 
 if __name__ == "__main__":
