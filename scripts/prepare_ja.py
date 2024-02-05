@@ -45,12 +45,13 @@ def format_number(num):
 def prepare_for_dataset(
     dataset_ids: list[str],
     tokenizer_path: Path,
+    tokenizer_as_pretrained: bool,
     destination_path: Path,
-    chunk_size: int,    
+    chunk_size: int,
 ) -> None:
     destination_path.mkdir(parents=True, exist_ok=True)
     # tokenizer = Tokenizer(tokenizer_path)    
-    tokenizer = HFTokenizer(model_path=tokenizer_path)
+    tokenizer = HFTokenizer(model_path=tokenizer_path, as_pretrained=tokenizer_as_pretrained)
     total_token_cnt = 0
     for dataset_id in dataset_ids:
         token_cnt = 0
@@ -82,13 +83,14 @@ def prepare_for_dataset(
         print('tokens ', format_number(token_cnt))
         total_token_cnt += token_cnt
     print('total tokens', format_number(total_token_cnt))
-    
+
 def prepare(
     dataset_ids = sample_ids,
     tokenizer_path: Path = Path("checkpoints/lit-llama/tokenizer.model"),
     destination_path: Path = Path("data/ja_data"),
     chunk_size: int = 2049 * 1024,  # 2048 block size + 1 for causal (from LLama), 1024 blocks
-    sample: bool = False    
+    sample: bool = False,
+    tokenizer_as_pretrained: bool = False
 ) -> None: 
     prepare_for_dataset(
         dataset_ids=dataset_ids,
