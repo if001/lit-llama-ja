@@ -203,6 +203,7 @@ class PackedDatasetIterator:
             self._buffers.append(memoryview(mmap))
 
         self._file_idx += self._n_chunks
+        print('debug', self._n_chunks, self._n_blocks)
         n_all_blocks = self._n_chunks * self._n_blocks
 
         self._block_idxs = (
