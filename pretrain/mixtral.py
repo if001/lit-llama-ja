@@ -105,7 +105,7 @@ def main(
 
     train_dataloader, val_dataloader = create_dataloaders(
         batch_size=trainingConfig.micro_batch_size,
-        block_size=config.hidden_size,
+        block_size=4096,
         fabric=fabric,
         train_data_dir=train_data_dir,
         val_data_dir=val_data_dir,
