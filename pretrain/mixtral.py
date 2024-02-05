@@ -59,7 +59,8 @@ def main(
     weight_decay: float = 0.001,
     interrupt: bool = False,
     train_data_rate: float = 1.0,
-    epoch: int = 1
+    epoch: int = 1,
+    block_size: int = 4096
 ) -> None:    
 
     trainingConfig = TrainingConfig.from_name(model_size)
@@ -105,7 +106,7 @@ def main(
 
     train_dataloader, val_dataloader = create_dataloaders(
         batch_size=trainingConfig.micro_batch_size,
-        block_size=4096,
+        block_size=block_size,
         fabric=fabric,
         train_data_dir=train_data_dir,
         val_data_dir=val_data_dir,
@@ -356,6 +357,7 @@ def create_dataloader(
         filenames = glob.glob(os.path.join(data_dir, prefix + "*"))
         n_chunks = len(filenames)
         # n_chunks = 4 ## default
+        print("debug2", block_size, n_chunks)
         dataset = PackedDataset(            
             filenames, n_chunks=n_chunks, block_size=block_size, shuffle=shuffle, seed=seed,
             num_processes=fabric.world_size, process_rank=fabric.global_rank, wrap=True
