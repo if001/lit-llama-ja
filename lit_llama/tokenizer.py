@@ -49,9 +49,12 @@ class Tokenizer:
         SentencePieceTrainer.Train(input=input, model_prefix=model_prefix, vocab_size=vocab_size)
 
 class HFTokenizer():
-    def __init__(self, model_path: Path) -> None:
+    def __init__(self, model_path: Path, as_pretrained = False) -> None:
         from tokenizers import Tokenizer as HFTokenizer
-        self.processor = HFTokenizer.from_file(str(model_path))
+        if not as_pretrained:
+            self.processor = HFTokenizer.from_file(str(model_path))
+        if as_pretrained:
+            self.processor = HFTokenizer.from_pretrained(str(model_path))
         
         ## ["<PAD>", "<BOS>", "<EOS>", "<UNK>", "<MASK>"]
         ## [0, 1, 2, 3, 4]
