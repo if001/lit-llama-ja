@@ -27,7 +27,8 @@ sample_ids = [
 
 sample_ids = [
         "izumi-lab/wikinews-ja-20230728",
-        "izumi-lab/wikinews-en-20230728",                        
+        "izumi-lab/wikinews-en-20230728",
+        'izumi-lab/open-text-books',
         'if001/aozorabunko-clean-sin'
 ]
 
