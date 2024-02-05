@@ -9,13 +9,11 @@ from pathlib import Path
 from typing import Tuple, Optional
 
 import lightning as L
-from lightning.fabric.strategies import FSDPStrategy, DeepSpeedStrategy
 from lightning.fabric.utilities.load import _lazy_load
 from lightning.pytorch.loggers import TensorBoardLogger
 
 import torch
 from torch.utils.data import DataLoader
-from torch.distributed.fsdp.wrap import transformer_auto_wrap_policy
 
 import numpy as np
 
@@ -23,28 +21,14 @@ import numpy as np
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
 
-from lit_llama.model import Block
+
 from lit_llama.packed_dataset import PackedDataset, CombinedDataset
 from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fabric, chunked_cross_entropy
 
-# from lit_llama.model_llama2 import GPT
-# from lit_llama.config_llama2 import Llama2Config
-# from lit_llama.training_config import TrainingConfig
 from mixtral_hf.mixtral import MixtralConfig_HF, MixtralForCausalLM_HF
 from mixtral_hf.traning_config import TrainingConfig
 
-
-
 from lit_llama.moe_module import get_load_balance_loss
-
-# ## 日本語: 997.79M, 英語: 3.80B/3
-# train_data_config = [ 
-#     ('wikipedia-ja-20230720', 1.0),
-#     ('wikipedia-en-20230720', 0.3),
-#     ('open-text-books', 1.0),
-#     ('aozorabunko-clean-sin',1.0)
-# ]
-
 
 def format_number(num):
     if abs(num) >= 10**12:  # Trillion
@@ -100,11 +84,6 @@ def main(
     trainingConfig.debug()
     trainingConfig.save(str(out_dir_path))
 
-    # strategy = 'ddp'
-    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy)
-    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="16-true", strategy=strategy)
-    # fabric = L.Fabric(accelerator="cuda", devices=devices, precision="bf16-mixed", strategy=strategy, loggers=TensorBoardLogger(log_dir, name="model"))
-
     logger = TensorBoardLogger(out_log_dir, name="model")
     
     precision="16-mixed" ## for v100
@@ -117,7 +96,6 @@ def main(
     if fabric.global_rank == 0:
         os.makedirs(str(out_dir_path), exist_ok=True)
 
-    # config = LLaMAConfig.from_name("7B")
     config = MixtralConfig_HF.from_name(model_size)
     config.nef = False
     config.debug()
@@ -147,8 +125,7 @@ def main(
         # torch.set_default_dtype(torch.float16)
         print('dtype: ', torch.get_default_dtype())
         model = MixtralForCausalLM_HF(config)
-        print(model)
-        ## model = LLaMA(config)
+        print(model)        
         model.apply(model._init_weights)
         # torch.set_default_dtype(torch.float32)
         if load_dir:
@@ -410,7 +387,7 @@ def create_dataloaders(
         ('wikipedia-ja-20230720', train_data_rate),
         ('wikipedia-en-20230720', train_data_rate),
         ('open-text-books', train_data_rate),
-        ('oscar_2023_filtered', train_data_rate),
+        # ('oscar_2023_filtered', train_data_rate),
         ('aozorabunko-clean-sin',train_data_rate)
     ]
     val_data_config = [
