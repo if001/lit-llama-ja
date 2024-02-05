@@ -124,5 +124,19 @@ class MixtralConfig_HF(MixtralConfig):
                 num_local_experts=6,
             )
             return cls(**conf)
+        if size == "Mixtral-100M-llm-jp-tk":
+            conf = dict(
+                hidden_size=640,
+                intermediate_size=2600,
+                num_hidden_layers=8,
+                num_attention_heads=8,
+                num_key_value_heads=4,
+                bos_token_id=1,
+                eos_token_id=2,
+                pad_token_id=4,
+                num_experts_per_tok=2,
+                num_local_experts=6,
+            )
+            return cls(**conf)
         raise ValueError("")
         
