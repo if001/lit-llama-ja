@@ -68,7 +68,7 @@ class TrainingConfig():
     
     @classmethod
     def from_name(cls, model_size):
-        if model_size == "Mixtral-100M":
+        if model_size == "Mixtral-100M" or model_size == "Mixtral-100M-llm-jp-tk":
             # block_size = 4096
             block_size = 640
             ds_size = 8e+9
@@ -91,5 +91,5 @@ class TrainingConfig():
                 warmup_iters=500,
                 lr_decay_iters=max_iters,
             )
-            return cls(**conf)
+            return cls(**conf)        
         raise ValueError("invalid model size", model_size)
