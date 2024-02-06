@@ -84,8 +84,7 @@ class MixtralConfig_HF(MixtralConfig):
             pad_token_id=pad_token_id,
             num_experts_per_tok=num_experts_per_tok,
             num_local_experts=num_local_experts,
-            output_router_logits=True,
-            max_position_embeddings=4096
+            output_router_logits=True            
             **kwargs)
 
     def save(self, output_dir):
@@ -138,6 +137,7 @@ class MixtralConfig_HF(MixtralConfig):
                 pad_token_id=4,
                 num_experts_per_tok=2,
                 num_local_experts=6,
+                max_position_embeddings=4096
             )
             return cls(**conf)
         raise ValueError("")
