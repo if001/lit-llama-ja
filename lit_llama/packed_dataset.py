@@ -180,6 +180,7 @@ class PackedDatasetIterator:
             mmap._mmap.close()
 
     def _load_n_chunks(self):
+        print('='*20)
         print('load')
         self._close_mmaps()
         self._mmaps = []
@@ -190,7 +191,7 @@ class PackedDatasetIterator:
                 raise StopIteration
             else:
                 self._file_idx = 0
-                
+
         print('self._n_chunks', self._n_chunks)
         for i in range(self._n_chunks):
             filename = self._filenames[self._file_idx + i]
