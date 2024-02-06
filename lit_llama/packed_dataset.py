@@ -192,7 +192,7 @@ class PackedDatasetIterator:
 
         for i in range(self._n_chunks):
             filename = self._filenames[self._file_idx + i]
-            
+            print('filename', filename)
             if self._dtype is None:
                 self._dtype, self._chunk_size = self._read_header(
                     filename
@@ -205,7 +205,6 @@ class PackedDatasetIterator:
             self._buffers.append(memoryview(mmap))
 
         self._file_idx += self._n_chunks
-        print('debug', self._n_chunks, self._n_blocks)
         n_all_blocks = self._n_chunks * self._n_blocks
 
         self._block_idxs = (
