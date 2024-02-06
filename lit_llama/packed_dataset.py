@@ -180,8 +180,6 @@ class PackedDatasetIterator:
             mmap._mmap.close()
 
     def _load_n_chunks(self):
-        print('='*20)
-        print('load')
         self._close_mmaps()
         self._mmaps = []
         self._buffers = []
@@ -192,25 +190,20 @@ class PackedDatasetIterator:
             else:
                 self._file_idx = 0
 
-        print('self._n_chunks', self._n_chunks)
         for i in range(self._n_chunks):
             filename = self._filenames[self._file_idx + i]
             if self._dtype is None:
                 self._dtype, self._chunk_size = self._read_header(
                     filename
                 )
-                print('self._dtype', self._dtype)
-                print('self._chunk_size, self._block_size: ', self._chunk_size, self._block_size)
                 self._n_blocks = self._chunk_size // self._block_size
-                print('self._n_blocks', self._n_blocks)
-                print('-'*20)
+
             # TODO: check header matches with previous files
             mmap = np.memmap(filename, mode="r", order="C", offset=HDR_SIZE)
             self._mmaps.append(mmap)
             self._buffers.append(memoryview(mmap))
         
         self._file_idx += self._n_chunks
-        print('self._n_chunks * self._n_blocks', self._n_chunks, self._n_blocks)
         n_all_blocks = self._n_chunks * self._n_blocks
 
         self._block_idxs = (
