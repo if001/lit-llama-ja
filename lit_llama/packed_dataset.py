@@ -180,6 +180,7 @@ class PackedDatasetIterator:
             mmap._mmap.close()
 
     def _load_n_chunks(self):
+        print('load')
         self._close_mmaps()
         self._mmaps = []
         self._buffers = []
