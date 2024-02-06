@@ -353,6 +353,7 @@ def create_dataloader(
     seed: int = 12345,
 ) -> DataLoader:
     datasets = []
+    print('data_config', data_config)
     for prefix, _ in data_config:
         filenames = glob.glob(os.path.join(data_dir, prefix + "*"))
         print('len(filenames)', len(filenames))
