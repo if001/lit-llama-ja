@@ -196,9 +196,11 @@ class PackedDatasetIterator:
                 self._dtype, self._chunk_size = self._read_header(
                     filename
                 )
+                print('self._dtype', self._dtype)
                 print('self._chunk_size, self._block_size: ', self._chunk_size, self._block_size)
                 self._n_blocks = self._chunk_size // self._block_size
                 print('self._n_blocks', self._n_blocks)
+                print('-'*20)
             # TODO: check header matches with previous files
             mmap = np.memmap(filename, mode="r", order="C", offset=HDR_SIZE)
             self._mmaps.append(mmap)
