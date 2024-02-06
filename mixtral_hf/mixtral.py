@@ -126,6 +126,7 @@ class MixtralConfig_HF(MixtralConfig):
             return cls(**conf)
         if size == "Mixtral-100M-llm-jp-tk":
             conf = dict(
+                vocab_size=50570,
                 hidden_size=640,
                 intermediate_size=2400,
                 num_hidden_layers=8,
