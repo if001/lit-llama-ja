@@ -101,7 +101,7 @@ class TrainingConfig():
             # ds_size = 8e+9
             ds_size = 5.29e+9  ## without oscar ds size
             batch_size = 128
-            micro_batch_size = 32
+            micro_batch_size = 4
             one_iters = int(ds_size/(block_size*micro_batch_size))
             max_iters = one_iters
             conf = dict(
