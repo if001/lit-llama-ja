@@ -232,13 +232,12 @@ def train(
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
-            outputs = model(input_ids)
-            
-            if isinstance(outputs, ModelOutput):
+            if trainingConfig.use_hf_model:
+                outputs = model(input_ids, labels=targets)
                 loss = outputs.loss
                 print('type loss', type(loss))
                 print('loss', loss)
-            if isinstance(outputs, tuple):
+            else:
                 logits, router_logit = model(input_ids)
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
                 _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)

@@ -17,6 +17,7 @@ class TrainingConfig():
                 warmup_iters,
                 lr_decay_iters,
                 ds_size,
+                use_hf_model=False
                 ) -> None:
         self.model_size = model_size
         self.learning_rate = learning_rate        
@@ -31,7 +32,8 @@ class TrainingConfig():
         self.decay_lr = decay_lr
         self.warmup_iters = warmup_iters
         self.lr_decay_iters = lr_decay_iters
-        self.ds_size = ds_size
+        self.ds_size = ds_size,
+        self.use_hf_model = use_hf_model ## huggingfaceのmodelをloadしてtrainingする場合にTrue、mixtralの場合、modelにinput_idsとlabelsを渡すとlossを返す
     def save(self, output_dir):
         """
         Save member variables of this instance to a JSON file.
@@ -118,7 +120,8 @@ class TrainingConfig():
                 decay_lr=True,
                 warmup_iters=500,
                 lr_decay_iters=max_iters,
-                ds_size=ds_size
+                ds_size=ds_size,
+                use_hf_model=True
             )
             return cls(**conf)
         raise ValueError("invalid model size", model_size)
