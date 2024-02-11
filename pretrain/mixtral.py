@@ -235,8 +235,6 @@ def train(
             if trainingConfig.use_hf_model:
                 outputs = model(input_ids, labels=targets)
                 loss = outputs.loss
-                print('type loss', type(loss))
-                print('loss', loss)
             else:
                 logits, router_logit = model(input_ids)
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
