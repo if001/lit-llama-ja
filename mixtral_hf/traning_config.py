@@ -98,7 +98,7 @@ class TrainingConfig():
                 ds_size=ds_size
             )
             return cls(**conf)        
-        if (model_size == "Mixtral-400M-llm-jp-tk"):
+        if (model_size == "Mixtral-800M-llm-jp-tk"):
             block_size = 2048
             # ds_size = 8e+9
             ds_size = 5.29e+9  ## without oscar ds size
