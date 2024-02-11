@@ -233,15 +233,16 @@ def train(
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
             outputs = model(input_ids)
-            print('outputs', outputs)
-            print('isinstance', isinstance(outputs, ModelOutput))
+            
             if isinstance(outputs, ModelOutput):
                 loss = outputs.loss
+                print('type loss', type(loss))
+                print('loss', loss)
             if isinstance(outputs, tuple):
                 logits, router_logit = model(input_ids)
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
                 _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
-                loss += config.router_aux_loss_coef*_loss                
+                loss += config.router_aux_loss_coef*_loss
             fabric.backward(loss / grad_accum_steps)        
         exit(0)
         t1 = time.time()
