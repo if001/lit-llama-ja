@@ -16,6 +16,7 @@ class TrainingConfig():
                 decay_lr,
                 warmup_iters,
                 lr_decay_iters,
+                ds_size,
                 ) -> None:
         self.model_size = model_size
         self.learning_rate = learning_rate        
@@ -30,7 +31,7 @@ class TrainingConfig():
         self.decay_lr = decay_lr
         self.warmup_iters = warmup_iters
         self.lr_decay_iters = lr_decay_iters
-
+        self.ds_size = ds_size
     def save(self, output_dir):
         """
         Save member variables of this instance to a JSON file.
@@ -68,10 +69,12 @@ class TrainingConfig():
     
     @classmethod
     def from_name(cls, model_size):
-        if model_size == "Mixtral-100M" or model_size == "Mixtral-100M-llm-jp-tk":
+        if (model_size == "Mixtral-100M" 
+            or model_size == "Mixtral-100M-llm-jp-tk"):
             # block_size = 4096
             block_size = 640
-            ds_size = 8e+9
+            # ds_size = 8e+9
+            ds_size = 5.29e+9  ## without oscar ds size
             batch_size = 128
             micro_batch_size = 4
             one_iters = int(ds_size/(block_size*micro_batch_size))
@@ -90,6 +93,32 @@ class TrainingConfig():
                 decay_lr=True,
                 warmup_iters=500,
                 lr_decay_iters=max_iters,
+                ds_size=ds_size
             )
             return cls(**conf)        
+        if (model_size == "Mixtral-400M-llm-jp-tk"):
+            block_size = 2048
+            # ds_size = 8e+9
+            ds_size = 5.29e+9  ## without oscar ds size
+            batch_size = 128
+            micro_batch_size = 32
+            one_iters = int(ds_size/(block_size*micro_batch_size))
+            max_iters = one_iters
+            conf = dict(
+                model_size=model_size,
+                learning_rate=1e-4,
+                min_lr=1e-5,
+                batch_size=batch_size,
+                micro_batch_size=micro_batch_size,
+                max_iters=max_iters,
+                weight_decay=0.001,
+                beta1=0.9,
+                beta2=0.95,
+                grad_clip=1.0,
+                decay_lr=True,
+                warmup_iters=500,
+                lr_decay_iters=max_iters,
+                ds_size=ds_size
+            )
+            return cls(**conf)
         raise ValueError("invalid model size", model_size)

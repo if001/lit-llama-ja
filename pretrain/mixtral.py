@@ -20,11 +20,12 @@ import numpy as np
 # support running without installing as a package
 wd = Path(__file__).parent.parent.resolve()
 sys.path.append(str(wd))
-
+from transformers.utils import ModelOutput
 
 from lit_llama.packed_dataset import PackedDataset, CombinedDataset
 from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fabric, chunked_cross_entropy
 
+from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM
 from mixtral_hf.mixtral import MixtralConfig_HF, MixtralForCausalLM_HF
 from mixtral_hf.traning_config import TrainingConfig
 
@@ -61,6 +62,8 @@ def main(
     train_data_rate: float = 1.0,
     epoch: int = 1,
     block_size: int = 4096
+    ## mixtralの場合、hidden_sizeが最大seq_lenとなる。block_sizeがseq_lenを超える場合、切り捨て
+    ## block_sizeはmodel_configのhideen_sizeを参照
 ) -> None:    
 
     trainingConfig = TrainingConfig.from_name(model_size)
@@ -125,7 +128,8 @@ def main(
         # torch.set_default_dtype(torch.bfloat16)
         # torch.set_default_dtype(torch.float16)
         print('dtype: ', torch.get_default_dtype())
-        model = MixtralForCausalLM_HF(config)
+        # model = MixtralForCausalLM_HF(config) ## lossの計算をoverrideしたモデル
+        model = MixtralForCausalLM(config) ## original
         print(model)        
         model.apply(model._init_weights)
         # torch.set_default_dtype(torch.float32)
@@ -154,8 +158,7 @@ def main(
     process_batch_size = trainingConfig.batch_size // devices
     gradient_accumulation_iters = process_batch_size // trainingConfig.micro_batch_size    
 
-    ds_size = int(8e+9 * train_data_rate)
-    ds_size = int(5.29e+9 * train_data_rate) ## without oscar ds size
+    ds_size = int(trainingConfig.ds_size  * train_data_rate)
     
     print("ds size:", format_number(ds_size))
     train(config, trainingConfig, fabric, model, optimizer, train_dataloader, 
@@ -229,13 +232,18 @@ def train(
         is_accumulating = (iter_num + 1) % grad_accum_steps != 0
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
-            logits, router_logit = model(input_ids)
-            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-            _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
-            loss += config.router_aux_loss_coef*_loss
-
-            fabric.backward(loss / grad_accum_steps)
-
+            outputs = model(input_ids)
+            print('outputs', outputs)
+            print('isinstance', isinstance(outputs, ModelOutput))
+            if isinstance(outputs, ModelOutput):
+                loss = outputs.loss
+            if isinstance(outputs, tuple):
+                logits, router_logit = model(input_ids)
+                loss = chunked_cross_entropy(logits, targets, chunk_size=0)
+                _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
+                loss += config.router_aux_loss_coef*_loss                
+            fabric.backward(loss / grad_accum_steps)        
+        exit(0)
         t1 = time.time()
 
         if not is_accumulating:

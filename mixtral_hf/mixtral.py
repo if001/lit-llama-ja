@@ -140,5 +140,21 @@ class MixtralConfig_HF(MixtralConfig):
                 max_position_embeddings=4096
             )
             return cls(**conf)
+        if size == "Mixtral-400M-llm-jp-tk":
+            conf = dict(
+                vocab_size=50570,
+                hidden_size=2048,
+                intermediate_size=2400,
+                num_hidden_layers=6,
+                num_attention_heads=8,
+                num_key_value_heads=4,
+                bos_token_id=1,
+                eos_token_id=2,
+                pad_token_id=4,
+                num_experts_per_tok=2,
+                num_local_experts=6,
+                max_position_embeddings=2048
+            )
+            return cls(**conf)        
         raise ValueError("")
         
