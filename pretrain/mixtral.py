@@ -209,11 +209,11 @@ def train(
     save_interval = 12800 / trainingConfig.batch_size    
     eval_interval = 51200 / trainingConfig.batch_size
     save_interval = 51200 / trainingConfig.batch_size
-    eval_interval = 1
     # save_interval = 4096 / trainingConfig.batch_size
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
+    total_time = 0
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
