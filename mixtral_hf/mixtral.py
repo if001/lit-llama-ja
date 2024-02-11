@@ -140,7 +140,7 @@ class MixtralConfig_HF(MixtralConfig):
                 max_position_embeddings=4096
             )
             return cls(**conf)
-        if size == "Mixtral-800M-llm-jp-tk":
+        if size == "Mixtral-700M-llm-jp-tk":
             conf = dict(
                 vocab_size=50570,
                 hidden_size=2048,

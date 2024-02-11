@@ -242,8 +242,8 @@ def train(
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
                 _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
                 loss += config.router_aux_loss_coef*_loss
-            fabric.backward(loss / grad_accum_steps)        
-        exit(0)
+            fabric.backward(loss / grad_accum_steps)
+
         t1 = time.time()
 
         if not is_accumulating:
