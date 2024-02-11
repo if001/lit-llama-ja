@@ -32,7 +32,7 @@ class TrainingConfig():
         self.decay_lr = decay_lr
         self.warmup_iters = warmup_iters
         self.lr_decay_iters = lr_decay_iters
-        self.ds_size = ds_size,
+        self.ds_size = ds_size
         self.use_hf_model = use_hf_model ## huggingfaceのmodelをloadしてtrainingする場合にTrue、mixtralの場合、modelにinput_idsとlabelsを渡すとlossを返す
     def save(self, output_dir):
         """
