@@ -32,7 +32,8 @@ def main(
     quantize: Optional[str] = None,
     model_name: str = "7B",
     eos_id: Optional[int] = None,
-    use_mixtral_moe: bool = False
+    use_mixtral_moe: bool = False,
+    tokenizer_as_pretrained: bool = False,
 ) -> None:
     """Generates text samples based on a pre-trained LLaMA model and tokenizer.
 
@@ -63,7 +64,7 @@ def main(
     print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
 
     model.eval()    
-    tokenizer = HFTokenizer(tokenizer_path)
+    tokenizer = HFTokenizer(tokenizer_path, as_pretrained=as_pretrained)
     encoded = tokenizer.encode(prompt, bos=True, eos=False)
     encoded = encoded.to(dtype=torch.int64)
     encoded = encoded.unsqueeze(0)
