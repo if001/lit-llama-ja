@@ -206,10 +206,10 @@ def train(
     # save_interval = 8192 / trainingConfig.batch_size
     # eval_interval = 8192 / trainingConfig.batch_size
     eval_interval = 12800 / trainingConfig.batch_size
-    save_interval = 12800 / trainingConfig.batch_size
+    save_interval = 12800 / trainingConfig.batch_size    
     eval_interval = 51200 / trainingConfig.batch_size
     save_interval = 51200 / trainingConfig.batch_size
-    
+    eval_interval = 1
     # save_interval = 4096 / trainingConfig.batch_size
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
@@ -254,7 +254,7 @@ def train(
             t1 = time.time()
 
             if val_dataloader is not None and step_count % eval_interval == 0:
-                val_loss = validate(config, fabric, model, val_dataloader, eval_iters=eval_iters)
+                val_loss = validate(config, trainingConfig, fabric, model, val_dataloader, eval_iters=eval_iters)
                 print('-'*100)
                 fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
                 print('-'*100)
@@ -325,6 +325,7 @@ def train(
 @torch.no_grad()
 def validate(
     config: MixtralConfig_HF,
+    trainingConfig: TrainingConfig,
     fabric: L.Fabric, model: torch.nn.Module, 
     val_dataloader: DataLoader, eval_iters = 100
 ) -> torch.Tensor:
@@ -335,13 +336,15 @@ def validate(
         if k >= eval_iters:
             break
         input_ids = val_data[:, 0 : config.hidden_size].contiguous()
-        targets = val_data[:, 1 : config.hidden_size + 1].contiguous()        
-        logits, router_logits = model(input_ids)
-
-        logits, router_logits = model(input_ids)            
-        loss = chunked_cross_entropy(logits, targets, chunk_size=0)
-        _loss = get_load_balance_loss(router_logits, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
-        loss += config.router_aux_loss_coef*_loss
+        targets = val_data[:, 1 : config.hidden_size + 1].contiguous()
+        if trainingConfig.use_hf_model:
+            outputs = model(input_ids, labels=targets)
+            loss = outputs.loss
+        else:
+            logits, router_logits = model(input_ids)
+            loss = chunked_cross_entropy(logits, targets, chunk_size=0)
+            _loss = get_load_balance_loss(router_logits, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
+            loss += config.router_aux_loss_coef*_loss
 
         losses[k] = loss.item()
     out = losses.mean()
