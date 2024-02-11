@@ -214,7 +214,6 @@ def train(
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
-    total_time = 0
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
