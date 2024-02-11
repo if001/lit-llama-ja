@@ -65,7 +65,7 @@ def main(
     print(f"Time to load model: {time.time() - t0:.02f} seconds.", file=sys.stderr)
 
     model.eval()    
-    tokenizer = HFTokenizer(tokenizer_path, as_pretrained=as_pretrained)
+    tokenizer = HFTokenizer(tokenizer_path, as_pretrained=tokenizer_as_pretrained)
     encoded = tokenizer.encode(prompt, bos=True, eos=False)
     encoded = encoded.to(dtype=torch.int64)
     encoded = encoded.unsqueeze(0)
