@@ -51,7 +51,8 @@ def main(
             ``"gptq.int4"``: GPTQ 4-bit mode.
     """
     assert checkpoint_path.is_file(), checkpoint_path
-    assert tokenizer_path.is_file(), tokenizer_path
+    if not tokenizer_as_pretrained:
+        assert tokenizer_path.is_file(), tokenizer_path
 
     print(f"Loading model ...{model_name}", file=sys.stderr)
     t0 = time.time()
