@@ -189,7 +189,7 @@ class PackedDatasetIterator:
                 raise StopIteration
             else:
                 self._file_idx = 0
-
+        print('self._filenames', self._filenames)
         for i in range(self._n_chunks):
             filename = self._filenames[self._file_idx + i]
             if self._dtype is None:
