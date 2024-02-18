@@ -95,6 +95,7 @@ def main(
     precision="16-mixed" ## for v100
     # precision="bf16-mixed" ## for A100    
     if ddp:
+        print('use ddp...')
         fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger, strategy="ddp")
     else:
         fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger)
