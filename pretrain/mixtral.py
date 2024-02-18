@@ -11,6 +11,7 @@ from typing import Tuple, Optional
 import lightning as L
 from lightning.fabric.utilities.load import _lazy_load
 from lightning.pytorch.loggers import TensorBoardLogger
+from lightning.fabric.strategies import DDPStrategy
 
 import torch
 from torch.utils.data import DataLoader
@@ -61,9 +62,10 @@ def main(
     interrupt: bool = False,
     train_data_rate: float = 1.0,
     epoch: int = 1,
-    block_size: int = 4096
+    block_size: int = 4096,
     ## mixtralの場合、hidden_sizeが最大seq_lenとなる。block_sizeがseq_lenを超える場合、切り捨て
-    ## block_sizeはmodel_configのhideen_sizeを参照
+    ## block_sizeはmodel_configのhideen_sizeを参照.
+    ddp: bool = False
 ) -> None:    
 
     trainingConfig = TrainingConfig.from_name(model_size)
@@ -91,8 +93,11 @@ def main(
     logger = TensorBoardLogger(out_log_dir, name="model")
     
     precision="16-mixed" ## for v100
-    # precision="bf16-mixed" ## for A100
-    fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger)
+    # precision="bf16-mixed" ## for A100    
+    if ddp:
+        fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger, strategy="ddp")
+    else:
+        fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger)
 
     fabric.launch()
     fabric.seed_everything(1337)
