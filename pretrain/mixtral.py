@@ -202,7 +202,7 @@ def train(
 
     step_time = 0.0
     tokens = 0
-    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size
+    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size * fabric.device
     tokens_sec = 0.0
     prev_t1 = time.time()
 
@@ -292,8 +292,8 @@ def train(
         dt = t1 - t0
         total_time += dt
 
-        tokens += trainingConfig.micro_batch_size * config.hidden_size
-        total_tokens += trainingConfig.micro_batch_size * config.hidden_size
+        tokens += trainingConfig.micro_batch_size * config.hidden_size * fabric.device
+        total_tokens += trainingConfig.micro_batch_size * config.hidden_size * fabric.device
         step_time += t1 - prev_t1
         prev_t1 = t1
 
