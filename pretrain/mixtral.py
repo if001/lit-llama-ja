@@ -97,6 +97,7 @@ def main(
     if ddp:
         print('use ddp...')
         fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger, strategy="ddp")
+        print('world size: ', fabric.world_size)
     else:
         fabric = L.Fabric(accelerator="auto", devices=devices, precision=precision, loggers=logger)
 
@@ -202,7 +203,7 @@ def train(
 
     step_time = 0.0
     tokens = 0
-    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size * fabric.device
+    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size * fabric.world_size
     tokens_sec = 0.0
     prev_t1 = time.time()
 
@@ -292,8 +293,8 @@ def train(
         dt = t1 - t0
         total_time += dt
 
-        tokens += trainingConfig.micro_batch_size * config.hidden_size * fabric.device
-        total_tokens += trainingConfig.micro_batch_size * config.hidden_size * fabric.device
+        tokens += trainingConfig.micro_batch_size * config.hidden_size * fabric.world_size
+        total_tokens += trainingConfig.micro_batch_size * config.hidden_size * fabric.world_size
         step_time += t1 - prev_t1
         prev_t1 = t1
 
