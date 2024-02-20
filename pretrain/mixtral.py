@@ -372,8 +372,8 @@ def create_dataloader(
     
     for prefix, _ in data_config:
         filenames = glob.glob(os.path.join(data_dir, prefix + "*"))
-        n_chunks = len(filenames) - 1
-        # n_chunks = 4 ## default
+        # n_chunks = len(filenames) - 1
+        n_chunks = 4 ## default
         dataset = PackedDataset(
             filenames, n_chunks=n_chunks, block_size=block_size, shuffle=shuffle, seed=seed,
             num_processes=fabric.world_size, process_rank=fabric.global_rank, wrap=True
