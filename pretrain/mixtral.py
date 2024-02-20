@@ -309,8 +309,6 @@ def train(
             fabric.print(
                     f"iter {iter_num}: loss {loss.item():.4f}, lr: {lr}, step_count: {step_count}, tokens: {_tokens_str}, total tokens: {_total_tokens_str}({_per:.2f}%), total time: {_h}h{_m:.2f}m"
             )
-            print('debug iter_num % log_interval == 0:', iter_num)
-            fabric.print('debug (fabric):iter_num % log_interval == 0:', iter_num)
             try:
                 fabric.log_dict(
                     {"iter": iter_num, "train_loss": loss, "step": step_count, "lr": lr}, step=iter_num
