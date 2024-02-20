@@ -55,12 +55,7 @@ class PackedDataset(IterableDataset):
         max_num_files = len(self._filenames) // num_shards * num_shards
         filenames = self._filenames[shard_id : max_num_files : num_shards]
         if max_num_files == 0:
-            print('self._filenames', self._filenames)
-            print('num_shards', num_shards)
-            print('max_num_files', max_num_files)
-            print('shard_id : max_num_files : num_shards', shard_id, max_num_files, num_shards)
-            print('filenames', filenames)
-            
+            filenames = self._filenames
 
         return PackedDatasetIterator(
             filenames=filenames,
@@ -198,7 +193,6 @@ class PackedDatasetIterator:
                 self._file_idx = 0
         
         for i in range(self._n_chunks):
-            print('debug: ', len(self._filenames), self._file_idx + i)
             filename = self._filenames[self._file_idx + i]
             if self._dtype is None:
                 self._dtype, self._chunk_size = self._read_header(
