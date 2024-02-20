@@ -54,6 +54,12 @@ class PackedDataset(IterableDataset):
 
         max_num_files = len(self._filenames) // num_shards * num_shards
         filenames = self._filenames[shard_id : max_num_files : num_shards]
+        if len(self._filenames) == 1:
+            print('num_shards', num_shards)
+            print('max_num_files', max_num_files)
+            print('shard_id : max_num_files : num_shards', shard_id, max_num_files, num_shards)
+            print('filenames', filenames)
+            
 
         return PackedDatasetIterator(
             filenames=filenames,
