@@ -195,7 +195,8 @@ class PackedDatasetIterator:
         print(self._filenames, self._file_idx)
         print(self._n_chunks, len(self._filenames[self._file_idx:]))
         print('-----')
-        
+        if len(self._filenames) == 1:
+            self._n_chunks = 1
         for i in range(self._n_chunks):
             print('debug', len(self._filenames), self._file_idx + i)
             filename = self._filenames[self._file_idx + i]
