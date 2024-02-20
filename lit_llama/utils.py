@@ -112,15 +112,18 @@ def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
     else:
         state_dict = model.state_dict()
 
-    print('fabric.global_rank', fabric.global_rank)
-    if fabric.global_rank == 0:
-        torch.save(state_dict, file_path)
-        fabric_dir = Path(f"{out_dir}/fabric")
-        print('save to....')
-        fabric.save(fabric_dir, {"model": model})
-        print('saved ....')
-    keep_file(out_dir, max_files=3)
+    torch.save(state_dict, file_path)
+    fabric_dir = Path(f"{out_dir}/fabric")
+    print('save to....')
+    fabric.save(fabric_dir, {"model": model})
+    print('saved ....')
+    # if fabric.global_rank == 0:
+    #     torch.save(state_dict, file_path)
+    #     fabric_dir = Path(f"{out_dir}/fabric")
+    #     fabric.save(fabric_dir, {"model": model})    
     # fabric.barrier()
+    keep_file(out_dir, max_files=3)
+    
     fabric.print('save done...')
 
 class EmptyInitOnDevice(torch.overrides.TorchFunctionMode):
