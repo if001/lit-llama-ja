@@ -167,7 +167,7 @@ def main(
 
     ds_size = int(trainingConfig.ds_size  * train_data_rate)
     
-    print("ds size:", format_number(ds_size))
+    fabric.print("ds size:", format_number(ds_size))
     train(config, trainingConfig, fabric, model, optimizer, train_dataloader, 
           val_dataloader, gradient_accumulation_iters, devices, str(out_model_dir), 
           restart_iter, interrupt, model_size, ds_size)
