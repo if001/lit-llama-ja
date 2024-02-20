@@ -223,11 +223,13 @@ def train(
     # eval_interval = 100
     save_interval = 1024/4
     eval_interval = 1024/4
+    log_interval = 100
     total_time = 0
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
         print('debug iter_num:', iter_num)
+        fabric.print('debug iter_num:', iter_num)
         t0 = time.time()
 
         # determine and set the learning rate for this iteration
@@ -251,6 +253,7 @@ def train(
                 _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
                 loss += config.router_aux_loss_coef*_loss
             print('debug backward:', iter_num)
+            fabric.print('debug backward:', iter_num)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
@@ -266,9 +269,7 @@ def train(
 
             if val_dataloader is not None and step_count % eval_interval == 0:
                 val_loss = validate(config, trainingConfig, fabric, model, val_dataloader, eval_iters=eval_iters)
-                print('-'*100)
-                fabric.print(f"iter: {iter_num},  val loss: {val_loss:.4f}")
-                print('-'*100)
+                fabric.print('-'*100 + '\n' + f"iter: {iter_num},  val loss: {val_loss:.4f}" + "\n" + '-'*100)
                 fabric.barrier()
                 l = {"iter": iter_num, "val_loss": val_loss, "step": step_count, "lr": lr}
                 try:
@@ -287,9 +288,7 @@ def train(
                 ## fabric.loggers[0].save()
 
             if step_count % save_interval == 0:
-                fabric.print("-"*100)
-                fabric.print(f"Saving checkpoint to {out_dir}/iter-{iter_num:06d}-ckpt.pth")
-                fabric.print("-"*100)
+                fabric.print("-"*100 + "\n" + f"Saving checkpoint to {out_dir}/iter-{iter_num:06d}-ckpt.pth" + "\n" + "-"*100)
                 save_model_checkpoint_with_fabric(
                     fabric, model, out_dir, f"iter-{iter_num:06d}-ckpt.pth"
                 )
