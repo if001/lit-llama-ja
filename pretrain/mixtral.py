@@ -375,8 +375,8 @@ def create_dataloader(
         # n_chunks = len(filenames)
         n_chunks = 4 ## default
         # n_chunks = 2 ## for multi gpu
-
-        print('debug filenames', filenames)
+        if not shuffle:
+            print('debug filenames', filenames)
         dataset = PackedDataset(
             filenames, n_chunks=n_chunks, block_size=block_size, shuffle=shuffle, seed=seed,
             num_processes=fabric.world_size, process_rank=fabric.global_rank, wrap=True
