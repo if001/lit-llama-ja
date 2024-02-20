@@ -333,7 +333,8 @@ def validate(
     config: MixtralConfig_HF,
     trainingConfig: TrainingConfig,
     fabric: L.Fabric, model: torch.nn.Module, 
-    val_dataloader: DataLoader, eval_iters = 100
+    val_dataloader: DataLoader, 
+    eval_iters = 100
 ) -> torch.Tensor:
     fabric.print("Validating ...")
     model.eval()
@@ -374,6 +375,8 @@ def create_dataloader(
         # n_chunks = len(filenames)
         n_chunks = 4 ## default
         # n_chunks = 2 ## for multi gpu
+
+        print('debug filenames', filenames)
         dataset = PackedDataset(
             filenames, n_chunks=n_chunks, block_size=block_size, shuffle=shuffle, seed=seed,
             num_processes=fabric.world_size, process_rank=fabric.global_rank, wrap=True
