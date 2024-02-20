@@ -204,7 +204,8 @@ def train(
 
     step_time = 0.0
     tokens = 0
-    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size * fabric.world_size
+    # total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size * fabric.world_size
+    total_tokens = restart_iter * trainingConfig.micro_batch_size * config.hidden_size ## 途中からマルチGPUにしたので実際はfabric.world_sizeをかける
     tokens_sec = 0.0
     prev_t1 = time.time()
 
@@ -222,7 +223,7 @@ def train(
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
-    eval_interval = 100
+    eval_interval = 10
     log_interval = 100
     total_time = 0
 
