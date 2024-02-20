@@ -79,9 +79,9 @@ def keep_file(out_dir, max_files=3):
 
     pattern = re.compile(r'iter-(\d+)-ckpt\.pth$')
     filtered_files = [f for f in files if pattern.match(f)]
-
+    print('keep1')
     sorted_files = sorted(filtered_files, key=lambda x: int(pattern.match(x).group(1)), reverse=True)
-    
+    print('keep2', sorted_files[max_files:])
     for file in sorted_files[max_files:]:
         remove_file = os.path.join(out_dir, file)
         print('remove', str(remove_file))
@@ -112,10 +112,13 @@ def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
     else:
         state_dict = model.state_dict()
 
+    print('fabric.global_rank', fabric.global_rank)
     if fabric.global_rank == 0:
         torch.save(state_dict, file_path)
         fabric_dir = Path(f"{out_dir}/fabric")
+        print('save to....')
         fabric.save(fabric_dir, {"model": model})
+        print('saved ....')
     keep_file(out_dir, max_files=3)
     # fabric.barrier()
     fabric.print('save done...')
