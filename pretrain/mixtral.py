@@ -198,7 +198,7 @@ def train(
 
     Loosely based on the nanoGPT implementation: https://github.com/karpathy/nanoGPT.
     """
-    print('debug: start train')
+    
     fabric.print('debug(fabric): start train')
     step_count = 0
 
@@ -229,8 +229,6 @@ def train(
 
     for iter_num, train_data in enumerate(train_dataloader):
         iter_num = iter_num + restart_iter
-        print('debug iter_num:', iter_num)
-        fabric.print('debug iter_num(fabric):', iter_num)
         t0 = time.time()
 
         # determine and set the learning rate for this iteration
@@ -253,8 +251,6 @@ def train(
                 loss = chunked_cross_entropy(logits, targets, chunk_size=0)
                 _loss = get_load_balance_loss(router_logit, top_k=config.num_experts_per_tok, num_experts=config.num_local_experts)
                 loss += config.router_aux_loss_coef*_loss
-            print('debug backward:', iter_num)
-            fabric.print('debug backward(fabric):', iter_num)
             fabric.backward(loss / grad_accum_steps)
 
         t1 = time.time()
