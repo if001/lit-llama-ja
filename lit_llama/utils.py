@@ -117,7 +117,7 @@ def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
         fabric_dir = Path(f"{out_dir}/fabric")
         fabric.save(fabric_dir, {"model": model})
     keep_file(out_dir, max_files=3)
-    fabric.barrier()
+    # fabric.barrier()
     fabric.print('save done...')
 
 class EmptyInitOnDevice(torch.overrides.TorchFunctionMode):
