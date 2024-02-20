@@ -192,6 +192,10 @@ class PackedDatasetIterator:
             else:
                 self._file_idx = 0
         
+        print(self._filenames, self._file_idx)
+        print(self._n_chunks, len(self._filenames[self._file_idx:]))
+        print('-----')
+        
         for i in range(self._n_chunks):
             filename = self._filenames[self._file_idx + i]
             if self._dtype is None:
