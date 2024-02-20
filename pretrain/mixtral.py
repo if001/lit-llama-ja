@@ -283,7 +283,6 @@ def train(
                 ## fabric.loggers[0].save()
 
             if step_count % save_interval == 0:
-                fabric.print("-"*100 + "\n" + f"Saving checkpoint to {out_dir}/iter-{iter_num:06d}-ckpt.pth" + "\n" + "-"*100)
                 save_model_checkpoint_with_fabric(
                     fabric, model, out_dir, f"iter-{iter_num:06d}-ckpt.pth"
                 )
