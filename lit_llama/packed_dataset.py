@@ -197,7 +197,6 @@ class PackedDatasetIterator:
                 self._file_idx = 0
 
         for i in range(self._n_chunks):
-            print('debug', len(self._filenames), self._file_idx + i)
             filename = self._filenames[self._file_idx + i]
             if self._dtype is None:
                 self._dtype, self._chunk_size = self._read_header(
