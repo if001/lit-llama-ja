@@ -222,8 +222,7 @@ def train(
     # eval_interval = 4096 / trainingConfig.batch_size
     # save_interval = 500
     # eval_interval = 100
-    save_interval = 1024/4
-    eval_interval = 1024/4
+    eval_interval = 100
     log_interval = 100
     total_time = 0
 
