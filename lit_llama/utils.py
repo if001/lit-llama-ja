@@ -113,14 +113,13 @@ def save_model_checkpoint_with_fabric(fabric, model, out_dir, file_name):
         state_dict = model.state_dict()
 
     if fabric.global_rank == 0:
-        print('save torch...', file_path)
+        fabric.print('save torch...', file_path)
         torch.save(state_dict, file_path)
         keep_file(out_dir, max_files=3)
-
-    print('fabric save to....')
+    
     fabric_dir = Path(f"{out_dir}/fabric")
     fabric.save(fabric_dir, {"model": model})
-    print('saved ....')
+    fabric.print('fabric saved...')
     # if fabric.global_rank == 0:
     #     torch.save(state_dict, file_path)
     #     fabric_dir = Path(f"{out_dir}/fabric")
