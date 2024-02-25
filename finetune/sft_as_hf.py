@@ -169,6 +169,10 @@ else:
     device_map = None
     quantization_config = None
     torch_dtype = None
+
+print('script_args.from_checkpoint', script_args.from_checkpoint)
+print('script_args.from_checkpoint is None: ', script_args.from_checkpoint is None)
+print('script_args.from_checkpoint is not None', script_args.from_checkpoint is not None)
 if script_args.from_checkpoint is not None:
     print('load from checkpoint...', script_args.from_checkpoint)
     model = AutoModelForCausalLM.from_pretrained(script_args.from_checkpoint)
