@@ -136,10 +136,10 @@ class ScriptArguments:
     gradient_checkpointing: Optional[bool] = field(
         default=False, metadata={"help": "Whether to use gradient checkpointing or no"}
     )
-    target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})    
+    target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})
     train_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
     test_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
-    from_checkpoint: Optional[str] = field(default=None, metadata={"help": "checkpoint dir"})
+    from_checkpoint: Optional[str] = field(default="", metadata={"help": "checkpoint dir"})
 
 parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
@@ -170,13 +170,10 @@ else:
     quantization_config = None
     torch_dtype = None
 
-print('script_args.from_checkpoint', script_args.from_checkpoint)
-print('script_args.from_checkpoint is None: ', script_args.from_checkpoint is None)
-print('script_args.from_checkpoint is not None', script_args.from_checkpoint is not None)
-if script_args.from_checkpoint is not None:
+if script_args.from_checkpoint != "":
     print('load from checkpoint...', script_args.from_checkpoint)
     model = AutoModelForCausalLM.from_pretrained(script_args.from_checkpoint)
-else:    
+else:
     model = AutoModelForCausalLM.from_pretrained(
         script_args.model_name,
         quantization_config=quantization_config,
