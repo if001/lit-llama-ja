@@ -234,7 +234,7 @@ trainer = TrainerWrapped(
     tokenizer=tokenizer
 )
 
-resume_from_checkpoint=script_args.from_checkpoint is not None
+resume_from_checkpoint=script_args.from_checkpoint != ""
 print("resume_from_checkpoint", resume_from_checkpoint)
 trainer.train(resume_from_checkpoint=resume_from_checkpoint)
 
