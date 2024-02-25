@@ -139,7 +139,7 @@ class ScriptArguments:
     target_modules: Optional[List[str]] = field(default=None, metadata={"help": "Target modules for LoRA adapters"})    
     train_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
     test_data_file: Optional[str] = field(default=1024, metadata={"help": "temp dataset save dir"})
-    from_checkpoint: Optional[str] = field(default="", metadata={"help": "checkpoint dir"})
+    from_checkpoint: Optional[str] = field(default=None, metadata={"help": "checkpoint dir"})
 
 parser = HfArgumentParser(ScriptArguments)
 script_args = parser.parse_args_into_dataclasses()[0]
@@ -193,7 +193,7 @@ training_args = TrainingArguments(
     logging_steps=script_args.logging_steps,
     num_train_epochs=script_args.num_train_epochs,
     max_steps=script_args.max_steps,
-    report_to=None,
+    report_to="none",
     save_steps=script_args.save_steps,
     save_total_limit=script_args.save_total_limit,
     eval_steps=script_args.eval_steps,
