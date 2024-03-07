@@ -124,4 +124,30 @@ class TrainingConfig():
                 use_hf_model=True
             )
             return cls(**conf)
+        if (model_size == "Mixtral-600M-llm-jp-tk"):
+            block_size = 1024
+            # ds_size = 8e+9
+            ds_size = 5.29e+9  ## without oscar ds size
+            batch_size = 128
+            micro_batch_size = 4
+            one_iters = int(ds_size/(block_size*micro_batch_size))
+            max_iters = one_iters
+            conf = dict(
+                model_size=model_size,
+                learning_rate=1e-4,
+                min_lr=1e-5,
+                batch_size=batch_size,
+                micro_batch_size=micro_batch_size,
+                max_iters=max_iters,
+                weight_decay=0.001,
+                beta1=0.9,
+                beta2=0.95,
+                grad_clip=1.0,
+                decay_lr=True,
+                warmup_iters=500,
+                lr_decay_iters=max_iters,
+                ds_size=ds_size,
+                use_hf_model=True
+            )
+            return cls(**conf)
         raise ValueError("invalid model size", model_size)
