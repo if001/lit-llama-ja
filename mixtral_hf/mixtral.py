@@ -2,7 +2,7 @@ import json
 from typing import Optional, Tuple, List
 import torch
 
-from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM
+from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM, 
 from transformers.models.mixtral.configuration_mixtral import MixtralConfig
 
 
@@ -156,5 +156,21 @@ class MixtralConfig_HF(MixtralConfig):
                 max_position_embeddings=2048
             )
             return cls(**conf)        
+        if size == "Mixtral-600M-llm-jp-tk":
+            conf = dict(
+                vocab_size=50570,
+                hidden_size=1024,
+                intermediate_size=2400,
+                num_hidden_layers=6,
+                num_attention_heads=4,
+                num_key_value_heads=2,
+                bos_token_id=1,
+                eos_token_id=2,
+                pad_token_id=4,
+                num_experts_per_tok=2,
+                num_local_experts=5,
+                max_position_embeddings=1024
+            )
+            return cls(**conf) 
         raise ValueError("")
         

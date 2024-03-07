@@ -28,6 +28,8 @@ from lit_llama.utils import save_model_checkpoint, save_model_checkpoint_with_fa
 
 from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM
 from mixtral_hf.mixtral import MixtralConfig_HF, MixtralForCausalLM_HF
+from mixtral_hf.shared_mixtral import SharedMixtralForCausalLM
+
 from mixtral_hf.traning_config import TrainingConfig
 
 from lit_llama.moe_module import get_load_balance_loss
@@ -136,7 +138,8 @@ def main(
         # torch.set_default_dtype(torch.float16)
         print('dtype: ', torch.get_default_dtype())
         # model = MixtralForCausalLM_HF(config) ## lossの計算をoverrideしたモデル
-        model = MixtralForCausalLM(config) ## original
+        # model = MixtralForCausalLM(config) ## original
+        model = SharedMixtralForCausalLM(config)  ## layerをsharedして深くしたモデル
         print(model)        
         model.apply(model._init_weights)
         # torch.set_default_dtype(torch.float32)
