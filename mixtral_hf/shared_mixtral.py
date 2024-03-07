@@ -18,10 +18,9 @@ class SharedMixtral(MixtralModel):
         modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
         self.layers = nn.ModuleList(modules)
 
-class SharedMixtralForCausalLM(MixtralPreTrainedModel):
+class SharedMixtralForCausalLM(MixtralForCausalLM):
     def __init__(self, config):
         super().__init__(config)
-        print('degug!!')
         self.model = SharedMixtral(config)
 
 # from  mixtral import MixtralConfig_HF
