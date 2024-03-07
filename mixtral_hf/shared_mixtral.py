@@ -5,7 +5,7 @@ import torch
 from torch.nn import CrossEntropyLoss
 
 from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM, MixtralModel,MixtralDecoderLayer, load_balancing_loss_func
-from transformers.models.modeling_outputs import (
+from transformers.modeling_outputs import (
     MoeCausalLMOutputWithPast,
     MoeModelOutputWithPast,
     SequenceClassifierOutputWithPast,
