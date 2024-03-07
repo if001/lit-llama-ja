@@ -124,7 +124,7 @@ class TrainingConfig():
                 use_hf_model=True
             )
             return cls(**conf)
-        if (model_size == "Mixtral-280M-llm-jp-tk"):
+        if (model_size == "Mixtral-300M-llm-jp-tk"):
             block_size = 1024
             # ds_size = 8e+9
             ds_size = 5.29e+9  ## without oscar ds size
