@@ -162,14 +162,14 @@ class MixtralConfig_HF(MixtralConfig):
                 hidden_size=1024,
                 intermediate_size=2400,
                 num_hidden_layers=10,
-                num_attention_heads=6,
+                num_attention_heads=4,
                 num_key_value_heads=2,
                 bos_token_id=1,
                 eos_token_id=2,
                 pad_token_id=4,
                 num_experts_per_tok=2,
                 num_local_experts=6,
-                max_position_embeddings=1024
+                max_position_embeddings=2048
             )
             return cls(**conf) 
         raise ValueError("")
