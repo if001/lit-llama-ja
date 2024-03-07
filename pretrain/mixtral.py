@@ -245,6 +245,8 @@ def train(
 
         with fabric.no_backward_sync(model, enabled=is_accumulating):
             if trainingConfig.use_hf_model:
+                print("input_ids", input_ids.shape)
+                print("targets", targets.shape)
                 outputs = model(input_ids, labels=targets)
                 loss = outputs.loss
             else:
