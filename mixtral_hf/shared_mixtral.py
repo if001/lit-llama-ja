@@ -11,3 +11,6 @@ class SharedMixtral(MixtralModel):
 class SharedMixtralForCausalLM(SharedMixtral):
     def __init__(self, config):
         super().__init__(config)
+
+    def forward(self, *args, **kwargs):
+        super().forward(*args, **kwargs)
