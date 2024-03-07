@@ -407,7 +407,7 @@ def create_dataloaders(
         ('wikipedia-ja-20230720', train_data_rate),
         ('wikipedia-en-20230720', train_data_rate),
         ('open-text-books', train_data_rate),
-        # ('oscar_2023_filtered', train_data_rate),
+        ('oscar_2023_filtered', train_data_rate),
         ('aozorabunko-clean-sin',train_data_rate)
     ]
     val_data_config = [
