@@ -4,11 +4,11 @@ from torch import nn
 import torch
 from torch.nn import CrossEntropyLoss
 
-from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM, MixtralModel,MixtralDecoderLayer, load_balancing_loss_func
-from transformers.modeling_outputs import (
-    MoeCausalLMOutputWithPast,
-    MoeModelOutputWithPast,
-    SequenceClassifierOutputWithPast,
+from transformers.models.mixtral.modeling_mixtral import (
+    MixtralForCausalLM, 
+    MixtralModel,
+    MixtralDecoderLayer, 
+    MixtralPreTrainedModel
 )
 
 class SharedMixtral(MixtralModel):
@@ -18,9 +18,11 @@ class SharedMixtral(MixtralModel):
         modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
         self.layers = nn.ModuleList(modules)
 
-class SharedMixtralForCausalLM(SharedMixtral):
+class SharedMixtralForCausalLM(MixtralPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
+        self.model = SharedMixtral(config)
+        
 
     def forward(
         self,
@@ -129,3 +131,8 @@ class SharedMixtralForCausalLM(SharedMixtral):
             attentions=outputs.attentions,
             router_logits=outputs.router_logits,
         )
+
+
+# from  mixtral import MixtralConfig_HF
+# config = MixtralConfig_HF.from_name("Mixtral-300M-llm-jp-tk")
+# model = SharedMixtralForCausalLM(config)
