@@ -2,7 +2,7 @@ import json
 from typing import Optional, Tuple, List
 import torch
 
-from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM, 
+from transformers.models.mixtral.modeling_mixtral import MixtralForCausalLM
 from transformers.models.mixtral.configuration_mixtral import MixtralConfig
 
 
