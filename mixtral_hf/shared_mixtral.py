@@ -16,8 +16,8 @@ class SharedMixtral(MixtralModel):
         super().__init__(config)
         num_layer = config.num_hidden_layers // 2
         
-        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
-        modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)]
+        modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
+        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)]
         self.layers = nn.ModuleList(modules)
 
 class SharedMixtralForCausalLM(MixtralForCausalLM):
