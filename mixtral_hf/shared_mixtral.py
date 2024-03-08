@@ -14,15 +14,10 @@ from transformers.models.mixtral.modeling_mixtral import (
 class SharedMixtral(MixtralModel):
     def __init__(self, config):
         super().__init__(config)
-        # num_layer = config.num_hidden_layers // 2        
-        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
+        num_layer = config.num_hidden_layers // 2        
+        modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
 
-        m1 = MixtralDecoderLayer(config, 0)
-        m2 = MixtralDecoderLayer(config, 1)
-        m3 = MixtralDecoderLayer(config, 2)
-
-        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)]
-        self.layers = nn.ModuleList([m1, m2, m2])
+        self.layers = nn.ModuleList(modules)
 
 class SharedMixtralForCausalLM(MixtralForCausalLM):
     def __init__(self, config):
@@ -30,5 +25,9 @@ class SharedMixtralForCausalLM(MixtralForCausalLM):
         self.model = SharedMixtral(config)
 
 # from  mixtral import MixtralConfig_HF
-# config = MixtralConfig_HF.from_name("Mixtral-300M-llm-jp-tk")
+# config = MixtralConfig_HF.from_name("debug")
 # model = SharedMixtralForCausalLM(config)
+
+# input_ids=torch.tensor([[1,2,3,4]])
+# labels=torch.tensor([[1,2,3,4]])
+# model(input_ids=input_ids, labels=labels)

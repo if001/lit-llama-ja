@@ -110,6 +110,21 @@ class MixtralConfig_HF(MixtralConfig):
         
     @classmethod
     def from_name(cls, size='7B'):
+        if size == "debug":
+            conf = dict(
+                hidden_size=20,
+                intermediate_size=10,
+                num_hidden_layers=3,
+                num_attention_heads=2,
+                num_key_value_heads=1,
+                bos_token_id=1,
+                eos_token_id=2,
+                pad_token_id=0,
+                num_experts_per_tok=1,
+                num_local_experts=2,
+                use_cache=False
+            )
+            return cls(**conf)
         if size == "Mixtral-100M":
             conf = dict(
                 hidden_size=640,
@@ -169,7 +184,8 @@ class MixtralConfig_HF(MixtralConfig):
                 pad_token_id=4,
                 num_experts_per_tok=2,
                 num_local_experts=6,
-                max_position_embeddings=2048
+                max_position_embeddings=2048,
+                use_cache=False
             )
             return cls(**conf) 
         raise ValueError("")
