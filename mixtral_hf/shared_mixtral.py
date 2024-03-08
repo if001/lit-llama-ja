@@ -22,7 +22,7 @@ class SharedMixtral(MixtralModel):
         m3 = MixtralDecoderLayer(config, 0)
 
         # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)]
-        self.layers = nn.ModuleList([m1, m1, m2, m2, m3, m3])
+        self.layers = nn.ModuleList([m1, m2, m2, m3, m3])
 
 class SharedMixtralForCausalLM(MixtralForCausalLM):
     def __init__(self, config):
