@@ -14,11 +14,15 @@ from transformers.models.mixtral.modeling_mixtral import (
 class SharedMixtral(MixtralModel):
     def __init__(self, config):
         super().__init__(config)
-        num_layer = config.num_hidden_layers // 2
-        
-        modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
+        # num_layer = config.num_hidden_layers // 2        
+        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
+
+        m1 = MixtralDecoderLayer(config, 0)
+        m2 = MixtralDecoderLayer(config, 0)
+        m3 = MixtralDecoderLayer(config, 0)
+
         # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)]
-        self.layers = nn.ModuleList(modules)
+        self.layers = nn.ModuleList([m1, m1, m2, m2, m3, m3])
 
 class SharedMixtralForCausalLM(MixtralForCausalLM):
     def __init__(self, config):
