@@ -14,9 +14,9 @@ from transformers.models.mixtral.modeling_mixtral import (
 class SharedMixtral(MixtralModel):
     def __init__(self, config):
         super().__init__(config)
-        # num_layer = config.num_hidden_layers // 2
-        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
-        modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(config.num_hidden_layers)]
+        num_layer = config.num_hidden_layers // 2
+        modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(num_layer)] * 2
+        # modules = [MixtralDecoderLayer(config, layer_idx) for layer_idx in range(config.num_hidden_layers)]
 
         self.layers = nn.ModuleList(modules)
 
