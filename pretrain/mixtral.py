@@ -142,6 +142,7 @@ def main(
         model = SharedMixtralForCausalLM(config)  ## layerをsharedして深くしたモデル
         print(model)        
         model.apply(model._init_weights)
+        torch.set_default_dtype(torch.float16)
         # torch.set_default_dtype(torch.float32)
         if load_dir:
             print('load from checkpoint...', load_dir)
