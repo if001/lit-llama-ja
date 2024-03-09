@@ -114,7 +114,7 @@ class MixtralConfig_HF(MixtralConfig):
             conf = dict(
                 hidden_size=20,
                 intermediate_size=10,
-                num_hidden_layers=3,
+                num_hidden_layers=2,
                 num_attention_heads=2,
                 num_key_value_heads=1,
                 bos_token_id=1,
@@ -122,7 +122,8 @@ class MixtralConfig_HF(MixtralConfig):
                 pad_token_id=0,
                 num_experts_per_tok=1,
                 num_local_experts=2,
-                use_cache=False
+                use_cache=False,
+                # _attn_implementation="flash_attention_2"
             )
             return cls(**conf)
         if size == "Mixtral-100M":
@@ -185,7 +186,8 @@ class MixtralConfig_HF(MixtralConfig):
                 num_experts_per_tok=2,
                 num_local_experts=6,
                 max_position_embeddings=2048,
-                use_cache=False
+                use_cache=False,
+                _attn_implementation="flash_attention_2"
             )
             return cls(**conf) 
         raise ValueError("")
