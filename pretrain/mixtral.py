@@ -135,14 +135,14 @@ def main(
 
     with fabric.device:
         # torch.set_default_dtype(torch.bfloat16)
-        torch.set_default_dtype(torch.float16)
+        # torch.set_default_dtype(torch.float16)
         print('dtype: ', torch.get_default_dtype())
         # model = MixtralForCausalLM_HF(config) ## lossの計算をoverrideしたモデル
         # model = MixtralForCausalLM(config) ## original
         model = SharedMixtralForCausalLM(config)  ## layerをsharedして深くしたモデル
         print(model)        
         model.apply(model._init_weights)
-        torch.set_default_dtype(torch.float32)
+        # torch.set_default_dtype(torch.float32)
         if load_dir:
             print('load from checkpoint...', load_dir)
             state_dict = _lazy_load(load_dir)
