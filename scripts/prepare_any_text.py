@@ -10,7 +10,7 @@ import torch
 import requests
 import json
 from torch.utils.data import random_split
-from lit_llama.tokenizer import Tokenizer
+from lit_llama.tokenizer import Tokenizer, HFTokenizer
 from tqdm import tqdm
 
 
@@ -26,7 +26,8 @@ def prepare(
     max_seq_length: int = 256,
     seed: int = 42,
     data_file_name: str = DATA_FILE_NAME,
-    key: str = "text"
+    key: str = "text",
+    tokenizer_as_pretrained: bool,
 ) -> None:
     """Prepare any dataset for finetuning (akin to Shakespheare full tuning).
 
@@ -40,7 +41,8 @@ def prepare(
         raise AssertionError(f"{data_file_name} is provided by the user")
 
     # TODO: If we don't have the Meta weights, where do we get the tokenizer from?
-    tokenizer = Tokenizer(tokenizer_path)
+    # tokenizer = Tokenizer(tokenizer_path)
+    tokenizer = HFTokenizer(model_path=tokenizer_path, as_pretrained=tokenizer_as_pretrained)
 
     data = []
 
