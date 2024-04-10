@@ -68,8 +68,7 @@ def prepare_for_dataset(
             dtype="auto",
             vocab_size=tokenizer.vocab_size,
         )
-        if '.jsonl' in dataset_id:
-            print('data-id', dataset_id)
+        if '.jsonl' in dataset_id or '.json' in dataset_id:
             ds = load_dataset('json', data_files=dataset_id, split='train')
         else:
             ds = load_dataset(dataset_id, split="train")
