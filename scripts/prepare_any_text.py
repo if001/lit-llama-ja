@@ -27,7 +27,7 @@ def prepare(
     seed: int = 42,
     data_file_name: str = DATA_FILE_NAME,
     key: str = "text",
-    tokenizer_as_pretrained: bool,
+    tokenizer_as_pretrained: bool = False
 ) -> None:
     """Prepare any dataset for finetuning (akin to Shakespheare full tuning).
 
