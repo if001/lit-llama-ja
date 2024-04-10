@@ -81,7 +81,8 @@ def prepare_for_dataset(
         else:
             cnt = 0
             for v in ds:
-                print('debug: ', v['text'])
+                print('debug0: ', v)
+                print('debug1: ', v['text'])
                 text_ids = tokenizer.encode(v['text'])
                 token_cnt += len(text_ids)
                 builder.add_array(np.array(text_ids, dtype=builder.dtype))
