@@ -26,6 +26,7 @@ def prepare(
     max_seq_length: int = 256,
     seed: int = 42,
     data_file_name: str = DATA_FILE_NAME,
+    key: str = "text"
 ) -> None:
     """Prepare any dataset for finetuning (akin to Shakespheare full tuning).
 
@@ -62,13 +63,13 @@ def prepare(
 
     print("Processing train split ...")
     train_set = [
-        prepare_line(line, tokenizer, max_seq_length) for line in tqdm(train_set)
+        prepare_line(line[key], tokenizer, max_seq_length) for line in tqdm(train_set)
     ]
     torch.save(train_set, file_path.parent / "train.pt")
 
     print("Processing test split ...")
     test_set = [
-        prepare_line(line, tokenizer, max_seq_length) for line in tqdm(test_set)
+        prepare_line(line[key], tokenizer, max_seq_length) for line in tqdm(test_set)
     ]
     torch.save(test_set, file_path.parent / "test.pt")
 
