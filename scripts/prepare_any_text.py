@@ -48,7 +48,8 @@ def prepare(
 
     with open(file_path, "r") as input_file:
         for line in input_file.readlines():
-            data.append(line)
+            print('line', line)
+            data.append(json.loads(line))
 
     # Partition the dataset into train and test
     train_split_size = int(len(data) * test_split_ratio)
