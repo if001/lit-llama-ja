@@ -49,6 +49,7 @@ def prepare_for_dataset(
     tokenizer_as_pretrained: bool,
     destination_path: Path,
     chunk_size: int,
+    prefix: str
 ) -> None:
     destination_path.mkdir(parents=True, exist_ok=True)
     # tokenizer = Tokenizer(tokenizer_path)    
@@ -57,7 +58,8 @@ def prepare_for_dataset(
     for dataset_id in dataset_ids:
         token_cnt = 0
         print(f"Processing {dataset_ids}")
-        prefix = dataset_id.split('/')[-1]
+        if prefix is None:
+            prefix = dataset_id.split('/')[-1]
         builder = packed_dataset.PackedDatasetBuilder(
             outdir=destination_path,
             prefix=prefix,
@@ -67,9 +69,9 @@ def prepare_for_dataset(
             vocab_size=tokenizer.vocab_size,
         )
         if '.jsonl' in dataset_id:
-            ds = load_dataset(dataset_id, split="train")
-        else:
             ds = load_dataset('json', data_files=dataset_id)
+        else:
+            ds = load_dataset(dataset_id, split="train")
 
         if 'aozora' in dataset_id:
             for v in ds['text']:
