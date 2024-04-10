@@ -70,6 +70,7 @@ def prepare_for_dataset(
         )
         if '.jsonl' in dataset_id:
             ds = load_dataset('json', data_files=dataset_id)
+            print('ds', ds)
         else:
             ds = load_dataset(dataset_id, split="train")
 
