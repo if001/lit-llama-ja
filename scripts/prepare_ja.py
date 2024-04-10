@@ -49,7 +49,7 @@ def prepare_for_dataset(
     tokenizer_as_pretrained: bool,
     destination_path: Path,
     chunk_size: int,
-    prefix: str
+    prefix: str = None
 ) -> None:
     destination_path.mkdir(parents=True, exist_ok=True)
     # tokenizer = Tokenizer(tokenizer_path)    
