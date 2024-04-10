@@ -81,7 +81,6 @@ def prepare_line(line: str, tokenizer: Tokenizer, max_length: int):
 
     This function processes the line to produce the tokenized version of it.
     """
-    print('line', line[:100])
     encoded_full_prompt = tokenize(tokenizer, line, max_length=max_length, eos=False)
     return {
         "input_ids": encoded_full_prompt,
